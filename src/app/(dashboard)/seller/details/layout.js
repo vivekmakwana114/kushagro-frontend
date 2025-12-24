@@ -1,0 +1,31 @@
+"use client";
+import ClientSidebar from "@/components/common/ClientSidebar";
+import { sellerSidebarItems } from "@/components/common/SidebarData";
+import React from "react";
+
+export default function MyStorePageLayout({ children }) {
+  return (
+    <div className="flex h-full relative">
+      {/* Desktop: Normal sidebar */}
+      <div className="hidden md:block">
+        <ClientSidebar
+          sidebarItems={sellerSidebarItems}
+          sidebarHeader="Barbershop"
+        />
+      </div>
+
+      {/* Mobile: Sliding sidebar (always rendered for proper animation) */}
+      <div className="md:hidden">
+        <ClientSidebar
+          sidebarItems={sellerSidebarItems}
+          sidebarHeader="Barbershop"
+        />
+      </div>
+
+      {/* Content area */}
+      <div className="flex-1 min-w-0 overflow-x-hidden md:ml-[220px]">
+        {children}
+      </div>
+    </div>
+  );
+}

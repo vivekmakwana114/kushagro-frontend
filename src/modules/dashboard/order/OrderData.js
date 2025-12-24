@@ -1,0 +1,155 @@
+export const orderData = [
+  {
+    id: 1,
+    orderId: "#KSA2146515",
+    buyer: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=44`,
+    },
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=58`,
+    },
+    amount: 6340,
+    date: "2025-12-05T10:00:00Z",
+    status: "complete",
+  },
+  {
+    id: 2,
+    orderId: "#KSA2146516",
+    buyer: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=40`,
+    },
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=41`,
+    },
+    amount: 5500,
+    date: "2025-12-06T10:00:00Z",
+    status: "complete",
+  },
+  {
+    id: 3,
+    orderId: "#KSA2146517",
+    buyer: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=75`,
+    },
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=76`,
+    },
+    amount: 4500,
+    date: "2025-12-07T10:00:00Z",
+    status: "ongoing",
+  },
+  {
+    id: 4,
+    orderId: "#KSA2146518",
+    buyer: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=32`,
+    },
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=14`,
+    },
+    amount: 3500,
+    date: "2025-12-08T10:00:00Z",
+    status: "complete",
+  },
+  {
+    id: 5,
+    orderId: "#KSA2146519",
+    buyer: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=96`,
+    },
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=45`,
+    },
+    amount: 2500,
+    date: "2025-12-09T10:00:00Z",
+    status: "complete",
+  },
+];
+
+export const paymentData = [
+{
+    id: 1,
+    transactionId: "#TRN2146515",
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=58`,
+    },
+    method:"PayStack",
+    amount: 6340,
+    date: "2025-12-05T10:00:00Z",
+    status: "success",
+  },
+{
+    id: 1,
+    transactionId: "#TRN2146516",
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=74`,
+    },
+    method:"PayStack",
+    amount: 6340,
+    date: "2025-12-05T10:00:00Z",
+    status: "failed",
+  },
+{
+    id: 1,
+    transactionId: "#TRN2146517",
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=14`,
+    },
+    method:"PayStack",
+    amount: 6340,
+    date: "2025-12-05T10:00:00Z",
+    status: "success",
+  },
+{
+    id: 1,
+    transactionId: "#TRN2146518",
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=99`,
+    },
+    method:"PayStack",
+    amount: 6340,
+    date: "2025-12-05T10:00:00Z",
+    status: "success",
+  },
+{
+    id: 1,
+    transactionId: "#TRN2146519",
+    seller: {
+      name: "Will Jack",
+      email: "will@worl.com",
+      profile: `https://picsum.photos/512?random=19`,
+    },
+    method:"PayStack",
+    amount: 6340,
+    date: "2025-12-05T10:00:00Z",
+    status: "pending",
+  },
+]
