@@ -175,3 +175,50 @@ export const editServiceConfig = {
     },
   },
 };
+
+
+export const markAsInactiveConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Mark Barbershop as Inactive?" },
+    {
+      type: "subheader",
+      text: "You are about to mark this barbershop as inactive.",
+    },
+    {
+      type: "subheader",
+      text: "Once inactive, this barbershop will not appear in the mobile app for customers to book services",
+    },
+    {
+      type: "subheader",
+      text: "Existing Bookings will remain unaffected",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Inactivation", color: "red" },
+  },
+};
+
+export const markAsActiveConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Reactivate Barber?" },
+    {
+      type: "subheader",
+      text: "Are you sure you want to reactivate this Barber's account?",
+    },
+    {
+      type: "subheader",
+      text: "Once reactivated, Customer will regain full access to Cut In Q,",
+    },
+    {
+      type: "subheader",
+      text: "including Booking Bookings and making payments.",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Reactivation" },
+  },
+};

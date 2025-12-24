@@ -101,7 +101,7 @@ const PortfolioCards = ({ data }) => {
                           item.MainIcon
                         )}
                       </div>
-                      <p className="text-[24px] font-medium text-black">
+                      <p className="text-[24px] font-medium text-white">
                         {item.total}
                       </p>
                     </div>

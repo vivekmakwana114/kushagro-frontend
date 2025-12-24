@@ -31,15 +31,16 @@ import Notification from "@/components/common/Notification";
 // Map of routes to their display names
 const routeMap = {
   "/": "Dashboard",
+  
   "/buyer": "Buyer",
   "/buyer/details": "Buyer Details",
   "/buyer/details/product-order": "Product Orders",
 
-  "/barbershop": "Barbershops",
-  "/barbershop/details/profile": "Barbershop Details",
-  "/barbershop/details/barber": "Barbers",
-  "/barbershop/details/availability": "Availability",
-  "/barbershop/details/gallery": "Gallery",
+  "/seller": "Seller",
+  "/seller/details/profile": "Seller Details",
+  "/seller/details/seller": "Seller",
+  "/seller/details/availability": "Availability",
+  "/seller/details/gallery": "Gallery",
 
   "/payment-and-payouts/all-transaction": "All Transaction",
 

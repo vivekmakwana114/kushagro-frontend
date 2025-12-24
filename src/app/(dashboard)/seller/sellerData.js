@@ -87,7 +87,7 @@ export const sellerData = [
     total_listing: 10,
     total_order: 45,
     total_earning: 1000,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -111,7 +111,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 63,
     total_earning: 1500,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -137,7 +137,7 @@ export const sellerData = [
     total_listing: 10,
     total_order: 78,
     total_earning: 1000,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -162,7 +162,7 @@ export const sellerData = [
     total_listing: 5,
     total_order: 74,
     total_earning: 500,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -186,7 +186,7 @@ export const sellerData = [
     total_listing: 15,
     total_order: 96,
     total_earning: 1500,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -211,7 +211,7 @@ export const sellerData = [
     total_listing: 10,
     total_order: 42,
     total_earning: 1000,
-    id_status: "verfied",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -235,7 +235,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 63,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "pending",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -285,7 +285,7 @@ export const sellerData = [
     total_listing: 5,
     total_order: 32,
     total_earning: 500,
-    id_status: "active",
+    id_status: "pending",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -309,7 +309,7 @@ export const sellerData = [
     total_listing: 15,
     total_order: 56,
     total_earning: 1500,
-    id_status: "active",
+    id_status: "pending",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -334,7 +334,7 @@ export const sellerData = [
     total_listing: 10,
     total_order: 6,
     total_earning: 1000,
-    id_status: "active",
+    id_status: "pending",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -358,7 +358,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 63,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "pending",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -383,7 +383,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 47,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "pending",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -408,7 +408,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 23,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -433,7 +433,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 12,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -458,7 +458,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 33,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [
@@ -483,7 +483,7 @@ export const sellerData = [
     total_listing: 20,
     total_order: 20,
     total_earning: 2000,
-    id_status: "active",
+    id_status: "verified",
     status: "active",
     // avg_rating: 4.8,
     actions: [

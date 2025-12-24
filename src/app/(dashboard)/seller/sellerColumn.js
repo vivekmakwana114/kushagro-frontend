@@ -11,6 +11,7 @@ import {
   reactivateSellerConfig,
   suspendSellerConfig,
 } from "./sellerConfig";
+import ViewUser from "../buyer/viewUser";
 
 export const getSellerColumns = () => [
   {
@@ -166,27 +167,8 @@ export const getSellerColumns = () => [
                   url: "/seller/details/profile/",
                 },
                 {
-                  label: "Edit Seller",
-                  iconUrl: "/assets/icon/editBooking.svg",
-                  type: "sidebar",
-                  component: <DynamicForm config={getSellerConfig("edit", {})} />,
-                },
-                {
-                  label: "Mark as Inactive",
-                  iconUrl: "/assets/icon/markInactive.svg",
-                  type: "popUp",
-                  component: (
-                    <PopupForm
-                      config={markAsInactiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Activated:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
-                },
-                {
-                  label: "Suspend Barbershop",
-                  iconUrl: "/assets/icon/suspendBarbershop.svg",
+                  label: "Suspend Seller",
+                  iconUrl: "/assets/icon/suspendCustomer.svg",
                   component: (
                     <PopupForm
                       config={suspendSellerConfig}
@@ -197,16 +179,23 @@ export const getSellerColumns = () => [
                   ),
                 },
                 {
-                  label: "Delete Barbershop",
-                  iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={deleteSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  label: "Mark as Verfied ID",
+                  iconUrl: "/assets/icon/markCompleted.svg",
+                  type: "popUp",
+                  component: <ViewUser />,
+                },
+                {
+                  label: "Mark as Rejected ID",
+                  iconUrl: "/assets/icon/markInactive.svg",
+                  type: "popUp",
+                  component: <ViewUser />,
+                },
+
+                {
+                  label: "Share Reset Password Link",
+                  iconUrl: "/assets/icon/lock.svg",
+                  onClick: (data) =>
+                    console.log("password Reset link send", data),
                 },
               ];
 
@@ -265,18 +254,7 @@ export const getSellerColumns = () => [
                     />
                   ),
                 },
-                {
-                  label: "Delete Seller",
-                  iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={deleteSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
-                },
+                
               ];
 
             default:

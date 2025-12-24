@@ -12,7 +12,7 @@ import {
   bookingFilterConfig,
   cancelBookingConfig,
   refundDetailsConfig,
-} from "./bookingConfig";
+} from "./productOrderConfig";
 import PopupForm from "@/components/ui/popupform";
 import { useState } from "react";
 import productOrderData from "./productOrderData";
@@ -38,31 +38,31 @@ export default function Page() {
     },
     {
       label: "Download PDF",
-     icon: (
-      <Image
-        src="/assets/icon/downloadpdf.svg"
-        alt="downloadpdf"
-        width={16}
-        height={16}
-      />
-    ),
+      icon: (
+        <Image
+          src="/assets/icon/downloadpdf.svg"
+          alt="downloadpdf"
+          width={16}
+          height={16}
+        />
+      ),
       onClick: () => console.log("Download PDF"),
     },
     {
       label: "Download CSV",
       icon: (
-      <Image
-        src="/assets/icon/downloadcsv.svg"
-        alt="downloadcsv"
-        width={16}
-        height={16}
-      />
-    ),
+        <Image
+          src="/assets/icon/downloadcsv.svg"
+          alt="downloadcsv"
+          width={16}
+          height={16}
+        />
+      ),
       onClick: () => console.log("Download CSV"),
     },
   ];
   return (
-    <div className="w-full">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full">
       {/* Top Controls */}
 
       <div className="flex items-center justify-between mb-2 gap-2">
@@ -75,7 +75,9 @@ export default function Page() {
           <ActionComponent
             actions={downloadActions}
             buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
-            icon={<Download className="w-4 h-4 text-[var(--color-secondary1)]" />}
+            icon={
+              <Download className="w-4 h-4 text-[var(--color-secondary1)]" />
+            }
           />
         </div>
       </div>

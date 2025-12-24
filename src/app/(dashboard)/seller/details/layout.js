@@ -10,7 +10,7 @@ export default function MyStorePageLayout({ children }) {
       <div className="hidden md:block">
         <ClientSidebar
           sidebarItems={sellerSidebarItems}
-          sidebarHeader="Barbershop"
+          sidebarHeader="Seller"
         />
       </div>
 
@@ -18,7 +18,7 @@ export default function MyStorePageLayout({ children }) {
       <div className="md:hidden">
         <ClientSidebar
           sidebarItems={sellerSidebarItems}
-          sidebarHeader="Barbershop"
+          sidebarHeader="Seller"
         />
       </div>
 

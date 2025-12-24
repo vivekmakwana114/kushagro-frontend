@@ -3,7 +3,7 @@ const fallbackGallery = Array.from({ length: 12 }).map((_, i) => ({
   alt: `Photo ${i + 1}`,
 }));
 
-export const barberFilterConfig = {
+export const orderFilterConfig = {
   formCss: {
     maxWidth: "500px",
     margin: "0 auto",
@@ -734,10 +734,10 @@ export const suspendBarberConfig = {
   },
 };
 
-export const deleteBarberConfig = {
+export const deleteOrderConfig = {
   title: "",
   fields: [
-    { type: "header", label: "Delete Barber?" },
+    { type: "header", label: "Delete Order?" },
     {
       type: "subheader",
       text: "Are you sure you want to delete this barber? ",
@@ -753,13 +753,13 @@ export const deleteBarberConfig = {
   ],
   footer: {
     cancel: { label: "Cancel" },
-    apply: { label: "Delete Barber", color: "red" },
+    apply: { label: "Delete Order", color: "red" },
   },
 };
-export const deleteBarberConfigAll = {
+export const deleteOrderConfigAll = {
   title: "",
   fields: [
-    { type: "header", label: "Delete Selected Barber?" },
+    { type: "header", label: "Delete Selected Order?" },
     {
       type: "subheader",
       text: "Are you sure you want to delete this selected barbers? ",

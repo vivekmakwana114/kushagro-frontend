@@ -1,20 +1,54 @@
 "use client";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Download, Plus, Search } from "lucide-react";
 import React from "react";
-import { service_data } from "./service_data";
-import { columns } from "./column";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import { addServiceConfig } from "./config";
+
 import Image from "next/image";
 
-const ServicesPage = () => {
-  const options = {
-    select: false,
-    order: false,
-  };
+import PopupForm from "@/components/ui/popupform";
+import { listingData } from "./listingData";
+import { getListingColumns } from "./listingColumn";
+
+const options = {
+  select: false,
+  order: false,
+  sortable: false,
+};
+
+const downloadActions = [
+  {
+    header: "Download List",
+  },
+  {
+    label: "Download PDF",
+    icon: (
+      <Image
+        src="/assets/icon/downloadpdf.svg"
+        alt="downloadpdf"
+        width={16}
+        height={16}
+      />
+    ),
+    onClick: () => console.log("Download PDF"),
+  },
+  {
+    label: "Download CSV",
+    icon: (
+      <Image
+        src="/assets/icon/downloadcsv.svg"
+        alt="downloadcsv"
+        width={16}
+        height={16}
+      />
+    ),
+    onClick: () => console.log("Download CSV"),
+  },
+];
+
+const ListingPage = () => {
+  const listingColumns = getListingColumns();
 
   return (
     <div className="w-full">
@@ -23,43 +57,90 @@ const ServicesPage = () => {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input className="pl-10" placeholder="Search here..." />
         </div>
-        <div className="flex gap-2">
-          <ActionComponent
-            actions={[
-              {
-                type: "sidebar",
-                component: <DynamicForm config={addServiceConfig} />,
-              },
-            ]}
-            icon={
-              <Image
-                src="/icons/plusbutton.svg"
-                alt="Add Services"
-                width={18}
-                height={18}
-              />
-            }
-            text="Add Services"
-            buttonClassName="inline-flex items-center gap-2 bg-[#02C8DE] text-white px-4 py-2 rounded-md hover:bg-[#02C8DE] hover:text-[#111111]"
-          />
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <div className="flex gap-2">
+            <ActionComponent
+              actions={downloadActions}
+              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
+              icon={
+                <Download className="w-4 h-4 text-[var(--color-secondary1)]" />
+              }
+            />
+          </div>
         </div>
       </div>
 
-      <div className="w-full">
+      <>
         <GridCommonComponent
-          data={service_data}
+          data={listingData}
           options={options}
-          columns={columns}
+          columns={getListingColumns().map((col) => {
+            if (col.key === "actions") {
+              return {
+                ...col,
+                component: {
+                  ...col.component,
+                  options: {
+                    ...col.component.options,
+                    actions: (row) => col.component.options.actions(row),
+                  },
+                },
+              };
+            }
+            return col;
+          })}
           theme={{
             border: "border-gray-300",
             header: {
               bg: "bg-gray-100",
             },
           }}
+          bulkActionsConfig={[
+            {
+              label: "Export Selection",
+              iconUrl: "/assets/icon/downloadGray.svg",
+              children: [
+                {
+                  header: "Download List",
+                },
+                {
+                  label: "Download PDF",
+                  icon: (
+                    <Image
+                      src="/assets/icon/downloadpdf.svg"
+                      alt="downloadpdf"
+                      width={16}
+                      height={16}
+                    />
+                  ),
+                  onClick: () => console.log("Download PDF"),
+                },
+                {
+                  label: "Download CSV",
+                  icon: (
+                    <Image
+                      src="/assets/icon/downloadcsv.svg"
+                      alt="downloadcsv"
+                      width={16}
+                      height={16}
+                    />
+                  ),
+
+                  onClick: () => console.log("Download CSV"),
+                },
+              ],
+            },
+          ]}
         />
-      </div>
+
+        {/* <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        /> */}
+      </>
     </div>
   );
 };
 
-export default ServicesPage;
+export default ListingPage;

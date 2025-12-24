@@ -1,231 +1,79 @@
-export const getStoreFormConfig = (mode = "create", initialData = {}, role) => {
-  const fields = [
+export const reactivateBuyerConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Reactivate Buyer?" },
     {
-      type: "header",
-      label: mode === "create" ? "Create Barbershop" : "Edit Barbershop",
+      type: "subheader",
+      text: "Are you sure you want to reactivate this Buyer’s account?",
     },
     {
       type: "subheader",
-      text:
-        mode === "create"
-          ? "Enter your Barbershop's details to create its profile on the CIQ platform."
-          : "Update your barbershop details below.",
-    },
-    { type: "divider" },
-
-    {
-      type: "file",
-      label: "Barbershop Logo",
-      value: initialData.streetLogo || "",
+      text: "Once reactivated, Buyer will regain full access to kushagro,",
     },
     {
-      type: "input",
-      label: "Barbershop Name",
-      name: "name",
-      placeholder: "Barbershop Name",
-      value: initialData.name || "",
+      type: "subheader",
+      text: "including Booking appointments and making purchases.",
     },
-    {
-      type: "input",
-      label: "Barbershop Address",
-      name: "address",
-      placeholder: "Barbershop Name",
-      value: initialData.address || "",
-    },
-    {
-      type: "inputPair",
-      label1: "City",
-      name1: "city",
-      placeholder1: "Enter City",
-      value1: initialData.city || "",
-      label2: "State",
-      name2: "state",
-      placeholder2: "Enter State",
-      value2: initialData.state || "",
-    },
-    {
-      type: "inputGroup",
-      columns: 2,
-      fields: [
-        {
-          type: "input",
-          label: "Zip Code",
-          name: "zip code",
-          placeholder: "Zip Code",
-        },
-        {
-          type: "select",
-          name: "country",
-          label: "Select Country",
-          defaultValue: "Australia",
-          options: [
-            {
-              value: "Australia",
-              label: "Australia",
-              icon: "/assets/flags/AUSTRALIA.svg",
-            },
-            { value: "USA", label: "USA", icon: "/assets/flags/USA.svg" },
-            { value: "India", label: "India", icon: "/assets/flags/INDIA.svg" },
-            {
-              value: "Germany",
-              label: "Germany",
-              icon: "/assets/flags/GERMANY.svg",
-            },
-            {
-              value: "Poland",
-              label: "Poland",
-              icon: "/assets/flags/POLAND.svg",
-            },
-            { value: "UK", label: "UK", icon: "/assets/flags/UK.svg" },
-            {
-              value: "Saudi Arabia",
-              label: "Saudi",
-              icon: "/assets/flags/SAUDI.svg",
-            },
-            { value: "UAE", label: "UAE", icon: "/assets/flags/UAE.svg" },
-          ],
-        },
-      ],
-    },
-    role === "barbershop"
-      ? {
-          type: "input",
-          label: "Map Link",
-          name: "map link",
-          placeholder: "Map Link",
-        }
-      : {
-          type: "inputGroup",
-          columns: 2,
-          fields: [
-            {
-              type: "input",
-              label: "Map Link",
-              name: "map link",
-              placeholder: "Map Link",
-            },
-            {
-              type: "select",
-              name: "status",
-              label: "Select Status",
-              defaultValue: "Active",
-              options: [
-                { value: "Active", label: "Active" },
-                { value: "Inactive", label: "Inactive" },
-              ],
-            },
-          ],
-        },
-    role !== "barbershop" && {
-      type: "inputPair",
-      label1: "Phone",
-      name1: "phone",
-      placeholder1: "Phone",
-      label2: "Email",
-      name2: "email",
-      placeholder2: "Email",
-    },
-
-    {
-      type: "inputPair",
-      label1: "TikTok",
-      name1: "tiktok",
-      placeholder1: "Link",
-      label2: "Instagram",
-      name2: "instagram",
-      placeholder2: "Link",
-    },
-  ].filter(Boolean);
-
-  return {
-    formCss: {
-      maxWidth: "500px",
-      margin: "0 auto",
-      fontFamily: "Arial, sans-serif",
-    },
-    fields: fields,
-    footer: {
-      cancel: {
-        label: "Cancel",
-        className:
-          "w-full border border-[var(--color-primary1)] text-[var(--color-primary1)] px-4 py-2 rounded",
-        onClick: () => console.log("Cancelled"),
-      },
-      apply: {
-        label:
-          mode === "create" ? "Create Barbershop" : "Update Barbershoptore",
-        className:
-          "bg-[var(--color-primary1)] text-white px-4 py-2 rounded w-full",
-        onClick: (data) => console.log("Store Saved", data),
-      },
-    },
-  };
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Reactivation" },
+  },
 };
 
-export const bannerProfileConfig = {
-  profileImage: {
-    label: "Profile Image",
-    key: "profileImage",
-    type: "image",
-    value: "/icons/bannerProfile.svg",
-  },
-  storeName: {
-    label: "Shop Name",
-    key: "name",
-    type: "text",
-    value: "Royale Salon, Sydney",
-  },
-  email: {
-    label: "Email",
-    key: "email",
-    type: "text",
-    value: "royalesalon@sydney.com",
-  },
-
-  joined_date: {
-    label: "Joined On",
-    key: "joined_on",
-    type: "text",
-    value: "25 July, 2025",
-  },
-  phoneHeader: {
-    label: "Phone Number",
-    key: "phoneHeader",
-    type: "text",
-    value: "Phone Number",
-  },
-  phone: {
-    label: "Phone Number",
-    key: "about",
-    type: "text",
-    value: "+1-682-19-4444",
-  },
-  status: {
-    label: "Status",
-    key: "status",
-    type: "badge",
-    value: "active",
-    style: {
-      borderRadius: "3.15px",
-      padding: "8px 12px",
+export const rejectSellerConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Reject Seller Verification?" },
+    {
+      type: "subheader",
+      text: "The ID document submitted by this seller will be rejected.",
     },
-    colors: {
-      active: "#097416",
-      suspended: "var(--color-red)",
-      inactive: "var(--color-placeholder-color)",
+    {
+      type: "subheader",
+      text: "Please select a reason so the seller is informed",
     },
-  },
+    {
+      type: "subheader",
+      text: "and can upload the correct document.",
+    },
+    {
+      type: "selectCheckbox",
+      name: "reject_reason",
+      label: "Select Rejection Reason",
+      showTextarea: true,
+      textareaLabel: "Note",
+      textareaName: "note",
+      textareaPlaceholder: "Add note if 'Other' selected",
 
-  locationHeader: {
-    label: "Location Header",
-    key: "locationHeader",
-    type: "text",
-    value: "Location",
-  },
-  locationText: {
-    label: "Location Text",
-    key: "location",
-    type: "text",
-    value: "39 Harbour Bridge, Sydney, NSW, Australia 2000",
+      options: [
+        {
+          label: "Blurry or unclear ID photo",
+          value: "Blurry or unclear ID photo",
+        },
+        {
+          label: "ID does not match seller’s name",
+          value: "ID does not match seller’s name",
+        },
+        { label: "Expired ID document", value: "Expired ID document" },
+        {
+          label: "Wrong document type uploaded",
+          value: "Wrong document type uploaded",
+        },
+        {
+          label: "Incomplete ID (front/back missing)",
+          value: "Incomplete ID (front/back missing)",
+        },
+        {
+          label: "Suspected tampering or invalid ID",
+          value: "Suspected tampering or invalid ID",
+        },
+        { label: "Other", value: "Other" },
+      ],
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Rejection", color: "red" },
   },
 };

@@ -92,6 +92,7 @@ const ClientDetails = () => {
         <PortfolioCard data={OverviewData} />
       </div>
 
+    {/* Buyer Details */}
       <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
         {/* header */}
         <div className="flex justify-between items-center border-b pb-4 mb-6">
