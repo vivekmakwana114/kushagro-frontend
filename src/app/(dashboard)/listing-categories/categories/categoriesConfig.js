@@ -367,14 +367,14 @@ export const cannotDeleteOfferConfigAll = {
 export const markAsInactiveConfig = {
   title: "",
   fields: [
-    { type: "header", label: "Mark Offer as Inactive?" },
+    { type: "header", label: "Mark Category as Inactive?" },
     {
       type: "subheader",
-      text: "You are about to mark this barber as inactive.",
+      text: "You are about to mark this Category as inactive.",
     },
     {
       type: "subheader",
-      text: "Once inactive, this barber will not appear in the mobile app for customers to book services",
+      text: "Once inactive, this Category will not appear in the mobile app for customers to book services",
     },
     {
       type: "subheader",
@@ -383,28 +383,53 @@ export const markAsInactiveConfig = {
   ],
   footer: {
     cancel: { label: "Cancel" },
-    apply: { label: "Inactive Offer" },
+    apply: { label: "Inactive Category" },
   },
 };
-export const markAsInactiveConfigAll = {
+
+
+export const markAsActiveConfig = {
   title: "",
   fields: [
-    { type: "header", label: "Mark Selected Offer as Inactive?" },
-    {
+    { type: "header", label: "Reactivate Category?" },
+    { 
       type: "subheader",
-      text: "You are about to mark this barber as inactive.",
+      text: "Are you sure you want to reactivate this Category?",
     },
     {
       type: "subheader",
-      text: "Once inactive, this barber will not appear in the mobile app for customers to book services",
+      text: "Once reactivated, Customer will regain full access to this listing.",
     },
     {
       type: "subheader",
-      text: "Existing Bookings will remain unaffected",
+      text: "including Booking Bookings and making payments.",
     },
   ],
   footer: {
     cancel: { label: "Cancel" },
-    apply: { label: "Inactive Offer" },
+    apply: { label: "Confirm Reactivation" },
+  },
+};
+
+export const deleteConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Delete listing?" },
+    {
+      type: "subheader",
+      text: "Are you sure you want to delete this listing?",
+    },
+    {
+      type: "subheader",
+      text: "Once deleted, this listing will be permanently removed.",
+    },
+    {
+      type: "subheader",
+      text: "including Booking Bookings and making payments.",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Delete", color: "red" },
   },
 };

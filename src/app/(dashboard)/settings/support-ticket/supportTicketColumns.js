@@ -11,13 +11,13 @@ import {
 
 export const supportTicketColumns = [
   {
-    key: "booking_id",
-    title: "Booking ID",
+    key: "ticket_id",
+    title: "Ticket ID",
     sortable: true,
     component: {
       type: "phone",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-secondary1)",
         fontWeight: "500",
       },
     },
@@ -29,14 +29,14 @@ export const supportTicketColumns = [
     component: {
       type: "phone",
       style: {
-        color: "var(--color-placeholder-color)",
+        color: "var(--color-dull-text)",
         fontWeight: "500",
       },
     },
   },
   {
-    key: "customer",
-    title: "Customer",
+    key: "user",
+    title: "User",
     isObject: true,
     sortable: true,
     structure: {
@@ -59,11 +59,11 @@ export const supportTicketColumns = [
     component: {
       type: "date",
       style: {
-        color: "var(--color-placeholder-color)",
+        color: "var(--color-dull-text)",
         fontWeight: "500",
       },
       options: {
-        format: "MM dd yyyy",
+        format: "dd MM, yyyy",
       },
     },
   },
@@ -80,8 +80,8 @@ export const supportTicketColumns = [
       },
       options: {
         value: {
-          resolved: "#097415", // Green
-          inprocess: "#6C63FF", // indigo
+          done: "#097415", // Green
+          inprocess: "#FFBE00", // yellow
           open: "#7D7D7D", //Gray
         },
       },
@@ -96,7 +96,7 @@ export const supportTicketColumns = [
       options: {
         actions: (row) => {
           // row.status determines which actions to show
-          if (row.status === "inprocess") {
+          if (row.status === "open") {
             return [
               {
                 label: "View Details",
@@ -105,7 +105,7 @@ export const supportTicketColumns = [
                 component: <DetailView config={supportTicketDetailsConfig} />,
               },
               {
-                label: "Mark as Resolved",
+                label: "Mark as In Process",
                 iconUrl: "/assets/icon/markCompleted.svg",
                 type: "popUp",
                 component: <ViewUser />,
@@ -126,13 +126,19 @@ export const supportTicketColumns = [
             ];
           }
 
-          if (row.status === "resolved") {
+          if (row.status === "inprocess") {
             return [
               {
                 label: "View Details",
                 iconUrl: "/assets/icon/viewCustomer.svg",
                 type: "sidebar",
                 component: <DetailView config={supportTicketDetailsConfig} />,
+              },
+              {
+                label: "Mark as In Done",
+                iconUrl: "/assets/icon/markCompleted.svg",
+                type: "popUp",
+                component: <ViewUser />,
               },
               {
                 label: "Delete Ticket",
@@ -165,7 +171,7 @@ export const supportTicketColumns = [
               component: <ViewUser />,
             },
             {
-              label: "Mark as Resolved",
+              label: "Mark as Done",
               iconUrl: "/assets/icon/markCompleted.svg",
               type: "popUp",
               component: <ViewUser />,

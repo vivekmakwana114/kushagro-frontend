@@ -105,3 +105,25 @@ export const transactionDetailsConfig = {
   ],
 };
 
+export const markAsInactiveConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Mark listing as Inactive?" },
+    {
+      type: "subheader",
+      text: "You are about to mark this listing as inactive.",
+    },
+    {
+      type: "subheader",
+      text: "Once inactive, this listing will not appear in the mobile app for customers to book services",
+    },
+    {
+      type: "subheader",
+      text: "Existing Bookings will remain unaffected",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Inactivation", color: "red" },
+  },
+};

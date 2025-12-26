@@ -150,7 +150,7 @@ const PushAlertsPage = () => {
                   >
                     <span>{option.label}</span>
                     {receiver === option.value && (
-                      <div className="flex bg-[var(--color-primary1)] rounded-full h-5 w-5 items-center justify-center">
+                      <div className="flex bg-[var(--color-secondary1)] rounded-full h-5 w-5 items-center justify-center">
                         <Check className="h-3 w-3 text-white" />
                       </div>
                     )}
@@ -190,7 +190,7 @@ const PushAlertsPage = () => {
                   >
                     <span className="truncate pr-4">{option.label}</span>
                     {type === option.value && (
-                      <div className="flex bg-[var(--color-primary1)] rounded-full h-5 w-5 min-w-[1.25rem] items-center justify-center">
+                      <div className="flex bg-[var(--color-secondary1)] rounded-full h-5 w-5 min-w-[1.25rem] items-center justify-center">
                         <Check className="h-3 w-3 text-white" />
                       </div>
                     )}
@@ -205,11 +205,11 @@ const PushAlertsPage = () => {
           </div>
 
           <Button
-            className="w-full bg-[var(--color-primary1)] 
+            className="w-full bg-[var(--color-secondary1)] 
                  text-white 
                  px-4 py-2 rounded
                
-                 hover:bg-[var(--color-primary1)] 
+                 hover:bg-[var(--color-secondary1)] 
                  hover:text-white "
             onClick={handleSubmit}
           >

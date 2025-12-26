@@ -35,7 +35,7 @@ export const leftSidebarItems = [
 
   {
     title: "Listing",
-    url: "/listing",
+    url: "/listing-categories",
     icon: {
       active: "/assets/icon/listing.svg",
       inactive: "/assets/icon/listing_inactive.svg",
@@ -101,11 +101,30 @@ export const sellerSidebarItems = [
     },
   },
   {
-    title:"Listing",
-    url:"/seller/details/listing",
-    icon:{
-      active:"/assets/icon/seller_listing.svg",
-      inactive:"/assets/icon/seller_listing_inactive.svg",
+    title: "Listing",
+    url: "/seller/details/listing",
+    icon: {
+      active: "/assets/icon/seller_listing.svg",
+      inactive: "/assets/icon/seller_listing_inactive.svg",
+    },
+  },
+];
+
+export const listingSidebarItems = [
+  {
+    title: "Listing",
+    url: "/listing-categories",
+    icon: {
+      active: "/assets/icon/listing_category_listing.svg",
+      inactive: "/assets/icon/listing_category_listing_inactive.svg",
+    },
+  },
+  {
+    title: "Categories",
+    url: "/listing-categories/categories",
+    icon: {
+      active: "/assets/icon/listing_category.svg",
+      inactive: "/assets/icon/listing_category_inactive.svg",
     },
   },
 ];
@@ -142,6 +161,14 @@ export const settingSidebarItems = [
     icon: {
       active: "/assets/icon/support.svg",
       inactive: "/assets/icon/support_inactive.svg",
+    },
+  },
+  {
+    title: "Fraud Report",
+    url: "/settings/fraud-report",
+    icon: {
+      active: "/assets/icon/fraud.svg",
+      inactive: "/assets/icon/fraud_inactive.svg",
     },
   },
   {

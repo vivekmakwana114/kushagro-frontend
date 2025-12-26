@@ -28,7 +28,7 @@ const ClientSidebar = ({ sidebarItems, sidebarHeader }) => {
     // Only highlight subpath if it matches fully and is the longest match
     return (
       normalizedPath.startsWith(normalizedUrl + "/") &&
-      normalizedUrl !== "/settings"
+    normalizedUrl !== "/settings" && normalizedUrl !== "/listing-categories"
     );
   };
 

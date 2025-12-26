@@ -120,11 +120,11 @@ const TaxCommissionPage = () => {
           </div>
 
           <Button
-            className="w-full mt-30  bg-[var(--color-primary1)] 
+            className="w-full mt-30  bg-[var(--color-secondary1)] 
               text-white 
               px-4 py-2 rounded
             
-              hover:bg-[var(--color-primary1)] 
+              hover:bg-[var(--color-secondary1)] 
               hover:text-white "
             onClick={handleSubmit}
           >

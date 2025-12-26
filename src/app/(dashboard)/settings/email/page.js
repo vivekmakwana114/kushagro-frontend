@@ -44,7 +44,7 @@ const EmailPage = () => {
           onClick={() => setActiveTab("email")}
           className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 border ${
             activeTab === "email"
-              ? "bg-primary1/10 text-primary1 border-[var(--color-primary1)] shadow-sm"
+              ? "bg-secondary1/10 text-secondary1 border-[var(--color-secondary1)] shadow-sm"
               : "bg-white text-[var(--color-dull-text)] border-[var(--border-admin)] hover:bg-gray-50"
           }`}
         >
@@ -54,7 +54,7 @@ const EmailPage = () => {
           onClick={() => setActiveTab("sms")}
           className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 border ${
             activeTab === "sms"
-              ? "bg-primary1/10 text-primary1 border-[var(--color-primary1)] shadow-sm"
+              ? "bg-secondary1/10 text-secondary1 border-[var(--color-secondary1)] shadow-sm"
               : "bg-white text-[var(--color-dull-text)] border-[var(--border-admin)] hover:bg-gray-50"
           }`}
         >
@@ -119,7 +119,7 @@ const EmailPage = () => {
               <div className="pt-6">
                 <Button
                   onClick={handleUpdate}
-                  className="w-full bg-[var(--color-primary1)] hover:bg-[var(--color-primary1)]/90 text-white h-11 text-md font-medium rounded-md"
+                  className="w-full bg-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/90 text-white h-11 text-md font-medium rounded-md"
                 >
                   Update Email Setting
                 </Button>
@@ -170,7 +170,7 @@ const EmailPage = () => {
               <div className="pt-28">
                 <Button
                   onClick={handleUpdate}
-                  className="w-full bg-[var(--color-primary1)] hover:bg-[var(--color-primary1)]/90 text-white h-11 text-md font-medium rounded-md"
+                  className="w-full bg-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/90 text-white h-11 text-md font-medium rounded-md"
                 >
                   Update SMS Setting
                 </Button>

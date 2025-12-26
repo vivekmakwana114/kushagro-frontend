@@ -117,7 +117,7 @@ const GeneralSettingsPage = () => {
 
           <div className="flex items-center justify-between w-[50%]">
             <p className="font-medium text-[var(--color-black)]">
-              Enable Platform Access
+              Send Admin Activity Alerts
             </p>
             <ToggleSwitch
               checked={platformAccess}
@@ -130,14 +130,14 @@ const GeneralSettingsPage = () => {
           <Button
             className="
               w-auto 
-              border border-[var(--color-primary1)] 
-              text-[var(--color-primary1)] 
+              border border-[var(--color-secondary1)] 
+              text-[var(--color-secondary1)] 
               bg-white 
               px-4 py-2 rounded
 
               hover:bg-white 
-              hover:text-[var(--color-primary1)] 
-              hover:border-[var(--color-primary1)]
+              hover:text-[var(--color-secondary1)] 
+              hover:border-[var(--color-secondary1)]
             "
           >
             Cancel
@@ -146,11 +146,11 @@ const GeneralSettingsPage = () => {
           <Button
             className="
               w-auto 
-              bg-[var(--color-primary1)] 
+              bg-[var(--color-secondary1)] 
               text-white 
               px-4 py-2 rounded
             
-              hover:bg-[var(--color-primary1)] 
+              hover:bg-[var(--color-secondary1)] 
               hover:text-white
             "
             onClick={handleSubmit}

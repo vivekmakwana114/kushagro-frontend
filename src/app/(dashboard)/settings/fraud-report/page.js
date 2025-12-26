@@ -1,14 +1,14 @@
 "use client";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import React from "react";
-import { supportData } from "./supportData";
-import { supportTicketColumns } from "./supportTicketColumns";
+import { fraudData } from "./fraudData";
+import { fraudReportColumns } from "./fraudReportColumns";
 import ActionComponent from "@/components/grid/actionComponent";
 import { Filter, Search } from "lucide-react";
 import {
   deleteSupportTicketConfig,
   supportTicketFilterConfig,
-} from "./supportTicketConfig";
+} from "./fruadReportConfig";
 import ViewUser from "../../buyer/viewUser";
 import PopupForm from "@/components/ui/popupform";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
@@ -30,23 +30,11 @@ const supportTicketPage = () => {
             placeholder="Search here..."
           />
         </div>
-        <div className="flex items-center gap-2">
-          <ActionComponent
-            actions={[
-              {
-                type: "sidebar",
-                component: <DynamicForm config={supportTicketFilterConfig} />,
-              },
-            ]}
-            icon={<Filter className="w-4 h-4 text-[var(--color-secondary1)]" />}
-            buttonClassName="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3 sm:py-2 border border-[var(--color-secondary1)] bg-white rounded-md shadow-sm hover:bg-gray-50"
-          />
-        </div>
       </div>
       <GridCommonComponent
-        data={supportData}
+        data={fraudData}
         options={options}
-        columns={supportTicketColumns}
+        columns={fraudReportColumns}
         theme={{
           border: "border-gray-300",
           header: {

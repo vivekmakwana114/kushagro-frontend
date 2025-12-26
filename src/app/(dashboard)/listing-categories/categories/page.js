@@ -1,36 +1,60 @@
 "use client";
 import React, { useState } from "react";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import { offerData } from "./offerData";
-import { getOfferColumns } from "./offerColumn";
 import { Input } from "@/components/ui/input";
-import { Download, Filter, Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
 import Image from "next/image";
-import {
-  createOfferConfig,
-  DeleteOfferConfig,
-  DeleteOfferConfigAll,
-  cannotDeleteOfferConfig,
-  cannotDeleteOfferConfigAll,
-  markAsInactiveConfigAll,
-} from "./offerConfig";
 import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
+import { categoriesData } from "./categoriesData";
+import { getCategoriesColumns } from "./categoriesColumn";
 
 const options = {
-  select: true,
+  select: false,
   order: false,
+  sortable: false,
 };
 
-const OfferPage = () => {
+const downloadActions = [
+  {
+    header: "Download List",
+  },
+  {
+    label: "Download PDF",
+    icon: (
+      <Image
+        src="/assets/icon/downloadpdf.svg"
+        alt="downloadpdf"
+        width={16}
+        height={16}
+      />
+    ),
+    onClick: () => console.log("Download PDF"),
+  },
+  {
+    label: "Download CSV",
+    icon: (
+      <Image
+        src="/assets/icon/downloadcsv.svg"
+        alt="downloadcsv"
+        width={16}
+        height={16}
+      />
+    ),
+
+    onClick: () => console.log("Download CSV"),
+  },
+];
+
+const ListingCategoriesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = offerData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(offerData.length / itemsPerPage);
+  const currentData = categoriesData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(categoriesData.length / itemsPerPage);
 
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showCannotDeletePopup, setShowCannotDeletePopup] = useState(false);
@@ -68,7 +92,7 @@ const OfferPage = () => {
     setShowDeletePopup(true);
   };
 
-  const offerColumns = getOfferColumns(handleDeleteOffer);
+  const categoriesColumns = getCategoriesColumns(handleDeleteOffer);
 
   return (
     <div className="w-full">
@@ -83,25 +107,17 @@ const OfferPage = () => {
 
         <div className="flex items-center gap-2">
           <ActionComponent
+            actions={downloadActions}
+            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+            icon={
+              <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
+            }
+          />
+          <ActionComponent
             actions={[
               {
                 type: "sidebar",
-                component: (
-                  <DynamicForm
-                    config={{
-                      ...createOfferConfig,
-                      footer: {
-                        ...createOfferConfig.footer,
-                        apply: {
-                          ...createOfferConfig.footer.apply,
-                          onClick: (formData) => {
-                            handleCreateOffer(formData);
-                          },
-                        },
-                      },
-                    }}
-                  />
-                ),
+                component: <DynamicForm config={""} />,
               },
             ]}
             icon={
@@ -112,8 +128,8 @@ const OfferPage = () => {
                 height={18}
               />
             }
-            text={<span className="hidden sm:inline">Create Offer</span>}
-            buttonClassName="flex items-center justify-center gap-2 bg-[var(--color-primary1)] text-white w-10 h-10 sm:w-auto sm:px-4 sm:py-2 rounded-md hover:bg-primary1/80 cursor-pointer"
+            text={<span className="hidden sm:inline">Add Category</span>}
+            buttonClassName="flex items-center justify-center gap-2 bg-[var(--color-secondary1)] text-white w-10 h-10 sm:w-auto sm:px-4 sm:py-2 rounded-md hover:bg-secondary1/80 cursor-pointer"
           />
         </div>
       </div>
@@ -122,7 +138,7 @@ const OfferPage = () => {
         <GridCommonComponent
           data={[...currentData, ...createdOffers]}
           options={options}
-          columns={offerColumns?.map((col) => {
+          columns={categoriesColumns?.map((col) => {
             if (col.key === "actions") {
               return {
                 ...col,
@@ -143,75 +159,6 @@ const OfferPage = () => {
               bg: "bg-[var(--color-background)]",
             },
           }}
-          bulkActionsConfig={[
-            {
-              label: "Mark as Inactive",
-              iconUrl: "/assets/icon/markInactive.svg",
-              type: "popUp",
-              component: (
-                <PopupForm
-                  config={markAsInactiveConfigAll}
-                  width="500px"
-                  onApply={(data) => console.log("Marked inactive:", data)}
-                />
-              ),
-            },
-            {
-              label: "Delete Offer",
-              iconUrl: "/icons/deleteProduct.svg",
-              type: "popUp",
-              popupConfig: DeleteOfferConfigAll,
-              onApply: (formData, selectedRows) => {
-                if (!selectedRows || selectedRows.length === 0) {
-                  return;
-                }
-
-                // Debug each selected offer
-                console.log("Analyzing selected offers:");
-                selectedRows.forEach((offer, idx) => {
-                  console.log(
-                    `  Row #${idx + 1}: ${
-                      offer?.offerName || "(missing offerName)"
-                    }`
-                  );
-                });
-
-                // Check for offers that exist in offerData (cannot be deleted)
-                const undeletable = selectedRows.filter((selectedOffer) => {
-                  const offerName = selectedOffer?.offerName
-                    ?.trim()
-                    ?.toLowerCase();
-                  const existsInOfferData = offerData.some(
-                    (offer) =>
-                      offer.offerName?.trim()?.toLowerCase() === offerName
-                  );
-
-                  return existsInOfferData;
-                });
-
-                if (undeletable.length > 0) {
-                  console.warn(
-                    " Some offers cannot be deleted - they exist in offerData"
-                  );
-                  console.table(
-                    undeletable.map((o) => ({
-                      offerName: o.offerName,
-                      reason: "Exists in offerData",
-                    }))
-                  );
-
-                  setSelectedBulkOffers(undeletable);
-                  setShowBulkCannotDeletePopup(true);
-                } else {
-                  setShowBulkCannotDeletePopup(false);
-                  alert(`Successfully deleted ${selectedRows.length} offer(s)`);
-                }
-
-                console.groupEnd();
-              },
-              onCancel: () => {},
-            },
-          ]}
         />
       </div>
 
@@ -315,4 +262,4 @@ const OfferPage = () => {
   );
 };
 
-export default OfferPage;
+export default ListingCategoriesPage;
