@@ -1,250 +1,238 @@
 "use client";
 
 import PopupForm from "@/components/ui/popupform";
-import {
-  barberDetailsConfig,
-  deleteBarberConfig,
-  getBarberConfig,
-  markAsActiveConfig,
-  markAsInactiveConfig,
-  suspendBarberConfig,
-} from "./barberConfig";
 import DetailView from "@/components/modules/DetailView";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+import ViewUser from "../buyer/viewUser";
 
-export const getBarberColumns =()=> [
+export const getOrderColumns =()=> [
   {
-    key: "barber",
-    title: "Barber",
-    isObject: true,
-    sortable: true,
-    structure: {
-      name: "name",
-      email: "email",
-      profile: "profile",
-    },
-    component: {
-      type: "standard_avatar",
-      style: {
-        radius: "rounded-full",
-      },
-    },
-  },
-
-  {
-    key: "barbershop",
-    title: "Serving Barbershop",
-    isObject: true,
-    sortable: true,
-    structure: {
-      name: "name",
-      email: "email",
-      profile: "profile",
-    },
-    component: {
-      type: "standard_avatar",
-      style: {
-        radius: "rounded-full",
-      },
-    },
-  },
-  {
-    key: "phone",
-    title: "Phone",
+    key: "orderId",
+    title: "Order ID",
     sortable: true,
     component: {
       type: "phone",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-secondary1)",
+        fontWeight: "500",
+      },
+      options: {},
+    },
+  },
+  {
+    key: "product",
+    title: "Product",
+    isPrimary: true,
+    isObject: true,
+    sortable: true,
+    structure: {
+      name: "name",
+      category: "category",
+      profile: "profile",
+    },
+    component: {
+      type: "standard_avatar",
+      style: {
+        radius: "rounded-md",
       },
     },
   },
   {
-    key: "joined_on",
-    title: "Joined On",
+    key: "buyer",
+    title: "Buyer",
+    isPrimary: true,
+    isObject: true,
+    sortable: true,
+    structure: {
+      name: "name",
+      email: "email",
+      profile: "profile",
+    },
+    component: {
+      type: "standard_avatar",
+      style: {
+        radius: "rounded-full",
+      },
+    },
+  },
+  {
+    key: "seller",
+    title: "Seller",
+    isPrimary: true,
+    isObject: true,
+    sortable: true,
+    structure: {
+      name: "name",
+      email: "email",
+      profile: "profile",
+    },
+    component: {
+      type: "standard_avatar",
+      style: {
+        radius: "rounded-full",
+      },
+    },
+  },
+  {
+    key: "date_time",
+    title: "Date",
     sortable: true,
     component: {
       type: "date",
-      style: {},
+      style: {
+        color: "var(--color-dull-text)",
+        fontWeight: "500",
+      },
       options: {
-        format: "M d yyyy",
-      },
-      style: {
-        color: "var(--color-placeholder-color)",
-        fontWeight: "500",
+        format: "dd MM, yyyy",
       },
     },
   },
   {
-    key: "total_bookings",
-    title: "Total Booking",
-    sortable: true,
-    component: {
-      type: "phone",
-      style: {
-        color: "var(--color-placeholder-color)",
-        fontWeight: "500",
-      },
-    },
-  },
-  {
-    key: "total_earning",
-    title: "Total Earning",
+    key: "amount",
+    title: "Amount",
     sortable: true,
     component: {
       type: "currency",
-      sign: "$",
-      position: "start",
       style: {
-        color: "var(--color-placeholder-color)",
-        fontWeight: "500",
+        color: "var(--color-dull-text)",
+        fontWeight:"500",
+      },
+      options: {
+        sign: "$",
+        position: "start",
       },
     },
   },
-
-  {
-    key: "status",
-    title: "Status",
-    sortable: true,
-    component: {
-      type: "badge",
-      style: {
-        borderRadius: "0.15rem",
-      },
-      options: {
-        value: {
-          active: "#097416", // green
-          inactive: "#9CA3AF", // gray
-          // suspended: "#BC0D10", //red
+  
+    {
+      key: "payment_status",
+      title: "Payment",
+      sortable: true,
+      component: {
+        type: "badge",
+        style: {
+          borderRadius: "0.15rem",
+        },
+        options: {
+          value: {
+            paid: "#097416", // green
+            refunded: "#9CA3AF", // gray
+            pending: "#FFBE00", //yellow
+          },
         },
       },
     },
-  },
+  
+    {
+      key: "status",
+      title: "Status",
+      sortable: true,
+      component: {
+        type: "badge",
+        style: {
+          borderRadius: "0.15rem",
+        },
+        options: {
+          value: {
+            complete: "#097416", // green
+            ongoing: "#9CA3AF", // gray
+            cancelled: "#BC0D10", //red
+          },
+        },
+      },
+    },
+  
   {
     key: "actions",
     title: "Actions",
     component: {
       type: "action",
-      style: {},
       options: {
         actions: (row) => {
-          if (row?.status === "active") {
-            return [
-              {
-                label: "View Barber",
-                iconUrl: "/assets/icon/viewCustomer.svg",
-                type: "sidebar",
-                component: <DetailView config={barberDetailsConfig} />,
-              },
-              {
-                label: "Edit Barber",
-                iconUrl: "/assets/icon/editBooking.svg",
-                type: "sidebar",
-                component: (
-                  <DynamicForm
-                    config={getBarberConfig("edit", {})}
-                    onApply={(data) => console.log("Edited store:", data)}
-                  />
-                ),
-              },
-              {
-                label: "Mark as Inactive",
-                iconUrl: "/assets/icon/markInactive.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={markAsInactiveConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Marked inactive:", data)}
-                  />
-                ),
-              },
-              {
-                label: "Suspend Barber",
-                iconUrl: "/assets/icon/suspendCustomer.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={suspendBarberConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Suspended:", data)}
-                  />
-                ),
-              },
-              {
-                label: "Delete Barber",
-                iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={deleteBarberConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Deleted:", data)}
-                  />
-                ),
-              },
-            ];
-          }
+          switch (row.status) {
+            case "ongoing":
+              return [
+                {
+                  label: "View Order",
+                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  type: "sidebar",
+                  component: <DetailView config={""} />,
+                },
+                {
+                  label: "Mark As Complete",
+                  iconUrl: "/assets/icon/markCompleted.svg",
+                  type: "popUp",
+                  component: <ViewUser />,
+                },
+                {
+                  label: "Flag Order",
+                  iconUrl: "/assets/icon/flag.svg",
+                  type: "popUp",
+                  component: <ViewUser />,
+                },
+                {
+                  label: "Download Invoice",
+                  iconUrl: "/assets/icon/downloadGray.svg",
+                  onClick: (data) => console.log("Download invoice:", data),
+                },
+                {
+                  label: "Cancel Order",
+                  iconUrl: "/assets/icon/cancel.svg",
+                  type: "popUp",
+                  // component: <PopupForm config={cancelBookingConfig} />,
+                  onClick: (row) => handleCancelBooking(row),
+                },
+              ];
 
-          if (row?.status === "inactive") {
-            return [
-              {
-                label: "View Barber",
-                iconUrl: "/assets/icon/viewCustomer.svg",
-                type: "sidebar",
-                component: <DetailView config={barberDetailsConfig} />,
-              },
-              {
-                label: "Edit Barber",
-                iconUrl: "/assets/icon/editBooking.svg",
-                type: "sidebar",
-                component: (
-                  <DynamicForm
-                    config={getBarberConfig("edit", {})}
-                    onApply={(data) => console.log("Edited store:", data)}
-                  />
-                ),
-              },
-              {
-                label: "Mark as Active",
-                iconUrl: "/assets/icon/markCompleted.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={markAsActiveConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Reactivated:", data)}
-                  />
-                ),
-              },
-              // {
-              //   label: "Reactivate Barber",
-              //   iconUrl: "/assets/icon/reactivateCustomer.svg",
-              //   type: "popUp",
-              //   component: (
-              //     <PopupForm
-              //       config={reactivateBarberConfig}
-              //       width="500px"
-              //       onApply={(data) => console.log("Reactivated barber:", data)}
-              //     />
-              //   ),
-              // },
-              {
-                label: "Delete Barber",
-                iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={deleteBarberConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Deleted:", data)}
-                  />
-                ),
-              },
-            ];
-          }
+            case "complete":
+              return [
+                {
+                  label: "View Order",
+                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  type: "sidebar",
+                  component: <DetailView config={""} />,
+                },
+                {
+                  label: "Download Invoice",
+                  iconUrl: "/assets/icon/downloadGray.svg",
+                  onClick: (data) => console.log("Download invoice:", data),
+                },
+              ];
 
-          return [];
+            case "cancelled":
+              return [
+                {
+                  label: "View Order",
+                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  type: "sidebar",
+                  component: <DetailView config={""} />,
+                },
+                {
+                  label: "Download Invoice",
+                  iconUrl: "/assets/icon/downloadGray.svg",
+                  onClick: (data) => console.log("Download invoice:", data),
+                },
+                {
+                  label: "Initiate Refund",
+                  iconUrl: "/assets/icon/refund.svg",
+                  type: "popUp",
+                  style: {
+                    color: "#BC0D10",
+                  },
+                  component: (
+                    <PopupForm
+                      config={""}
+                      width="600px"
+                      onApply={(data) => console.log("Refund confirmed", data)}
+                      onCancel={() => console.log("Cancelled")}
+                    />
+                  ),
+                },
+              ];
+
+            default:
+              return [];
+          }
         },
       },
     },

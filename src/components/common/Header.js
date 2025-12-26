@@ -31,15 +31,19 @@ import Notification from "@/components/common/Notification";
 // Map of routes to their display names
 const routeMap = {
   "/": "Dashboard",
+  
   "/buyer": "Buyer",
   "/buyer/details": "Buyer Details",
   "/buyer/details/product-order": "Product Orders",
 
-  "/barbershop": "Barbershops",
-  "/barbershop/details/profile": "Barbershop Details",
-  "/barbershop/details/barber": "Barbers",
-  "/barbershop/details/availability": "Availability",
-  "/barbershop/details/gallery": "Gallery",
+  "/seller": "Seller",
+  "/seller/details/profile": "Seller Details",
+  "/seller/details/seller": "Seller",
+  "/seller/details/availability": "Availability",
+  "/seller/details/gallery": "Gallery",
+
+  "/listing-categories": "Listing & Categories",
+  "/listing-categories/categories": "Categories",
 
   "/payment-and-payouts/all-transaction": "All Transaction",
 
@@ -49,6 +53,7 @@ const routeMap = {
   "/settings/tax-commission": "Tax Commission",
   "/settings/push-alerts": "Push Alerts",
   "/settings/support-ticket": "Support Ticket",
+  "/settings/fraud-report": "Fraud Report",
   "/settings/policies": "Policies",
   "/settings/email": "Email Settings",
   "/settings/payments": "Payments",
@@ -107,6 +112,12 @@ const Header = () => {
         label: "General Settings",
       });
     }
+    if (pathname === "/listing-categories") {
+      breadcrumbs.push({
+        href: "/listing",
+        label: "Listings",
+      });
+    }
 
     if (breadcrumbs.length === 0) {
       const routeName =
@@ -135,7 +146,7 @@ const Header = () => {
                     {!isLast ? (
                       <BreadcrumbLink
                         href={breadcrumb.href}
-                        className="text-sm font-medium text-black hover:text-primary1 hover:underline"
+                        className="text-sm font-medium text-black hover:text-secondary1 hover:underline"
                       >
                         {breadcrumb.label}
                       </BreadcrumbLink>
@@ -156,7 +167,7 @@ const Header = () => {
       </div>
       <div className="md:hidden flex items-center">
         <Image
-          src="/assets/logo/Mobile_CutInQ.svg"
+          src="/assets/logo/Mobile_KushAgro.svg"
           alt="logo"
           width={40}
           height={40}

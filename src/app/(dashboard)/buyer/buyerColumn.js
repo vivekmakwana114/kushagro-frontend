@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  reactivateCustomerConfig,
-  suspendCustomerConfig,
-} from "./customerConfig";
+import { reactivateCustomerConfig, suspendCustomerConfig } from "./buyerConfig";
 import PopupForm from "@/components/ui/popupform";
 
 export const getBuyerColumns = () => [

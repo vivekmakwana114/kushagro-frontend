@@ -9,10 +9,7 @@ import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import ActionComponent from "@/components/grid/actionComponent";
 import DynamicForm from "@/components/modules/registry";
 import PopupForm from "@/components/ui/popupform";
-import {
-  customerFilterConfig,
-  suspendCustomerConfigAll,
-} from "./customerConfig";
+import { customerFilterConfig, suspendCustomerConfigAll } from "./buyerConfig";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
 
@@ -115,7 +112,7 @@ const Page = () => {
             border: "border-admin",
             header: {
               bg: "bg-gray-100",
-            }
+            },
           }}
           bulkActionsConfig={[
             {

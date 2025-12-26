@@ -1,135 +1,176 @@
-export const barberData = [
+export const orderData = [
   {
     id: 1,
-    barber: {
-      name: "Starter Locs – Coils",
-      email: "bob.smith@example.com",
+    orderId:"#ORD-10294012",
+    product: {
+      name: "Jersey Cow",
+      category: "LiveStocks",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    barbershop: {
-      name: "Royale Salon, Sydney",
-      email: "royalesalon@sydney.com",
+    buyer: {
+       name: "Malik Carter",
+      email: "malik.carter@example.com",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-
-    phone: "+1-123-456-7890",
-    joined_on: "2021-06-15T10:20:30.000Z",
-    total_bookings: 10,
-    total_earning: 1000,
-    status: "inactive",
+    seller: {
+      name: "John Doe",
+      email: "john.doe@example.com",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    date_time: "2025-08-05T10:20:30.000Z",
+    amount: "160.32",
+    payment_status: "paid",
+    status: "ongoing",
   },
   {
     id: 2,
-    barber: {
-      name: "Hair Retwist",
-       email: "alice.johnson@example.com",
+    orderId:"#ORD-10294013",
+    product: {
+      name: "Chana Dal",
+      category: "Cereals",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    barbershop: {
-      name: "Bella Spa, Melbourne",
-      email: "bellaspa@melbourne.com",
+    seller: {
+      name: "Jordan Lee",
+      email: "jordan.lee@example.com",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    phone: "+1-123-456-7888",
-    joined_on: "2022-07-14T10:20:30.000Z",
-    total_bookings: 12,
-    total_earning: 1500,
-    status: "active",
+    buyer: {
+      name: "Malik Carter",
+      email: "malik.carter@example.com",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    date_time: "2025-08-05T10:20:30.000Z",
+    amount: "160.32",
+    payment_status: "paid",
+    status: "ongoing",
   },
   {
     id: 3,
-    barber: {
-      name: "Loc Maintenance",
-       email: "jane.doe@example.com",
+    orderId:"#ORD-10294014",
+     product: {
+      name: "Ground Nuts",
+      category: "Tropical",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    barbershop: {
-      name: "Urban Cuts, Brisbane",
-      email: "urbancuts@brisbane.com",
+    seller: {
+      name: "DeShwan Miller",
+      email: "deshwan.miller@example.com",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    phone: "+1-123-456-7880",
-    joined_on: "2021-08-17T10:20:30.000Z",
-    total_bookings: 51,
-    total_earning: 480,
-    status: "active",
+    buyer: {
+      name: "Malik Carter",
+      email: "malik.carter@example.com",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    date_time: "2025-08-05T10:20:30.000Z",
+    amount: "160.32",
+    payment_status: "pending",
+    status: "complete",
   },
   {
     id: 4,
-    barber: {
-      name: "Color Touch-Up",
-        email: "alice.johnson@example.com",
+    orderId:"#ORD-10294015",
+    product: {
+      name: "Mango",
+      category: "Fruits and Vegetables",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    barbershop: {
-      name: "Luxe Nails, Perth",
-      email: "luxenails@perth.com",
+    seller: {
+      name: "Brielle Thomas",
+      email: "brielle.thomas@example.com",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    phone: "+1-123-456-7080",
-    joined_on: "2021-09-17T10:20:30.000Z",
-    total_bookings: 60,
-    total_earning: 2000,
-    status: "active",
+    buyer: {
+      name: "Malik Carter",
+      email: "malik.carter@example.com",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    date_time: "2025-08-05T10:20:30.000Z",
+    amount: "160.32",
+    payment_status: "refunded",
+    status: "complete",
   },
   {
     id: 5,
-    barber: {
-      name: "Scalp Treatment",
-      email: "mike.brown@example.com",
+    orderId:"#ORD-10294016",
+     product: {
+      name: "Jersey Cow",
+      category: "LiveStocks",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    barbershop: {
-      name: "Glamour Hair, Adelaide",
-      email: "glamourhair@adelaide.com",
+    seller: {
+      name: "Malik Carter",
+      email: "malik.carter@example.com",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    phone: "+1-123-456-7773",
-    joined_on: "2021-05-21T10:20:30.000Z",
-    total_bookings: 145,
-    total_earning: 3000,
-    status: "active",
+    buyer: {
+      name: "Malik Carter",
+      email: "malik.carter@example.com",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    date_time: "2025-08-05T10:20:30.000Z",
+    amount: "160.32",
+    payment_status: "pending",
+    status: "complete",
   },
   {
     id: 6,
-    barber: {
-      name: "Loc Extensions",
-      email: "mike.brown@example.com",
+    orderId:"#ORD-10294017",
+    product: {
+      name: "Chana Dal",
+      category: "Cereals",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    barbershop: {
-      name: "Chic Beauty, Hobart",
-      email: "chicbeauty@hobart.com",
+    seller: {
+      name: "Jordan Lee",
+      email: "jordan.lee@example.com",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    phone: "+1-123-456-7373",
-    joined_on: "2021-10-22T10:20:30.000Z",
-    total_bookings: 48,
-    status: "inactive",
-    total_earning: 6352,
+    buyer: {
+      name: "Malik Carter",
+      email: "malik.carter@example.com",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    date_time: "2025-08-05T10:20:30.000Z",
+    amount: "160.32",
+    payment_status: "refunded",
+    status: "cancelled",
   },
 ];

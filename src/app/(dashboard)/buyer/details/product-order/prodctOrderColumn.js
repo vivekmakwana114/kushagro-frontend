@@ -2,8 +2,11 @@
 
 import PopupForm from "@/components/ui/popupform";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
-import { bookingDetailsConfig, refundDetailsConfig } from "./bookingConfig";
-import { editBookingConfig } from "./bookingConfig";
+import {
+  bookingDetailsConfig,
+  refundDetailsConfig,
+} from "./productOrderConfig";
+import { editBookingConfig } from "./productOrderConfig";
 import ViewUser from "../../viewUser";
 import DetailView from "@/components/modules/DetailView";
 
@@ -95,7 +98,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
       },
       options: {
         value: {
-          complete: "#00A78E", // Green
+          complete: "#2E5B20", // Green
           cancelled: "#EF4444", // Red
           // upcoming: "#6C63FF", // indigo
           ongoing: "#7D7D7D", //Gray
@@ -133,7 +136,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                 },
                 {
                   label: "Flag Order",
-                  iconUrl: "/assets/icon/markCompleted.svg",
+                  iconUrl: "/assets/icon/flag.svg",
                   type: "popUp",
                   component: <ViewUser />,
                 },

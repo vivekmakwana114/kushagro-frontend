@@ -1,7 +1,7 @@
 "use client";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import React from "react";
 import ActionComponent from "@/components/grid/actionComponent";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
@@ -17,16 +17,48 @@ import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import PopupForm from "@/components/ui/popupform";
 import { useSelector } from "react-redux";
 import { getOrderColumns } from "./orderHistoryColumn";
+import { deleteBarberConfigAll } from "@/app/(dashboard)/order/orderConfig";
 
 const options = {
-  select: true,
+  select: false,
   order: false,
   sortable: false,
 };
-const BarberPage = () => {
+
+const downloadActions = [
+    {
+      header: "Download List",
+    },
+    {
+      label: "Download PDF",
+      icon: (
+        <Image
+          src="/assets/icon/downloadpdf.svg"
+          alt="downloadpdf"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: () => console.log("Download PDF"),
+    },
+    {
+      label: "Download CSV",
+      icon: (
+        <Image
+          src="/assets/icon/downloadcsv.svg"
+          alt="downloadcsv"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: () => console.log("Download CSV"),
+    },
+  ];
+
+const OrderHistoryPage = () => {
   const role = useSelector((state) => state.auth.role);
   return (
-    <div className="w-full">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="relative mb-2 w-[400px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -34,27 +66,11 @@ const BarberPage = () => {
         </div>
         <div className="flex gap-2">
           <ActionComponent
-            actions={[
-              {
-                type: "sidebar",
-                component: (
-                  <DynamicForm
-                    config={getOrderConfig("create", {}, role)}
-                    onApply={(data) => console.log("Added store:", data)}
-                  />
-                ),
-              },
-            ]}
+            actions={downloadActions}
+            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
             icon={
-              <Image
-                src="/icons/plusbutton.svg"
-                alt="Add Services"
-                width={18}
-                height={18}
-              />
+              <Download className="w-4 h-4 text-[var(--color-secondary1)]" />
             }
-            text="Add Barber"
-            buttonClassName="inline-flex items-center gap-2 bg-[var(--color-primary1)] text-white px-4 py-2 rounded-md hover:bg-primary1/80 cursor-pointer"
           />
         </div>
       </div>
@@ -136,7 +152,7 @@ const BarberPage = () => {
               iconUrl: "/assets/icon/deleteBarbershop.svg",
               component: (
                 <PopupForm
-                  config={deleteBarberConfigAll}
+                  config={deleteOrderConfigAll}
                   width="500px"
                   onApply={(data) => console.log("Suspended:", data)}
                   onCancel={() => console.log("Cancelled")}
@@ -150,4 +166,4 @@ const BarberPage = () => {
   );
 };
 
-export default BarberPage;
+export default OrderHistoryPage;

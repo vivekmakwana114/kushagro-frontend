@@ -1,74 +1,133 @@
-export const service_data = [
+export const listingData = [
   {
     id: 1,
-    service_name: {
-      name: "Starter Locs – Coils",
+    product: {
+      name: "Jersey Cow",
+      category: "LiveStocks",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    duration: "45 mins",
-    price: "160",
+    created_on: "2021-06-15T10:20:30.000Z",
+    price: 1000,
     status: "active",
   },
   {
     id: 2,
-    service_name: {
-      name: "Hair Retwist",
+    product: {
+      name: "Chana Dal",
+      category: "Cereals",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    duration: "60 mins",
-    price: "120",
+    created_on: "2020-03-20T14:00:00.000Z",
+    price: 500,
     status: "active",
   },
   {
     id: 3,
-    service_name: {
-      name: "Loc Maintenance",
+    product: {
+      name: "Ground Nuts",
+      category: "Tropical",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    duration: "90 mins",
-    price: "180",
+    created_on: "2022-11-10T08:45:00.000Z",
+    price: 1500,
     status: "active",
   },
   {
     id: 4,
-    service_name: {
-      name: "Color Touch-Up",
+    product: {
+      name: "Mango",
+      category: "Fruits and Vegetables",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    duration: "75 mins",
-    price: "95",
-    status: "active",
+    created_on: "2021-01-25T11:10:00.000Z",
+    price: 1000,
+    status: "inactive",
   },
   {
     id: 5,
-    service_name: {
-      name: "Scalp Treatment",
+    product: {
+      name: "Jersey Cow",
+      category: "LiveStocks",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    duration: "30 mins",
-    price: "70",
-    status: "cancelled",
+    created_on: "2023-04-12T09:30:00.000Z",
+    price: 1500,
+    status: "active",
   },
+
   {
     id: 6,
-    service_name: {
-      name: "Loc Extensions",
+    product: {
+      name: "Chana Dal",
+      category: "Cereals",
       profile: `https://picsum.photos/512?random=${Math.floor(
         Math.random() * 100
       )}`,
     },
-    duration: "120 mins",
-    price: "300",
+    created_on: "2021-06-15T10:20:30.000Z",
+    price: 1000,
+    status: "inactive",
+  },
+  {
+    id: 7,
+    product: {
+      name: "Ground Nuts",
+      category: "Tropical",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    created_on: "2020-03-20T14:00:00.000Z",
+    price: 500,
+    status: "active",
+  },
+  {
+    id: 8,
+    product: {
+      name: "Mango",
+      category: "Fruits and Vegetables",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    created_on: "2022-11-10T08:45:00.000Z",
+    price: 1500,
+    status: "active",
+  },
+  {
+    id: 9,
+    product: {
+      name: "Jersey Cow",
+      category: "LiveStocks",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    created_on: "2021-01-25T11:10:00.000Z",
+    price: 1000,
+    status: "active",
+  },
+  {
+    id: 10,
+    product: {
+      name: "Jersey Cow",
+      category: "LiveStocks",
+      profile: `https://picsum.photos/512?random=${Math.floor(
+        Math.random() * 100
+      )}`,
+    },
+    created_on: "2023-04-12T09:30:00.000Z",
+    price: 2000,
     status: "active",
   },
 ];

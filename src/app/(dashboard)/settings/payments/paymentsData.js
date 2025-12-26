@@ -3,43 +3,43 @@ import React from "react";
 
 export const initialPaymentsData = [
   {
-    id: "stripe",
-    name: "Stripe",
+    id: "paystack",
+    name: "PayStack",
     // We can render the logo as a component property
     logo: (
       <div className="flex items-center gap-2 text-xl">
         <Image
-          src="/assets/logo/stripe.svg"
-          alt="Stripe"
+          src="/assets/logo/paystack.svg"
+          alt="PayStack"
           width={40}
           height={40}
         />{" "}
-        Stripe
+        PayStack
       </div>
     ),
     description:
-      "Accept payments via Stripe to process credit cards, debit cards, and other payment methods.",
+      "Accept payments via PayStack to process credit cards, debit cards, and other payment methods.",
     connected: true,
     liveMode: true,
   },
   {
-    id: "apple_pay",
-    name: "Apple Pay",
+    id: "momo",
+    name: "MOMO",
     logo: (
       <div className="flex items-center gap-2 text-xl">
         <div className="flex items-center gap-2 text-xl">
           <Image
-            src="/assets/logo/applepay.svg"
-            alt="Apple Pay"
+            src="/assets/logo/momo.svg"
+            alt="MOMO"
             width={40}
             height={40}
           />{" "}
-          Apple Pay
+          MOMO
         </div>
       </div>
     ),
     description:
-      "Enable Apple Pay to allow customers to quickly book services using their Apple Wallet.",
+      "Enable MOMO to allow customers to quickly book services using their Apple Wallet.",
     connected: false,
     liveMode: false,
   },

@@ -5,11 +5,11 @@ import { transactionData } from "./transactionData";
 import { transactionColumn } from "./transactionColumn";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
-import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import ActionComponent from "@/components/grid/actionComponent";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
 import { transactionFilterConfig } from "./transactionConfig";
 import Pagination from "@/components/ui/pagination";
+import Image from "next/image";
 
 const options = {
   select: false,
@@ -24,15 +24,26 @@ const downloadActions = [
   {
     label: "Download PDF",
     icon: (
-      <BsFilePdf className="w-4 h-4 text-[var(--color-placeholder-color)] font-bold" />
+      <Image
+        src="/assets/icon/downloadpdf.svg"
+        alt="downloadpdf"
+        width={16}
+        height={16}
+      />
     ),
     onClick: () => console.log("Download PDF"),
   },
   {
     label: "Download CSV",
     icon: (
-      <BsFileSpreadsheet className="w-4 h-4  text-[var(--color-placeholder-color)] font-bold" />
+      <Image
+        src="/assets/icon/downloadcsv.svg"
+        alt="downloadcsv"
+        width={16}
+        height={16}
+      />
     ),
+
     onClick: () => console.log("Download CSV"),
   },
 ];
@@ -56,7 +67,7 @@ const AllTransactionPage = () => {
           <ActionComponent
             actions={downloadActions}
             buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
-            icon={<Download className="w-5 h-5 text-[var(--color-primary1)]" />}
+            icon={<Download className="w-5 h-5 text-[var(--color-secondary1)]" />}
           />
 
           <ActionComponent
@@ -66,7 +77,7 @@ const AllTransactionPage = () => {
                 component: <DynamicForm config={transactionFilterConfig} />,
               },
             ]}
-            icon={<Filter className="w-5 h-5 text-[var(--color-primary1)]" />}
+            icon={<Filter className="w-5 h-5 text-[var(--color-secondary1)]" />}
             buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
           />
         </div>

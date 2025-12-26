@@ -1,66 +1,57 @@
 "use client";
 import DetailView from "@/components/modules/DetailView";
 import { transactionDetailsConfig } from "./transactionConfig";
+import PopupForm from "@/components/ui/popupform";
+import ViewUser from "../../buyer/viewUser";
 
 export const transactionColumn = [
   {
-    key: "id",
+    key: "transaction_id",
     title: "Transaction ID",
     sortable: true,
     component: {
       type: "phone",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-secondary1)",
         fontWeight: "500",
       },
     },
   },
   {
     key: "date",
-    title: "Date & Time",
+    title: "Date",
     sortable: true,
     component: {
       type: "date",
       style: {
-        color: "var(--color-placeholder-color)",
+        color: "var(--color-dull-text)",
         fontWeight: "500",
       },
       options: {
-        format: "dd MM, yyyy hh:mm a", // Example: 15 Jul, 2025
+        format: "dd MM, yyyy", // Example: 15 Jul, 2025
       },
     },
   },
   {
-    key: "user",
-    title: "Customer",
+    key: "buyer",
+    title: "Buyer",
     sortable: true,
     component: {
       type: "phone",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-secondary1)",
         fontWeight: "500",
       },
     },
   },
   {
-    key: "type",
-    title: "Type",
-    component: {
-      type: "phone",
-      style: {
-        color: "var(--color-placeholder-color)",
-        fontWeight: "500",
-      },
-    },
-  },
-  {
-    key: "barber",
-    title: "Barber",
+    key: "seller",
+    title: "Seller",
     sortable: true,
     component: {
       type: "phone",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-secondary1)",
         fontWeight: "500",
       },
     },
@@ -72,11 +63,22 @@ export const transactionColumn = [
     component: {
       type: "currency",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-dull-text)",
         fontWeight: "500",
       },
       sign: "+$",
       position: "start",
+    }, 
+  },
+  {
+    key: "method",
+    title: "Method",
+    component: {
+      type: "phone",
+      style: {
+        color: "var(--color-secondary1)",
+        fontWeight: "500",
+      },
     },
   },
   {
@@ -93,7 +95,6 @@ export const transactionColumn = [
         value: {
           paid: "#16A34A", // green
           inprocess: "#F59E0B", // yellow
-          // failed: "#DC2626", // red
         },
       },
     },
@@ -117,6 +118,12 @@ export const transactionColumn = [
               label: "Download Invoice",
               iconUrl: "/assets/icon/downloadGray.svg",
               onClick: (data) => console.log("Download Invoice", data),
+            },
+            {
+              label: "Mark As Paid",
+              iconUrl: "/assets/icon/markInactive.svg",
+              type: "popUp",
+              component: <ViewUser />,
             },
           ];
         },

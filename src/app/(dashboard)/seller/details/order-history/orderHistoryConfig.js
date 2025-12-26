@@ -88,7 +88,7 @@ export const getOrderConfig = (mode = "create", initialData = {}, role) => {
         placeholder2: "Link",
       },
 
-      role === "barbershop" 
+      role === "barbershop"
         ? {
             type: "select",
             name: "status",
@@ -199,7 +199,6 @@ export const getOrderConfig = (mode = "create", initialData = {}, role) => {
     },
   };
 };
-
 
 export const orderHistoryConfig = {
   formCss: {
@@ -591,5 +590,91 @@ export const deleteOrderConfigAll = {
   footer: {
     cancel: { label: "Cancel" },
     apply: { label: "yes, Delete Barber", color: "red" },
+  },
+};
+
+export const bookingDetailsConfig = {
+  title: "Booking Details",
+  sections: [
+    {
+      title: "Order Information",
+      items: [
+        { label: "Order ID", key: "product_order_id" },
+        { label: "Date", key: "date_time", type: "date" },
+        { label: "Amount", key: "amount", type: "currency" },
+        { label: "Status", key: "status" },
+      ],
+    },
+    {
+      title: "Product Details",
+      items: [
+        { label: "Product Name", key: "product.name" },
+        { label: "Category", key: "product.category" },
+      ],
+    },
+    {
+      title: "Seller Details",
+      items: [
+        { label: "Name", key: "seller.name" },
+        { label: "Email", key: "seller.email" },
+      ],
+    },
+  ],
+};
+
+export const refundDetailsConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Initiate Refund" },
+    {
+      type: "subheader",
+      text: "Are you sure you want to initiate a refund for this order?",
+    },
+    {
+      type: "textarea",
+      name: "reason",
+      label: "Reason for Refund",
+      placeholder: "Enter reason...",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm Refund", color: "red" },
+  },
+};
+
+export const markAsCompleteConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Mark as Complete" },
+    {
+      type: "subheader",
+      text: "Are you sure you want to mark this order as complete?",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Confirm" },
+  },
+};
+
+export const flagOrderConfig = {
+  title: "",
+  fields: [
+    { type: "header", label: "Flag Order" },
+    {
+      type: "subheader",
+      text: "Are you sure you want to flag this order?",
+    },
+    {
+      type: "textarea",
+      name: "reason",
+      label: "Reason",
+      placeholder: "Enter reason...",
+    },
+  ],
+  footer: {
+    cancel: { label: "Cancel" },
+    apply: { label: "Flag Order", color: "red" },
   },
 };

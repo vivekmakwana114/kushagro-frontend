@@ -3,36 +3,50 @@ import React, { useState } from "react";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
-import { getBarberColumns } from "./barberColumn";
+import { getOrderColumns } from "./orderColumn";
 import ActionComponent from "@/components/grid/actionComponent";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
-import { barberData } from "./barberData";
+import { orderData } from "./orderData";
 import {
-  barberFilterConfig,
-  deleteBarberConfigAll,
-  getBarberConfig,
+  orderFilterConfig,
+  deleteOrderConfigAll,
   markAsActiveConfig,
   markAsInactiveBulkConfig,
-} from "./barberConfig";
+  deleteOrderConfig,
+} from "./orderConfig";
 import Image from "next/image";
 import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
+import ViewUser from "../buyer/viewUser";
 
 const downloadActions = [
-  { header: "Download List" },
+  {
+    header: "Download List",
+  },
   {
     label: "Download PDF",
     icon: (
-      <BsFilePdf className="w-4 h-4 text-[var(--color-placeholder-color)] font-bold" />
+      <Image
+        src="/assets/icon/downloadpdf.svg"
+        alt="downloadpdf"
+        width={16}
+        height={16}
+      />
     ),
     onClick: () => console.log("Download PDF"),
   },
   {
     label: "Download CSV",
     icon: (
-      <BsFileSpreadsheet className="w-4 h-4 text-[var(--color-placeholder-color)] font-bold" />
+      <Image
+        src="/assets/icon/downloadcsv.svg"
+        alt="downloadcsv"
+        width={16}
+        height={16}
+      />
     ),
+
     onClick: () => console.log("Download CSV"),
   },
 ];
@@ -43,16 +57,15 @@ const options = {
   sortable: true,
 };
 
-const BarberPage = () => {
+const OrderPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = barberData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(barberData.length / itemsPerPage);
-  const hasBarbers = barberData.length > 0;
+  const currentData = orderData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(orderData.length / itemsPerPage);
 
-  const barberColumns = getBarberColumns();
+  const orderColumns = getOrderColumns();
 
   return (
     <div className="w-full">
@@ -66,42 +79,20 @@ const BarberPage = () => {
           <ActionComponent
             actions={downloadActions}
             buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
-            icon={<Download className="w-5 h-5 text-[var(--color-primary1)]" />}
-          />
-
-          <ActionComponent
-            actions={[
-              {
-                type: "sidebar",
-                component: <DynamicForm config={barberFilterConfig} />,
-              },
-            ]}
-            icon={<Filter className="w-5 h-5 text-[var(--color-primary1)]" />}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
-          />
-
-          <ActionComponent
-            actions={[
-              {
-                type: "sidebar",
-                component: (
-                  <DynamicForm
-                    config={getBarberConfig("create", {})}
-                    onApply={(data) => console.log("Added barber:", data)}
-                  />
-                ),
-              },
-            ]}
             icon={
-              <Image
-                src="/icons/plusbutton.svg"
-                alt="Add Barber"
-                width={18}
-                height={18}
-              />
+              <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
             }
-            text="Add Barber"
-            buttonClassName="inline-flex items-center gap-2 bg-[var(--color-primary1)] text-white px-4 py-2 rounded-md hover:bg-primary1/80 cursor-pointer"
+          />
+
+          <ActionComponent
+            actions={[
+              {
+                type: "sidebar",
+                component: <DynamicForm config={orderFilterConfig} />,
+              },
+            ]}
+            icon={<Filter className="w-5 h-5 text-[var(--color-secondary1)]" />}
+            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
           />
         </div>
       </div>
@@ -109,7 +100,7 @@ const BarberPage = () => {
       <GridCommonComponent
         data={currentData}
         options={options}
-        columns={barberColumns.map((col) => {
+        columns={orderColumns.map((col) => {
           if (col.key === "actions") {
             return {
               ...col,
@@ -132,30 +123,17 @@ const BarberPage = () => {
         }}
         bulkActionsConfig={[
           {
-            label: "Mark as Active",
-            iconUrl: "/assets/icon/reactivateCustomer.svg",
-            component: (
-              <PopupForm
-                config={markAsActiveConfig}
-                width="500px"
-                onApply={(data) => console.log("Activated:", data)}
-                onCancel={() => console.log("Cancelled")}
-              />
-            ),
+            label: "Mark As Complete",
+            iconUrl: "/assets/icon/markCompleted.svg",
+            type: "popUp",
+            component: <ViewUser />,
           },
           {
-            label: "Mark as Inactive",
-            iconUrl: "/assets/icon/markInactive.svg",
-            type: "popUp",
-            component: (
-              <PopupForm
-                config={markAsInactiveBulkConfig}
-                width="500px"
-                onApply={(data) => console.log("Activated:", data)}
-                onCancel={() => console.log("Cancelled")}
-              />
-            ),
-          },
+                  label: "Flag Order",
+                  iconUrl: "/assets/icon/flag.svg",
+                  type: "popUp",
+                  component: <ViewUser />,
+                },
           {
             label: "Export Selection",
             iconUrl: "/assets/icon/downloadGray.svg",
@@ -173,30 +151,17 @@ const BarberPage = () => {
               },
             ],
           },
-          {
-            label: "Delete Barber",
-            iconUrl: "/assets/icon/deleteBarbershop.svg",
-            component: (
-              <PopupForm
-                config={deleteBarberConfigAll}
-                width="500px"
-                onApply={(data) => console.log("Deleted:", data)}
-                onCancel={() => console.log("Cancelled")}
-              />
-            ),
-          },
+          
         ]}
       />
 
-      {hasBarbers && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 };
 
-export default BarberPage;
+export default OrderPage;

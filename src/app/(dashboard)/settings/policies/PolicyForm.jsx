@@ -154,13 +154,13 @@ const PolicyForm = ({ isOpen, onClose, onSave, initialData, sectionTitle }) => {
               <Button
                 type="button"
                 onClick={onClose}
-                className="flex-1 border border-primary1 text-primary1 hover:bg-white/20 bg-white cursor-pointer"
+                className="flex-1 border border-secondary1 text-secondary1 hover:bg-white/20 bg-white cursor-pointer"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="flex-1 border-primary1 text-white bg-primary1 hover:bg-primary1/50 cursor-pointer"
+                className="flex-1 border-secondary1 text-white bg-secondary1 hover:bg-secondary1/50 cursor-pointer"
               >
                 {initialData.title ? "Update" : "Add"}
               </Button>
