@@ -95,12 +95,12 @@ const ListingPage = () => {
   const offerColumns = getOfferColumns(handleDeleteOffer);
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between gap-2 mb-4 w-full">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
+      <div className="flex items-center justify-between gap-2 mb-4 w-full flex-none">
         <div className="relative flex-1 min-w-[150px] max-w-[400px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-dull-text)]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-dull-text" />
           <Input
-            className="pl-10 h-10 w-full border border-[var(--border-admin)] rounded-md"
+            className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
             placeholder="Search here..."
           />
         </div>
@@ -109,9 +109,9 @@ const ListingPage = () => {
           <div className="flex gap-2">
             <ActionComponent
               actions={downloadActions}
-              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+              buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md hover:bg-gray-50"
               icon={
-                <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
+                <Download className="w-5 h-5 text-secondary1" />
               }
             />
 
@@ -123,15 +123,15 @@ const ListingPage = () => {
                 },
               ]}
               icon={
-                <Filter className="w-5 h-5 text-[var(--color-secondary1)]" />
+                <Filter className="w-5 h-5 text-secondary1" />
               }
-              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+              buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md hover:bg-gray-50"
             />
           </div>
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="flex-1 min-h-0">
         <GridCommonComponent
           data={[...currentData, ...createdOffers]}
           options={options}
@@ -222,12 +222,12 @@ const ListingPage = () => {
                   ...cannotDeleteOfferConfigAll.body,
                   content: (
                     <div className="space-y-3">
-                      <p className="text-[var(--color-placeholder-color)] text-sm">
+                      <p className="text-placeholder-color text-sm">
                         The following {selectedBulkOffers.length} offer(s)
                         cannot be deleted because they already exist in the
                         system:
                       </p>
-                      <ul className="list-disc list-inside text-[var(--color-red)] text-sm space-y-1 max-h-60 overflow-y-auto">
+                      <ul className="list-disc list-inside text-red text-sm space-y-1 max-h-60 overflow-y-auto">
                         {selectedBulkOffers.map((offer, i) => (
                           <li key={i}>{offer.offerName || "Unnamed Offer"}</li>
                         ))}
@@ -250,11 +250,13 @@ const ListingPage = () => {
         </div>
       )}
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
+      <div className="flex-none mt-2">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </div>
     </div>
   );
 };

@@ -20,22 +20,32 @@ body {
   display: block;
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
 @theme {
   /* Colors */
-  --color-primary1: #FFBE00; /* Yellow Color*/
-  --color-secondary1: #2E5B20; /* Green color*/
+  --color-primary1: #ffbe00; /* Yellow Color*/
+  --color-secondary1: #2e5b20; /* Green color*/
   --color-tertiary1: #064789; /* Navy Blue color*/
-  --color-quaternary1: #F38900; /* Orange color*/
-  --color-quinary1: #5603AD; /* Purple color*/
-  --border-admin: #E8E8E8;
+  --color-quaternary1: #f38900; /* Orange color*/
+  --color-quinary1: #5603ad; /* Purple color*/
+  --border-admin: #e8e8e8;
   --color-back-label: #f3f3ff;
 
   /* Text Colors */
   --color-black: #000000;
   --color-white: #ffffff;
   --color-red: #bc0d10;
-  --color-dull-text: #747C84; /* Gray Text Color*/
-  --color-placeholder-color: #C3C9CF; /* Light Gray Text Color*/
+  --color-dull-text: #747c84; /* Gray Text Color*/
+  --color-placeholder-color: #c3c9cf; /* Light Gray Text Color*/
 
   /* Gradients */
   --color-gradient1: #02c8de;
@@ -170,5 +180,26 @@ body {
 body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+}
+
+/* React Datepicker Overrides */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__month-text--keyboard-selected,
+.react-datepicker__quarter-text--selected,
+.react-datepicker__quarter-text--keyboard-selected,
+.react-datepicker__year-text--selected,
+.react-datepicker__year-text--keyboard-selected {
+  background-color: var(--color-secondary1) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover,
+.react-datepicker__month-text--keyboard-selected:hover,
+.react-datepicker__quarter-text--selected:hover,
+.react-datepicker__quarter-text--keyboard-selected:hover,
+.react-datepicker__year-text--selected:hover,
+.react-datepicker__year-text--keyboard-selected:hover {
+  background-color: var(--color-secondary1) !important;
 }

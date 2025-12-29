@@ -58,8 +58,8 @@ const SellerPage = () => {
   ];
 
   return (
-    <div className="w-full  md:h-[calc(100vh-9rem)] h-full">
-      <div className="flex items-center justify-between mb-2 gap-2">
+    <div className="w-full  md:h-[calc(100vh-9rem)] h-full flex flex-col">
+      <div className="flex items-center justify-between mb-2 gap-2 flex-none">
         <div className="relative w-[400px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input className="pl-10 w-full" placeholder="Search here..." />
@@ -69,9 +69,9 @@ const SellerPage = () => {
           <div className="flex gap-2">
             <ActionComponent
               actions={downloadActions}
-              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
+              buttonClassName="inline-flex items-center justify-center p-2 border border-(--border-admin) bg-white rounded-md  hover:bg-gray-50"
               icon={
-                <Download className="w-4 h-4 text-[var(--color-secondary1)]" />
+                <Download className="w-4 h-4 text-secondary1" />
               }
             />
 
@@ -83,9 +83,9 @@ const SellerPage = () => {
                 },
               ]}
               icon={
-                <Filter className="w-4 h-4 text-[var(--color-secondary1)]" />
+                <Filter className="w-4 h-4 text-secondary1" />
               }
-              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
+              buttonClassName="inline-flex items-center justify-center p-2 border border-(--border-admin) bg-white rounded-md  hover:bg-gray-50"
             />
           </div>
         </div>
@@ -94,86 +94,90 @@ const SellerPage = () => {
       {/* Conditional Rendering */}
 
       <>
-        <GridCommonComponent
-          data={currentData}
-          options={options}
-          columns={sellerColumns.map((col) => {
-            if (col.key === "actions") {
-              return {
-                ...col,
-                component: {
-                  ...col.component,
-                  options: {
-                    ...col.component.options,
-                    actions: (row) => col.component.options.actions(row),
+        <div className="flex-1 overflow-y-auto min-h-0 no-scrollbar">
+          <GridCommonComponent
+            data={currentData}
+            options={options}
+            columns={sellerColumns.map((col) => {
+              if (col.key === "actions") {
+                return {
+                  ...col,
+                  component: {
+                    ...col.component,
+                    options: {
+                      ...col.component.options,
+                      actions: (row) => col.component.options.actions(row),
+                    },
                   },
-                },
-              };
-            }
-            return col;
-          })}
-          theme={{
-            border: "border-gray-300",
-            header: {
-              bg: "bg-gray-100",
-            },
-          }}
-          bulkActionsConfig={[
-            {
-              label: "Suspend Seller",
-              iconUrl: "/assets/icon/suspendCustomer.svg",
-              component: (
-                <PopupForm
-                  config={suspendSellerConfig}
-                  width="500px"
-                  onApply={(data) => console.log("Suspended:", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
+                };
+              }
+              return col;
+            })}
+            theme={{
+              border: "border-(--border-admin)",
+              header: {
+                bg: "bg-gray-100",
+              },
+            }}
+            bulkActionsConfig={[
+              {
+                label: "Suspend Seller",
+                iconUrl: "/assets/icon/suspendCustomer.svg",
+                component: (
+                  <PopupForm
+                    config={suspendSellerConfig}
+                    width="500px"
+                    onApply={(data) => console.log("Suspended:", data)}
+                    onCancel={() => console.log("Cancelled")}
+                  />
+                ),
+              },
 
-            {
-              label: "Export Selection",
-              iconUrl: "/assets/icon/downloadGray.svg",
-              children: [
-                {
-                  header: "Download List",
-                },
-                {
-                  label: "Download PDF",
-                  icon: (
-                    <Image
-                      src="/assets/icon/downloadpdf.svg"
-                      alt="downloadpdf"
-                      width={16}
-                      height={16}
-                    />
-                  ),
-                  onClick: () => console.log("Download PDF"),
-                },
-                {
-                  label: "Download CSV",
-                  icon: (
-                    <Image
-                      src="/assets/icon/downloadcsv.svg"
-                      alt="downloadcsv"
-                      width={16}
-                      height={16}
-                    />
-                  ),
+              {
+                label: "Export Selection",
+                iconUrl: "/assets/icon/downloadGray.svg",
+                children: [
+                  {
+                    header: "Download List",
+                  },
+                  {
+                    label: "Download PDF",
+                    icon: (
+                      <Image
+                        src="/assets/icon/downloadpdf.svg"
+                        alt="downloadpdf"
+                        width={16}
+                        height={16}
+                      />
+                    ),
+                    onClick: () => console.log("Download PDF"),
+                  },
+                  {
+                    label: "Download CSV",
+                    icon: (
+                      <Image
+                        src="/assets/icon/downloadcsv.svg"
+                        alt="downloadcsv"
+                        width={16}
+                        height={16}
+                      />
+                    ),
 
-                  onClick: () => console.log("Download CSV"),
-                },
-              ],
-            },
-          ]}
-        />
+                    onClick: () => console.log("Download CSV"),
+                  },
+                ],
+              },
+            ]}
+          />
+        </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        <div className="flex-none mt-2">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </div>
       </>
     </div>
   );

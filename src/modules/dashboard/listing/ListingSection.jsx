@@ -18,12 +18,14 @@ export default function ListingSection({
     <div className="w-full border rounded-lg p-4 h-[450px] flex flex-col">
       <div className="flex justify-between items-center">
         <div className="text-lg font-semibold">{title}</div>
-        <a
-          href={link}
-          className="text-sm text-secondary1 hover:underline font-medium"
-        >
-          View All
-        </a>
+        {link && (
+          <a
+            href={link}
+            className="text-sm text-secondary1 hover:underline font-medium"
+          >
+            View All
+          </a>
+        )}
       </div>
       <div className="pt-4 overflow-y-auto custom-scroll grow">
         <GridCommonComponent

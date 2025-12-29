@@ -51,8 +51,8 @@ const ListingPage = () => {
   const listingColumns = getListingColumns();
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 flex-none">
         <div className="relative mb-2 w-[400px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input className="pl-10" placeholder="Search here..." />
@@ -61,16 +61,16 @@ const ListingPage = () => {
           <div className="flex gap-2">
             <ActionComponent
               actions={downloadActions}
-              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
+              buttonClassName="inline-flex items-center justify-center p-2 border border-(--border-admin) bg-white rounded-md  hover:bg-gray-50"
               icon={
-                <Download className="w-4 h-4 text-[var(--color-secondary1)]" />
+                <Download className="w-4 h-4 text-secondary1" />
               }
             />
           </div>
         </div>
       </div>
 
-      <>
+      <div className="flex-1 min-h-0">
         <GridCommonComponent
           data={listingData}
           options={options}
@@ -90,7 +90,7 @@ const ListingPage = () => {
             return col;
           })}
           theme={{
-            border: "border-gray-300",
+            border: "border-(--border-admin)",
             header: {
               bg: "bg-gray-100",
             },
@@ -132,13 +132,13 @@ const ListingPage = () => {
             },
           ]}
         />
+      </div>
 
-        {/* <Pagination
+      {/* <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => setCurrentPage(page)}
         /> */}
-      </>
     </div>
   );
 };

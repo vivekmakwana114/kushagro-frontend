@@ -44,8 +44,8 @@ const EmailPage = () => {
           onClick={() => setActiveTab("email")}
           className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 border ${
             activeTab === "email"
-              ? "bg-secondary1/10 text-secondary1 border-[var(--color-secondary1)] shadow-sm"
-              : "bg-white text-[var(--color-dull-text)] border-[var(--border-admin)] hover:bg-gray-50"
+              ? "bg-secondary1/10 text-secondary1 border-secondary1 shadow-sm"
+              : "bg-white text-dull-text border-(--border-admin) hover:bg-gray-50"
           }`}
         >
           Email Settings
@@ -54,8 +54,8 @@ const EmailPage = () => {
           onClick={() => setActiveTab("sms")}
           className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 border ${
             activeTab === "sms"
-              ? "bg-secondary1/10 text-secondary1 border-[var(--color-secondary1)] shadow-sm"
-              : "bg-white text-[var(--color-dull-text)] border-[var(--border-admin)] hover:bg-gray-50"
+              ? "bg-secondary1/10 text-secondary1 border-secondary1 shadow-sm"
+              : "bg-white text-dull-text border-(--border-admin) hover:bg-gray-50"
           }`}
         >
           SMS Settings
@@ -65,7 +65,7 @@ const EmailPage = () => {
       {/* Content Area with separation */}
       <div className="flex items-center justify-center mt-6">
         {activeTab === "email" ? (
-          <div className="w-[650px] border border-[var(--border-admin)] rounded-xl p-8 bg-white shadow-sm">
+          <div className="w-[650px] border border-(--border-admin) rounded-xl p-8 bg-white shadow-sm">
             <h2 className="text-xl font-bold mb-8 text-black">
               Email Settings
             </h2>
@@ -119,7 +119,7 @@ const EmailPage = () => {
               <div className="pt-6">
                 <Button
                   onClick={handleUpdate}
-                  className="w-full bg-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/90 text-white h-11 text-md font-medium rounded-md"
+                  className="w-full bg-secondary1 hover:bg-secondary1/90 text-white h-11 text-md font-medium rounded-md"
                 >
                   Update Email Setting
                 </Button>
@@ -128,7 +128,7 @@ const EmailPage = () => {
           </div>
         ) : (
           <div className="flex items-center justify-center">
-          <div className="w-[650px] border border-[var(--border-admin)] rounded-xl p-8 bg-white shadow-sm">
+          <div className="w-[650px] border border-(--border-admin) rounded-xl p-8 bg-white shadow-sm">
             <h2 className="text-xl font-bold mb-8 text-black">SMS Settings</h2>
             <div className="space-y-6">
               <div className="space-y-2">
@@ -170,7 +170,7 @@ const EmailPage = () => {
               <div className="pt-28">
                 <Button
                   onClick={handleUpdate}
-                  className="w-full bg-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/90 text-white h-11 text-md font-medium rounded-md"
+                  className="w-full bg-secondary1 hover:bg-secondary1/90 text-white h-11 text-md font-medium rounded-md"
                 >
                   Update SMS Setting
                 </Button>
