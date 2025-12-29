@@ -8,7 +8,7 @@ import {
 } from "./productOrderConfig";
 import { editBookingConfig } from "./productOrderConfig";
 import ViewUser from "../../viewUser";
-import DetailView from "@/components/modules/DetailView";
+import ViewOrderDetails from "@/components/common/ViewOrderDetails";
 
 export const getProductOrderColumns = (handleCancelBooking) => [
   {
@@ -120,7 +120,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={bookingDetailsConfig} />,
+                  component: <ViewOrderDetails module="buyer" />,
                 },
                 // {
                 //   label: "Edit Booking",
@@ -160,7 +160,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={bookingDetailsConfig} />,
+                  component: <ViewOrderDetails module="buyer" />,
                 },
                 {
                   label: "Download Invoice",
@@ -175,7 +175,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={bookingDetailsConfig} />,
+                  component: <ViewOrderDetails module="buyer" />,
                 },
                 {
                   label: "Download Invoice",

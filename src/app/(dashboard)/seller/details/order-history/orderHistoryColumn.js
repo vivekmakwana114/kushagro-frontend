@@ -15,7 +15,7 @@ import {
   markAsCompleteConfig,
   flagOrderConfig,
 } from "./orderHistoryConfig";
-import DetailView from "@/components/modules/DetailView";
+import ViewOrderDetails from "@/components/common/ViewOrderDetails";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
 
 export const getOrderColumns = (role) => [
@@ -129,7 +129,7 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={bookingDetailsConfig} />,
+                  component: <ViewOrderDetails module="seller" />,
                 },
                 {
                   label: "Mark As Complete",
@@ -175,7 +175,7 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={bookingDetailsConfig} />,
+                  component: <ViewOrderDetails module="seller" />,
                 },
                 {
                   label: "Download Invoice",
@@ -190,7 +190,7 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={bookingDetailsConfig} />,
+                  component: <ViewOrderDetails module="seller" />,
                 },
                 {
                   label: "Download Invoice",

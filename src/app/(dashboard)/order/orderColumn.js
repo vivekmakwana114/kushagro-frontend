@@ -1,10 +1,10 @@
 "use client";
 
 import PopupForm from "@/components/ui/popupform";
-import DetailView from "@/components/modules/DetailView";
+import ViewOrderDetails from "@/components/common/ViewOrderDetails";
 import ViewUser from "../buyer/viewUser";
 
-export const getOrderColumns =()=> [
+export const getOrderColumns = () => [
   {
     key: "orderId",
     title: "Order ID",
@@ -95,7 +95,7 @@ export const getOrderColumns =()=> [
       type: "currency",
       style: {
         color: "var(--color-dull-text)",
-        fontWeight:"500",
+        fontWeight: "500",
       },
       options: {
         sign: "$",
@@ -103,45 +103,45 @@ export const getOrderColumns =()=> [
       },
     },
   },
-  
-    {
-      key: "payment_status",
-      title: "Payment",
-      sortable: true,
-      component: {
-        type: "badge",
-        style: {
-          borderRadius: "0.15rem",
-        },
-        options: {
-          value: {
-            paid: "#097416", // green
-            refunded: "#9CA3AF", // gray
-            pending: "#FFBE00", //yellow
-          },
+
+  {
+    key: "payment_status",
+    title: "Payment",
+    sortable: true,
+    component: {
+      type: "badge",
+      style: {
+        borderRadius: "0.15rem",
+      },
+      options: {
+        value: {
+          paid: "#097416", // green
+          refunded: "#9CA3AF", // gray
+          pending: "#FFBE00", //yellow
         },
       },
     },
-  
-    {
-      key: "status",
-      title: "Status",
-      sortable: true,
-      component: {
-        type: "badge",
-        style: {
-          borderRadius: "0.15rem",
-        },
-        options: {
-          value: {
-            complete: "#097416", // green
-            ongoing: "#9CA3AF", // gray
-            cancelled: "#BC0D10", //red
-          },
+  },
+
+  {
+    key: "status",
+    title: "Status",
+    sortable: true,
+    component: {
+      type: "badge",
+      style: {
+        borderRadius: "0.15rem",
+      },
+      options: {
+        value: {
+          complete: "#097416", // green
+          ongoing: "#9CA3AF", // gray
+          cancelled: "#BC0D10", //red
         },
       },
     },
-  
+  },
+
   {
     key: "actions",
     title: "Actions",
@@ -156,7 +156,7 @@ export const getOrderColumns =()=> [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewOrderDetails module="order" />,
                 },
                 {
                   label: "Mark As Complete",
@@ -190,7 +190,7 @@ export const getOrderColumns =()=> [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewOrderDetails module="order" />,
                 },
                 {
                   label: "Download Invoice",
@@ -205,7 +205,7 @@ export const getOrderColumns =()=> [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewOrderDetails module="order" />,
                 },
                 {
                   label: "Download Invoice",
