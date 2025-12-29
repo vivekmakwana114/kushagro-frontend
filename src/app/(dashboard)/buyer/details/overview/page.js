@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import PopupForm from "@/components/ui/popupform";
 import {
   reactivateBuyerConfig,
-  reactivateCustomerConfig,
 } from "./overviewConfig";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { fraudReportData } from "./fraudReportData";

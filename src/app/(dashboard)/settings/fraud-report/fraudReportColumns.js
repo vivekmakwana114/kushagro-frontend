@@ -8,6 +8,7 @@ import {
   deleteSupportTicketConfig,
   supportTicketDetailsConfig,
 } from "./fruadReportConfig";
+import ViewFraudReport from "@/components/common/ViewFraudReport";
 
 export const fraudReportColumns = [
   {
@@ -99,7 +100,7 @@ export const fraudReportColumns = [
               label: "View Report",
               iconUrl: "/assets/icon/viewCustomer.svg",
               type: "sidebar",
-              component: <DetailView config={supportTicketDetailsConfig} />,
+              component: <ViewFraudReport userType="seller" />,
             },
             {
               label: "Delete Report",

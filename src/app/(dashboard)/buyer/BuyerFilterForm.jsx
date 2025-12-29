@@ -86,7 +86,7 @@ const BuyerFilterForm = ({ onCancel, onApply }) => {
         </div>
       </div>
 
-      <div className="w-full h-[1px] m-2 bg-[var(--border-admin)]" />
+      <div className="w-full h-px m-2 bg-(--border-admin)" />
 
       <div className="flex-1 overflow-y-auto">
         <Header
@@ -147,14 +147,14 @@ const BuyerFilterForm = ({ onCancel, onApply }) => {
             type="button"
             onClick={handleCancel}
             variant="outline"
-            className="flex-1 border-[var(--color-secondary1)] text-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/10"
+            className="flex-1 border-secondary1 text-secondary1 hover:bg-secondary1/10"
           >
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleApply}
-            className="flex-1 bg-[var(--color-secondary1)] text-white hover:bg-[var(--color-secondary1)]/90"
+            className="flex-1 bg-secondary1 text-white hover:bg-secondary1/90"
           >
             Apply Filters
           </Button>
