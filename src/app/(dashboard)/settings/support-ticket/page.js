@@ -4,6 +4,7 @@ import React from "react";
 import { supportData } from "./supportData";
 import { supportTicketColumns } from "./supportTicketColumns";
 import ActionComponent from "@/components/grid/actionComponent";
+import SupportTicketFilterForm from "./SupportTicketFilterForm";
 import { Filter, Search } from "lucide-react";
 import {
   deleteSupportTicketConfig,
@@ -11,7 +12,6 @@ import {
 } from "./supportTicketConfig";
 import ViewUser from "../../buyer/viewUser";
 import PopupForm from "@/components/ui/popupform";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
 import { Input } from "@/components/ui/input";
 
 const options = {
@@ -35,7 +35,7 @@ const supportTicketPage = () => {
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={supportTicketFilterConfig} />,
+                component: <SupportTicketFilterForm />,
               },
             ]}
             icon={<Filter className="w-4 h-4 text-[var(--color-secondary1)]" />}

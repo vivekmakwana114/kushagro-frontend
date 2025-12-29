@@ -6,17 +6,16 @@ import { getOfferColumns } from "./listingColumn";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+import ListingFilterForm from "./ListingFilterForm";
 import Image from "next/image";
 
 import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
-import { orderFilterConfig } from "./listingConfig";
 
 const options = {
   select: false,
   order: false,
-  sortable:false,
+  sortable: false,
 };
 
 const downloadActions = [
@@ -108,27 +107,27 @@ const ListingPage = () => {
 
         <div className="flex items-center gap-2">
           <div className="flex gap-2">
-          <ActionComponent
-            actions={downloadActions}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
-            icon={
-              <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
-            }
-          />
+            <ActionComponent
+              actions={downloadActions}
+              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+              icon={
+                <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
+              }
+            />
 
-          <ActionComponent
-            actions={[
-              {
-                type: "sidebar",
-                component: <DynamicForm config={orderFilterConfig} />,
-              },
-            ]}
-            icon={<Filter className="w-5 h-5 text-[var(--color-secondary1)]" />}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
-          />
-        </div>
-         
-
+            <ActionComponent
+              actions={[
+                {
+                  type: "sidebar",
+                  component: <ListingFilterForm />,
+                },
+              ]}
+              icon={
+                <Filter className="w-5 h-5 text-[var(--color-secondary1)]" />
+              }
+              buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+            />
+          </div>
         </div>
       </div>
 
@@ -157,7 +156,6 @@ const ListingPage = () => {
               bg: "bg-[var(--color-background)]",
             },
           }}
-          
         />
       </div>
 

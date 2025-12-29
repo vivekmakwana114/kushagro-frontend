@@ -229,7 +229,7 @@ const ActionComponent = ({
 
                 return (
                   <button
-                    key={action.label}
+                    key={action.label || index}
                     onClick={() => handleActionClick(action)}
                     className={`flex items-center gap-2 w-full text-left px-3 py-1 text-sm hover:bg-indigo-50
                       ${

@@ -12,6 +12,7 @@ import PopupForm from "@/components/ui/popupform";
 import { customerFilterConfig, suspendCustomerConfigAll } from "./buyerConfig";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
+import BuyerFilterForm from "./BuyerFilterForm";
 
 const options = {
   select: true,
@@ -80,7 +81,7 @@ const Page = () => {
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={customerFilterConfig} />,
+                component: <BuyerFilterForm />,
               },
             ]}
             icon={<Filter className="w-4 h-4 text-[var(--color-secondary1)]" />}

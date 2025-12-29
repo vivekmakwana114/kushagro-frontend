@@ -5,7 +5,7 @@ import InputField from "./InputRegistry";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Calendar1, ChevronDown, X } from "lucide-react";
-import { SearchDropdown } from "@/app/(dashboard)/booking/SearchDropdown";
+import { SearchDropdown } from "@/components/ui/SearchDropdown";
 import Image from "next/image";
 
 const DynamicForm = ({ config, onCancel, onApply, onSubmit, onChange }) => {

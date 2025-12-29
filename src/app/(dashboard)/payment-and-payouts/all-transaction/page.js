@@ -6,7 +6,7 @@ import { transactionColumn } from "./transactionColumn";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+import TransactionFilterForm from "./TransactionFilterForm";
 import { transactionFilterConfig } from "./transactionConfig";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
@@ -67,14 +67,16 @@ const AllTransactionPage = () => {
           <ActionComponent
             actions={downloadActions}
             buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
-            icon={<Download className="w-5 h-5 text-[var(--color-secondary1)]" />}
+            icon={
+              <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
+            }
           />
 
           <ActionComponent
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={transactionFilterConfig} />,
+                component: <TransactionFilterForm />,
               },
             ]}
             icon={<Filter className="w-5 h-5 text-[var(--color-secondary1)]" />}

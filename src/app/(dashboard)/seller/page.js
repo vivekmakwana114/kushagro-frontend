@@ -5,12 +5,12 @@ import { sellerData } from "./sellerData";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/registry";
 import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
 import { bookingFilterConfig, suspendSellerConfig } from "./sellerConfig";
 import { getSellerColumns } from "./sellerColumn";
+import SellerFilterForm from "./SellerFilterForm";
 
 const options = {
   select: true,
@@ -79,7 +79,7 @@ const SellerPage = () => {
               actions={[
                 {
                   type: "sidebar",
-                  component: <DynamicForm config={bookingFilterConfig} />,
+                  component: <SellerFilterForm />,
                 },
               ]}
               icon={

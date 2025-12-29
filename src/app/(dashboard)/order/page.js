@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import { getOrderColumns } from "./orderColumn";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+import OrderFilterForm from "./OrderFilterForm";
 import { orderData } from "./orderData";
 import {
   orderFilterConfig,
@@ -88,7 +88,7 @@ const OrderPage = () => {
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={orderFilterConfig} />,
+                component: <OrderFilterForm />,
               },
             ]}
             icon={<Filter className="w-5 h-5 text-[var(--color-secondary1)]" />}
@@ -129,11 +129,11 @@ const OrderPage = () => {
             component: <ViewUser />,
           },
           {
-                  label: "Flag Order",
-                  iconUrl: "/assets/icon/flag.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
-                },
+            label: "Flag Order",
+            iconUrl: "/assets/icon/flag.svg",
+            type: "popUp",
+            component: <ViewUser />,
+          },
           {
             label: "Export Selection",
             iconUrl: "/assets/icon/downloadGray.svg",
@@ -151,7 +151,6 @@ const OrderPage = () => {
               },
             ],
           },
-          
         ]}
       />
 
