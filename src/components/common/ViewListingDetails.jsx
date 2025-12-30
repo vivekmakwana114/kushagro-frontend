@@ -27,7 +27,7 @@ const ViewListingDetails = ({ data, onClose }) => {
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
     images: data?.images || [
-      "/assets/images/cow1.png", 
+      "/assets/images/cow1.png",
       "/assets/images/cow2.png",
       "/assets/images/cow3.png",
       "/assets/images/cow4.png",
@@ -41,16 +41,20 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
     "https://picsum.photos/seed/cow4/200/200",
   ];
 
-
   return (
     <div className="flex flex-col h-full bg-white w-full">
       {/* Header Section */}
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-1">
-          <Header type="header" label="Product Details" />
+          <Header
+            type="header"
+            label="Product Details"
+            css={{ textAlign: "left" }}
+          />
           <Header
             type="subheader"
             text="View complete product information, pricing, stock, status."
+            css={{ textAlign: "left" }}
           />
         </div>
       </div>
@@ -58,7 +62,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
       <div className="flex-1 overflow-y-auto pr-2 no-scrollbar">
         {/* Listing Photos */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-black mb-3">
+          <h3 className=" text-left text-sm font-semibold text-black mb-3">
             Listing Photos
           </h3>
           <div className="flex gap-3 overflow-x-auto pb-2">
@@ -79,54 +83,54 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-2 gap-y-4 gap-x-8 mb-4">
-          <div>
-            <p className="text-sm text-dull-text mb-1">Listing Name</p>
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-y-3 gap-x-8 mb-4 md:gap-y-4">
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Listing Name</p>
             <p className="text-base font-medium text-black">
               {listingData.name}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Category</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Category</p>
             <p className="text-base font-medium text-black">
               {listingData.category}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-1">Price</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Price</p>
             <p className="text-base font-medium text-black">
               {listingData.price}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Location</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Location</p>
             <p className="text-base font-medium text-black">
               {listingData.location}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-1">Breed</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Breed</p>
             <p className="text-base font-medium text-black">
               {listingData.breed}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Age</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Age</p>
             <p className="text-base font-medium text-black">
               {listingData.age}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-1">Weight</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Weight</p>
             <p className="text-base font-medium text-black">
               {listingData.weight}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Status</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-dull-text mb-0 md:mb-1">Status</p>
             <p
               className={`text-base font-medium ${
                 listingData.status.toLowerCase() === "active"
@@ -142,21 +146,24 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
         {/* Health and Condition */}
         <div className="mb-6">
-          <h3 className="text-sm text-dull-text mb-2">Health and Condition</h3>
-          <p className="text-sm text-dull-text leading-relaxed">
+          <h3 className="text-left text-sm text-dull-text mb-2">
+            Health and Condition
+          </h3>
+          <p className="text-left text-sm text-dull-text leading-relaxed">
             {listingData.healthCondition}
           </p>
         </div>
 
         {/* Product Description */}
         <div className="mb-6">
-          <h3 className="text-sm text-dull-text mb-2">Product Description</h3>
-          <div className="text-sm text-dull-text leading-relaxed whitespace-pre-line">
+          <h3 className="text-left text-sm text-dull-text mb-2">
+            Product Description
+          </h3>
+          <div className="text-left text-sm text-dull-text leading-relaxed whitespace-pre-line">
             {listingData.description}
           </div>
         </div>
       </div>
-
     </div>
   );
 };

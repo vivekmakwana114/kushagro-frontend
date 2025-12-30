@@ -3,17 +3,10 @@ import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import React, { useState } from "react";
 import { fraudData } from "./fraudData";
 import { fraudReportColumns } from "./fraudReportColumns";
-import ActionComponent from "@/components/grid/actionComponent";
-import { Filter, Search } from "lucide-react";
-import {
-  deleteSupportTicketConfig,
-  supportTicketFilterConfig,
-} from "./fruadReportConfig";
-import ViewUser from "../../buyer/viewUser";
-import PopupForm from "@/components/ui/popupform";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+import {  Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Pagination from "@/components/ui/pagination";
+import ActionPopup from "@/components/common/ActionPopup";
 
 const options = {
   select: true,
@@ -51,30 +44,19 @@ const FraudReportPage = () => {
           }}
           bulkActionsConfig={[
             {
-              label: "Mark as In Done",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
-            {
-              label: "Mark as In Process",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
-            {
-              label: "Delete Ticket",
-              iconUrl: "/assets/icon/deleteBarbershop.svg",
-              type: "popUp",
-              component: (
-                <PopupForm
-                  config={deleteSupportTicketConfig}
-                  width="600px"
-                  onApply={(data) => console.log("Ticket Deleted", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
+                  label: "Delete Ticket",
+                  iconUrl: "/assets/icon/deleteBarbershop.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Delete Fraud Ticket?"
+                      subHeading="Are you sure you want to delete this fraud ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                      confirmText="Confirm Delete"
+                      confirmColor="red"
+                    />
+                  ),
+                  onApply: (data) => console.log("Delete:", row, data),
+                },
           ]}
         />
       </div>

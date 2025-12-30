@@ -1,7 +1,4 @@
 "use client";
-
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import PopupForm from "@/components/ui/popupform";
 import ViewFraudReport from "@/components/common/ViewFraudReport";
 
 export const getFraudReportColumns = () => [
@@ -35,6 +32,7 @@ export const getFraudReportColumns = () => [
   {
     key: "reason",
     title: "Reason",
+    mobileStack: true,
     component: {
       type: "phone",
       style: {

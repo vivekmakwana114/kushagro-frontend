@@ -134,10 +134,12 @@ const ActionComponent = ({
                       if (hasDropdown) setIsOpen((prev) => !prev);
                       else handleActionClick(action);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md 
-           text-[var(--color-secondary1)] 
-           hover:bg-[color-mix(in_srgb,var(--color-secondary1)_10%,transparent)] 
-           transition-colors duration-150"
+                    className={`flex items-center justify-center gap-2 px-2 py-2 rounded-md transition-colors duration-150 ${
+                      action.className
+                        ? action.className // Use custom class if provided
+                        : `text-[var(--color-secondary1)] hover:bg-[color-mix(in_srgb,var(--color-secondary1)_10%,transparent)] font-medium text-sm px-4` // Fallback to original
+                    }`}
+                    style={action.style} // Respect inline styles if provided
                   >
                     {action?.iconUrl && (
                       <img
@@ -308,6 +310,32 @@ const ActionComponent = ({
         </div>
       )}
 
+      {/* Generic Modal Component (ActionPopup) Rendered Directly */}
+      {popUpOpen &&
+        contentType === "modal_component" &&
+        content &&
+        React.cloneElement(content, {
+          isOpen: true,
+          onClose: closeAll,
+          onCancel: closeAll,
+          onApply: (data) => {
+            if (currentAction?.onApply) {
+              currentAction.onApply(data);
+            } else if (content.props.onApply) {
+              // specific fallback if action doesn't have it but component does
+              content.props.onApply(data);
+            }
+            closeAll();
+          },
+          onConfirm: (data) => {
+            // Backward compatibility if onConfirm is used
+            if (currentAction?.onApply) {
+              currentAction.onApply(data);
+            }
+            closeAll();
+          },
+        })}
+
       {/* Sidebar */}
       {sidebarOpen && contentType === "sidebar" && content && (
         <div className="fixed inset-0 z-[1000] overflow-hidden">
@@ -327,7 +355,7 @@ const ActionComponent = ({
                   margin: "1rem",
                 }}
               >
-                <div className="flex-1 overflow-y-auto max-w-[800px] p-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                <div className="flex-1 overflow-y-auto max-w-[800px] md:p-4 p-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                   <button
                     onClick={closeAll}
                     className="absolute top-4 right-4 text-[var(--color-dull-text)] hover:text-[var(--color-placeholder-color)]"

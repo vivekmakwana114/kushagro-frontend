@@ -3,6 +3,8 @@
 import PopupForm from "@/components/ui/popupform";
 import ViewOrderDetails from "@/components/common/ViewOrderDetails";
 import ViewUser from "../buyer/viewUser";
+import ActionPopup from "@/components/common/ActionPopup";
+import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
 
 export const getOrderColumns = () => [
   {
@@ -164,11 +166,40 @@ export const getOrderColumns = () => [
                   type: "popUp",
                   component: <ViewUser />,
                 },
-                {
+                    {
                   label: "Flag Order",
                   iconUrl: "/assets/icon/flag.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Flag This Order?"
+                      subHeading="Are you sure you want to flag this order for further review? Flagged Orders will be marked in the system and may require follow-up by the support or moderation team."
+                      confirmText="Confirm Flag"
+                      confirmColor="bg-[#2E5B20] hover:bg-[#254a1a] text-white"
+                      dropdownOptions={[
+                        {
+                          label: "Suspicious activity",
+                          value: "Suspicious activity",
+                        },
+                        {
+                          label: "Payment discrepancy",
+                          value: "Payment discrepancy",
+                        },
+                        { label: "Buyer complaint", value: "Buyer complaint" },
+                        {
+                          label: "No-show without update",
+                          value: "No-show without update",
+                        },
+                        { label: "Stylist issue", value: "Stylist issue" },
+                        { label: "Other", value: "Other" },
+                      ]}
+                      dropdownLabel="Select a reason for flagging this Order"
+                      dropdownPlaceholder="Suspicious activity"
+                      textareaLabel="Note"
+                      textareaPlaceholder="Add a Note"
+                    />
+                  ),
+                  onApply: (data) => console.log("Flag Order:", row, data),
                 },
                 {
                   label: "Download Invoice",
@@ -178,9 +209,29 @@ export const getOrderColumns = () => [
                 {
                   label: "Cancel Order",
                   iconUrl: "/assets/icon/cancel.svg",
-                  type: "popUp",
-                  // component: <PopupForm config={cancelBookingConfig} />,
-                  onClick: (row) => handleCancelBooking(row),
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Cancel Product Order?"
+                      subHeading="Are you sure you want to cancel this order? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
+                      confirmText="Cancel Order"
+                      confirmColor="red"
+                      dropdownOptions={[
+                        { label: "Out of stock", value: "Out of stock" },
+                        {
+                          label: "Incorrect address",
+                          value: "Incorrect address",
+                        },
+                        { label: "Payment issue", value: "Payment issue" },
+                        { label: "Other", value: "Other" },
+                      ]}
+                      dropdownLabel="Cancellation Reason"
+                      dropdownPlaceholder="Inappropriate behavior"
+                      textareaLabel="Note"
+                      textareaPlaceholder="Add a Note"
+                    />
+                  ),
+                  onApply: (data) => console.log("Cancel Order:", row, data),
                 },
               ];
 
@@ -212,21 +263,16 @@ export const getOrderColumns = () => [
                   iconUrl: "/assets/icon/downloadGray.svg",
                   onClick: (data) => console.log("Download invoice:", data),
                 },
-                {
+               {
                   label: "Initiate Refund",
                   iconUrl: "/assets/icon/refund.svg",
-                  type: "popUp",
+                  type: "modal_component",
                   style: {
                     color: "#BC0D10",
                   },
-                  component: (
-                    <PopupForm
-                      config={""}
-                      width="600px"
-                      onApply={(data) => console.log("Refund confirmed", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  component: <InitiateRefundPopup />,
+                  onApply: (data) =>
+                    console.log("Refund Initiated:", row, data),
                 },
               ];
 

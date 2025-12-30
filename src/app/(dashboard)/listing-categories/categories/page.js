@@ -4,7 +4,6 @@ import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { Input } from "@/components/ui/input";
 import { Download, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
 import CategoryForm from "./CategoryForm";
 import Image from "next/image";
 import PopupForm from "@/components/ui/popupform";

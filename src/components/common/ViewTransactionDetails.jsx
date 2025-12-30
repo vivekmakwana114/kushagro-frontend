@@ -35,14 +35,19 @@ const ViewTransactionDetails = ({ data, formData, onClose }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white w-full">
+    <div className="p-2 xl:p-0 flex flex-col h-full bg-white w-full">
       {/* Header Section */}
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-1">
-          <Header type="header" label="Transaction Detail" />
+          <Header
+            type="header"
+            label="Transaction Detail"
+            css={{ textAlign: "left" }}
+          />
           <Header
             type="subheader"
             text="Explore detailed information regarding this transaction."
+            css={{ textAlign: "left" }}
           />
         </div>
       </div>
@@ -50,53 +55,59 @@ const ViewTransactionDetails = ({ data, formData, onClose }) => {
       <div className="flex-1 overflow-y-auto pr-2 no-scrollbar">
         {/* Details Grid */}
         <div className="grid grid-cols-2 gap-y-6 gap-x-8 mb-4">
-          <div>
-            <p className="text-sm text-dull-text mb-1">Transaction ID</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">
+              Transaction ID
+            </p>
             <p className="text-base font-medium text-secondary1">
               {transactionData.transaction_id}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Buyer</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">Buyer</p>
             <p className="text-base font-medium text-secondary1">
               {transactionData.buyer}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-1">Date & Time</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">Date & Time</p>
             <p className="text-base font-medium text-black">
               {transactionData.date}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Seller</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">Seller</p>
             <p className="text-base font-medium text-secondary1">
               {transactionData.seller}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-1">Order ID</p>
-            <p className="text-base font-medium text-secondary1">
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">Order ID</p>
+            <p className="text-[14px] font-medium text-secondary1">
               {transactionData.order_id}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Payment Method</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">
+              Payment Method
+            </p>
             <p className="text-base font-medium text-black">
               {transactionData.method}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-1">Transaction Amount</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">
+              Transaction Amount
+            </p>
             <p className="text-base font-medium text-black">
               {transactionData.amount}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-dull-text mb-1">Status</p>
+          <div className="text-left">
+            <p className="text-left text-sm text-dull-text mb-1">Status</p>
             <p
               className={`text-base font-medium ${statusColor(
                 transactionData.status

@@ -7,18 +7,11 @@ import { getOrderColumns } from "./orderColumn";
 import ActionComponent from "@/components/grid/actionComponent";
 import OrderFilterForm from "./OrderFilterForm";
 import { orderData } from "./orderData";
-import {
-  orderFilterConfig,
-  deleteOrderConfigAll,
-  markAsActiveConfig,
-  markAsInactiveBulkConfig,
-  deleteOrderConfig,
-} from "./orderConfig";
 import Image from "next/image";
 import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
-import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
 import ViewUser from "../buyer/viewUser";
+import ActionPopup from "@/components/common/ActionPopup";
 
 const downloadActions = [
   {
@@ -129,12 +122,41 @@ const OrderPage = () => {
               type: "popUp",
               component: <ViewUser />,
             },
-            {
-              label: "Flag Order",
-              iconUrl: "/assets/icon/flag.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
+                {
+                  label: "Flag Order",
+                  iconUrl: "/assets/icon/flag.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Flag These Orders?"
+                      subHeading="Are you sure you want to flag these orders for further review? Flagged Orders will be marked in the system and may require follow-up by the support or moderation team."
+                      confirmText="Confirm Flag"
+                      confirmColor="bg-[#2E5B20] hover:bg-[#254a1a] text-white"
+                      dropdownOptions={[
+                        {
+                          label: "Suspicious activity",
+                          value: "Suspicious activity",
+                        },
+                        {
+                          label: "Payment discrepancy",
+                          value: "Payment discrepancy",
+                        },
+                        { label: "Buyer complaint", value: "Buyer complaint" },
+                        {
+                          label: "No-show without update",
+                          value: "No-show without update",
+                        },
+                        { label: "Stylist issue", value: "Stylist issue" },
+                        { label: "Other", value: "Other" },
+                      ]}
+                      dropdownLabel="Select a reason for flagging this Order"
+                      dropdownPlaceholder="Suspicious activity"
+                      textareaLabel="Note"
+                      textareaPlaceholder="Add a Note"
+                    />
+                  ),
+                  onApply: (data) => console.log("Flag Order:", row, data),
+                },
             {
               label: "Export Selection",
               iconUrl: "/assets/icon/downloadGray.svg",

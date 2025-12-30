@@ -73,7 +73,7 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
   return (
     <div className="flex flex-col h-full bg-white w-full max-w-2xl mx-auto p-6 md:p-0">
       <div className="flex justify-between items-start ">
-        <div className="space-y-1">
+        <div className="text-left space-y-1">
           <Header
             type="header"
             label={isEditMode ? "Edit Category" : "Add Category"}
@@ -97,7 +97,7 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-black block mb-2">
+            <label className="text-left text-sm font-medium text-black block mb-2">
               Category Name
             </label>
             <Input
@@ -117,7 +117,7 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
             )}
           </div>
 
-          <div>
+          <div className="text-left">
             <SelectCheckbox
               label="Status"
               placeholder="Select Status"

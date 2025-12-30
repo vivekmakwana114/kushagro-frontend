@@ -5,14 +5,6 @@ import { Input } from "@/components/ui/input";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { getProductOrderColumns } from "./prodctOrderColumn";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/registry";
-import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
-
-import {
-  bookingFilterConfig,
-  cancelBookingConfig,
-  refundDetailsConfig,
-} from "./productOrderConfig";
 import PopupForm from "@/components/ui/popupform";
 import { useState } from "react";
 import productOrderData from "./productOrderData";
@@ -95,47 +87,6 @@ export default function Page() {
           }}
         />
       </div>
-
-      {/* Cancel Booking Popup */}
-      {showCancelPopup && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowCancelPopup(false)} // click outside to close
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={cancelBookingConfig}
-              width="600px"
-              onApply={(data) => {
-                console.log("Booking cancelled", data);
-                setShowCancelPopup(false);
-                setShowRefundPopup(true); // trigger refund popup next
-              }}
-              onCancel={() => setShowCancelPopup(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Refund Popup */}
-      {showRefundPopup && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowRefundPopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={refundDetailsConfig}
-              width="600px"
-              onApply={(data) => {
-                console.log("Refund confirmed", data);
-                setShowRefundPopup(false);
-              }}
-              onCancel={() => setShowRefundPopup(false)}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

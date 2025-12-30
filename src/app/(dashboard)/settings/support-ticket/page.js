@@ -6,14 +6,12 @@ import { supportTicketColumns } from "./supportTicketColumns";
 import ActionComponent from "@/components/grid/actionComponent";
 import SupportTicketFilterForm from "./SupportTicketFilterForm";
 import { Filter, Search } from "lucide-react";
-import {
-  deleteSupportTicketConfig,
-  supportTicketFilterConfig,
-} from "./supportTicketConfig";
+
 import ViewUser from "../../buyer/viewUser";
-import PopupForm from "@/components/ui/popupform";
+
 import { Input } from "@/components/ui/input";
 import Pagination from "@/components/ui/pagination";
+import ActionPopup from "@/components/common/ActionPopup";
 
 const options = {
   select: true,
@@ -63,30 +61,31 @@ const SupportTicketPage = () => {
           }}
           bulkActionsConfig={[
             {
-              label: "Mark as In Done",
+              label: "Mark as Done",
               iconUrl: "/assets/icon/markCompleted.svg",
               type: "popUp",
               component: <ViewUser />,
             },
             {
-              label: "Mark as In Process",
+              label: "Mark as Process",
               iconUrl: "/assets/icon/markCompleted.svg",
               type: "popUp",
               component: <ViewUser />,
             },
-            {
-              label: "Delete Ticket",
-              iconUrl: "/assets/icon/deleteBarbershop.svg",
-              type: "popUp",
-              component: (
-                <PopupForm
-                  config={deleteSupportTicketConfig}
-                  width="600px"
-                  onApply={(data) => console.log("Ticket Deleted", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
+           {
+                  label: "Delete Ticket",
+                  iconUrl: "/assets/icon/deleteBarbershop.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Delete Selected Ticket?"
+                      subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                      confirmText="Delete All"
+                      confirmColor="red"
+                    />
+                  ),
+                  onApply: (data) => console.log("Delete:", data),
+                },
           ]}
         />
       </div>

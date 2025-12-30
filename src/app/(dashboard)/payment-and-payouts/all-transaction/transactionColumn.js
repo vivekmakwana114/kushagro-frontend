@@ -1,8 +1,6 @@
 "use client";
-import DetailView from "@/components/modules/DetailView";
 import ViewTransactionDetails from "@/components/common/ViewTransactionDetails";
-import { transactionDetailsConfig } from "./transactionConfig";
-import PopupForm from "@/components/ui/popupform";
+
 import ViewUser from "../../buyer/viewUser";
 
 export const transactionColumn = [

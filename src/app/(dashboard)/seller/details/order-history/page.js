@@ -4,20 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Download, Search } from "lucide-react";
 import React from "react";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
 import { orderData } from "./orderHistoryData";
-import {
-  deleteOrderConfigAll,
-  getOrderConfig,
-  markAsActiveConfig,
-  markAsInactiveBulkConfig,
-} from "./orderHistoryConfig";
 import Image from "next/image";
-import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
-import PopupForm from "@/components/ui/popupform";
 import { useSelector } from "react-redux";
 import { getOrderColumns } from "./orderHistoryColumn";
-import { deleteBarberConfigAll } from "@/app/(dashboard)/order/orderConfig";
 
 const options = {
   select: false,
@@ -68,9 +58,7 @@ const OrderHistoryPage = () => {
           <ActionComponent
             actions={downloadActions}
             buttonClassName="inline-flex items-center justify-center p-2 border border-(--border-admin) bg-white rounded-md  hover:bg-gray-50"
-            icon={
-              <Download className="w-4 h-4 text-secondary1" />
-            }
+            icon={<Download className="w-4 h-4 text-secondary1" />}
           />
         </div>
       </div>
@@ -101,69 +89,6 @@ const OrderHistoryPage = () => {
               bg: "bg-gray-100",
             },
           }}
-          bulkActionsConfig={[
-            {
-              label: "Mark as Active",
-              iconUrl: "/assets/icon/reactivateCustomer.svg",
-              component: (
-                <PopupForm
-                  config={markAsActiveConfig}
-                  width="500px"
-                  onApply={(data) => console.log("Activated:", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
-            {
-              label: "Mark as Inactive",
-              iconUrl: "/assets/icon/markInactive.svg",
-              type: "popUp",
-              component: (
-                <PopupForm
-                  config={markAsInactiveBulkConfig}
-                  width="500px"
-                  onApply={(data) => console.log("Activated:", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
-            ...(role !== "barbershop"
-              ? [
-                  {
-                    label: "Export Selection",
-                    iconUrl: "/assets/icon/downloadGray.svg",
-                    children: [
-                      { header: "Download List" },
-                      {
-                        label: "Download PDF",
-                        icon: <BsFilePdf className="w-4 h-4 text-[#7B7B7B]" />,
-                        onClick: (rows) => console.log(rows, "Download PDF"),
-                      },
-                      {
-                        label: "Download CSV",
-                        icon: (
-                          <BsFileSpreadsheet className="w-4 h-4 text-[#7B7B7B]" />
-                        ),
-                        onClick: (rows) => console.log(rows, "Download CSV"),
-                      },
-                    ],
-                  },
-                ]
-              : []),
-
-            {
-              label: "Delete Barbershop",
-              iconUrl: "/assets/icon/deleteBarbershop.svg",
-              component: (
-                <PopupForm
-                  config={deleteOrderConfigAll}
-                  width="500px"
-                  onApply={(data) => console.log("Suspended:", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
-          ]}
         />
       </div>
     </div>

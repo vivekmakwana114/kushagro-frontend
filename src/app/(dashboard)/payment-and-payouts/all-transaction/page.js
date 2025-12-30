@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
 import TransactionFilterForm from "./TransactionFilterForm";
-import { transactionFilterConfig } from "./transactionConfig";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
 

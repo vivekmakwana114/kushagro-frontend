@@ -172,19 +172,17 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
       {/* Header Section */}
       <div className="flex justify-between items-start mb-4">
         <div className="space-y-1">
-          <Header type="header" label="Order Details" />
+          <Header
+            type="header"
+            label="Order Details"
+            css={{ textAlign: "left" }}
+          />
           <Header
             type="subheader"
             text="View complete information about this order, including items, delivery, and payment summary."
+            css={{ textAlign: "left" }}
           />
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-gray-100 rounded-md transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5 text-gray-500" />
-        </button>
       </div>
 
       <div className="w-full h-px bg-(--border-admin) mb-4" />
@@ -194,40 +192,46 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
         <div className="space-y-6 w-full">
           {/* Order Summary Section */}
           <div>
-            <h3 className="text-base font-semibold text-black mb-3">
+            <h3 className="text-left text-base font-semibold text-black mb-3">
               Order Summary
             </h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <p className="text-sm text-dull-text mb-1">Order ID</p>
+            <div className="flex flex-col md:grid md:grid-cols-3 gap-3 md:gap-4">
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-dull-text mb-0 md:mb-1">Order ID</p>
                 <p className="text-sm font-medium text-secondary1">
                   {data.orderId}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-dull-text mb-1">Total Amount</p>
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-dull-text mb-0 md:mb-1">
+                  Total Amount
+                </p>
                 <p className="text-sm font-medium text-black">
                   {data.totalAmount}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-dull-text mb-1">Transaction ID</p>
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-dull-text mb-0 md:mb-1">
+                  Transaction ID
+                </p>
                 <p className="text-sm font-medium text-secondary1">
                   {data.transactionId}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-dull-text mb-1">Date</p>
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-dull-text mb-0 md:mb-1">Date</p>
                 <p className="text-sm font-medium text-black">{data.date}</p>
               </div>
-              <div>
-                <p className="text-sm text-dull-text mb-1">Payment Method</p>
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-dull-text mb-0 md:mb-1">
+                  Payment Method
+                </p>
                 <p className="text-sm font-medium text-black">
                   {data.paymentMethod}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-dull-text mb-1">Status</p>
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-dull-text mb-0 md:mb-1">Status</p>
                 <p
                   className={`text-sm font-medium ${
                     data.status === "Complete"
@@ -245,10 +249,10 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
 
           {/* Buyer/Seller Information - Side by Side for Order Module */}
           {module === "order" && (
-            <div className="grid grid-cols-2 gap-6">
+            <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-6">
               {/* Buyer Info */}
               <div>
-                <p className="text-sm text-dull-text mb-3">Buyer</p>
+                <p className="text-left text-sm text-dull-text mb-3">Buyer</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
                     <Image
@@ -272,7 +276,7 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
 
               {/* Seller Info */}
               <div>
-                <p className="text-sm text-dull-text mb-3">Seller</p>
+                <p className="text-left text-sm text-dull-text mb-3">Seller</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
                     <Image
@@ -298,12 +302,12 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
 
           {/* Product Ordered Section */}
           <div>
-            <h3 className="text-base font-semibold text-black mb-3">
+            <h3 className="text-left text-base font-semibold text-black mb-3">
               Product Ordered
             </h3>
             <div className="border border-(--border-admin) rounded-lg overflow-hidden">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 bg-gray-50 px-4 py-3 border-b border-(--border-admin)">
+              <div className="hidden md:grid grid-cols-12 gap-4 bg-gray-50 px-4 py-3 border-b border-(--border-admin)">
                 <div className="col-span-5 text-sm font-medium text-black">
                   Product Name
                 </div>
@@ -319,7 +323,7 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
               </div>
 
               {/* Table Row */}
-              <div className="grid grid-cols-12 gap-4 px-4 py-3 items-center">
+              <div className="flex flex-col md:grid md:grid-cols-12 gap-4 px-4 py-3 md:items-center">
                 <div className="col-span-5 flex items-center gap-3">
                   <div className="w-10 h-10 shrink-0 rounded-md overflow-hidden relative bg-gray-100">
                     <Image
@@ -339,25 +343,51 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                     </p>
                   </div>
                 </div>
-                <div className="col-span-2 text-sm text-black text-center">
+
+                {/* Mobile View for Quantity, Price, Subtotal */}
+                <div className="flex flex-col gap-2 md:contents">
+                  <div className="flex justify-between items-center md:hidden">
+                    <span className="text-sm text-dull-text">Quantity</span>
+                    <span className="text-sm text-black">
+                      {data.product.quantity}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center md:hidden">
+                    <span className="text-sm text-dull-text">Price</span>
+                    <span className="text-sm text-black">
+                      {data.product.price}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center md:hidden">
+                    <span className="text-sm text-dull-text">Subtotal</span>
+                    <div className="text-sm font-medium text-black text-right">
+                      {data.product.subtotal}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop View Columns */}
+                <div className="hidden md:block col-span-2 text-sm text-black text-center">
                   {data.product.quantity}
                 </div>
-                <div className="col-span-2 text-sm text-black text-center">
+                <div className="hidden md:block col-span-2 text-sm text-black text-center">
                   {data.product.price}
                 </div>
-                <div className="col-span-3 text-sm font-medium text-black text-right">
+                <div className="hidden md:block col-span-3 text-sm font-medium text-black text-right">
                   {data.product.subtotal}
                 </div>
               </div>
             </div>
             {data.status === "Cancelled" && data.cancellationReason && (
               <div className="mt-4 border border-(--border-admin) rounded-lg p-4">
-                <p className="text-sm  text-dull-text mb-1">
-                  Cancellation Reason:
-                </p>
-                <p className="text-sm font-medium text-black">
-                  {data.cancellationReason}
-                </p>
+                <div className="flex justify-between items-start md:block">
+                  <p className="text-sm text-dull-text mb-0 md:mb-1 shrink-0">
+                    Cancellation Reason:
+                  </p>
+                  <p className="text-sm font-medium text-black text-right md:text-left">
+                    {data.cancellationReason}
+                  </p>
+                </div>
               </div>
             )}
           </div>

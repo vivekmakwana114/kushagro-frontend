@@ -109,7 +109,7 @@ const EmailPage = () => {
       {/* Content Area with separation */}
       <div className="flex items-center justify-center mt-6">
         {activeTab === "email" ? (
-          <div className="w-[650px] border border-(--border-admin) rounded-xl p-8 bg-white shadow-sm">
+          <div className="w-full max-w-[650px] border border-(--border-admin) rounded-xl p-8 bg-white shadow-sm">
             <h2 className="text-xl font-bold mb-8 text-black">
               Email Settings
             </h2>
@@ -199,77 +199,73 @@ const EmailPage = () => {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center">
-            <div className="w-[650px] border border-(--border-admin) rounded-xl p-8 bg-white shadow-sm">
-              <h2 className="text-xl font-bold mb-8 text-black">
-                SMS Settings
-              </h2>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-black">
-                    Twilio SID
-                  </label>
-                  <Input
-                    name="twilioSid"
-                    placeholder="E.g. B9B5WFB-MA04H02-MARK1T2-DRB33R3"
-                    value={smsData.twilioSid}
-                    onChange={handleSmsChange}
-                    className={`h-11 ${
-                      smsErrors.twilioSid ? "border-red-500" : ""
-                    }`}
-                  />
-                  {smsErrors.twilioSid && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {smsErrors.twilioSid}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-black">
-                    Twilio Token
-                  </label>
-                  <Input
-                    name="twilioToken"
-                    placeholder="E.g. B9B5WFB-MA04H02-MARK1T2-DRB33R3"
-                    value={smsData.twilioToken}
-                    onChange={handleSmsChange}
-                    className={`h-11 ${
-                      smsErrors.twilioToken ? "border-red-500" : ""
-                    }`}
-                  />
-                  {smsErrors.twilioToken && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {smsErrors.twilioToken}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-black">
-                    Twilio Phone
-                  </label>
-                  <Input
-                    name="twilioPhone"
-                    placeholder="E.g. +81 000 000 0000"
-                    value={smsData.twilioPhone}
-                    onChange={handleSmsChange}
-                    className={`h-11 ${
-                      smsErrors.twilioPhone ? "border-red-500" : ""
-                    }`}
-                  />
-                  {smsErrors.twilioPhone && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {smsErrors.twilioPhone}
-                    </p>
-                  )}
-                </div>
-                <div className="pt-28">
-                  <Button
-                    onClick={handleUpdate}
-                    className="w-full bg-secondary1 hover:bg-secondary1/90 text-white h-11 text-md font-medium rounded-md"
-                  >
-                    Update SMS Setting
-                  </Button>
-                </div>
+          <div className="w-full max-w-[650px] border border-(--border-admin) rounded-xl p-8 bg-white shadow-sm">
+            <h2 className="text-xl font-bold mb-8 text-black">SMS Settings</h2>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-black">
+                  Twilio SID
+                </label>
+                <Input
+                  name="twilioSid"
+                  placeholder="E.g. B9B5WFB-MA04H02-MARK1T2-DRB33R3"
+                  value={smsData.twilioSid}
+                  onChange={handleSmsChange}
+                  className={`h-11 ${
+                    smsErrors.twilioSid ? "border-red-500" : ""
+                  }`}
+                />
+                {smsErrors.twilioSid && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {smsErrors.twilioSid}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-black">
+                  Twilio Token
+                </label>
+                <Input
+                  name="twilioToken"
+                  placeholder="E.g. B9B5WFB-MA04H02-MARK1T2-DRB33R3"
+                  value={smsData.twilioToken}
+                  onChange={handleSmsChange}
+                  className={`h-11 ${
+                    smsErrors.twilioToken ? "border-red-500" : ""
+                  }`}
+                />
+                {smsErrors.twilioToken && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {smsErrors.twilioToken}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-black">
+                  Twilio Phone
+                </label>
+                <Input
+                  name="twilioPhone"
+                  placeholder="E.g. +81 000 000 0000"
+                  value={smsData.twilioPhone}
+                  onChange={handleSmsChange}
+                  className={`h-11 ${
+                    smsErrors.twilioPhone ? "border-red-500" : ""
+                  }`}
+                />
+                {smsErrors.twilioPhone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {smsErrors.twilioPhone}
+                  </p>
+                )}
+              </div>
+              <div className="pt-28">
+                <Button
+                  onClick={handleUpdate}
+                  className="w-full bg-secondary1 hover:bg-secondary1/90 text-white h-11 text-md font-medium rounded-md"
+                >
+                  Update SMS Setting
+                </Button>
               </div>
             </div>
           </div>

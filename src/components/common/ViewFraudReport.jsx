@@ -11,6 +11,8 @@ const ViewFraudReport = ({
   onClose,
   onSuspend,
   userType = "buyer",
+  onCancel, 
+  onApply,
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [adminNotes, setAdminNotes] = useState("");
@@ -40,23 +42,26 @@ const ViewFraudReport = ({
   };
 
   const handleSuspend = () => {
-    console.log("Form Submitted - Report ID:", data.reportId);
-    console.log("Form Submitted - Admin Notes:", adminNotes);
-    console.log("Form Submitted - Full Data:", {
+    const payload = {
       reportId: data.reportId,
       adminNotes,
-    });
+    };
+
+    console.log("Form Submitted - Full Data:", payload);
 
     if (onSuspend) {
-      onSuspend({
-        reportId: data.reportId,
-        adminNotes,
-      });
+      onSuspend(payload);
+    } else if (onApply) {
+      onApply(payload);
     }
   };
 
   const handleCancel = () => {
-    if (onClose) onClose();
+    if (onClose) {
+      onClose();
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
   // Capitalize first letter for display
@@ -64,14 +69,19 @@ const ViewFraudReport = ({
     userType.charAt(0).toUpperCase() + userType.slice(1);
 
   return (
-    <div className="flex flex-col h-full bg-white overflow-y-auto overflow-x-hidden no-scrollbar">
+    <div className="flex flex-col h-full bg-white overflow-y-auto overflow-x-hidden p-2 xl:p-0 no-scrollbar">
       {/* Header Section */}
       <div className="flex justify-between items-start">
         <div className="space-y-1">
-          <Header type="header" label="Fraud Report Details" />
+          <Header
+            type="header"
+            label="Fraud Report Details"
+            className="text-base md:text-lg text-left"
+          />
           <Header
             type="subheader"
             text={`View and manage all fraud cases reported against this ${userType}.`}
+            className="text-left"
           />
         </div>
       </div>
@@ -80,21 +90,23 @@ const ViewFraudReport = ({
 
       <div className="flex-1 mt-2 overflow-y-auto overflow-x-hidden no-scrollbar">
         <div className="space-y-4 w-full">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-dull-text mb-1">Report ID</p>
+          <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-2 md:gap-0">
+            <div className="flex justify-between w-full md:block md:w-auto">
+              <p className="text-sm text-dull-text mb-0 md:mb-1">Report ID</p>
               <p className="text-sm font-medium text-secondary1">
                 {data.reportId}
               </p>
             </div>
-            <div className="text-left pr-12">
-              <p className="text-sm text-dull-text mb-1">Date</p>
+            <div className="flex justify-between w-full md:block md:w-auto text-left md:pr-12">
+              <p className="text-sm text-dull-text mb-0 md:mb-1">Date</p>
               <p className="text-sm font-medium text-black">{data.date}</p>
             </div>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-3">Reported By</p>
+          <div className="flex justify-between items-center md:block">
+            <p className="text-sm text-left text-dull-text mb-0 md:mb-3">
+              Reported By
+            </p>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
                 <Image
@@ -116,14 +128,16 @@ const ViewFraudReport = ({
             </div>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text mb-2">Note</p>
-            <p className="text-sm text-black leading-relaxed">{data.notes}</p>
+          <div className="flex justify-between items-start md:block gap-4">
+            <p className="text-sm text-dull-text mb-0 md:mb-2 shrink-0">Note</p>
+            <p className="text-sm text-black leading-relaxed text-right md:text-left">
+              {data.notes}
+            </p>
           </div>
 
-          <div>
-            <p className="text-sm text-dull-text pb-2">Evidence</p>
-            <div className="rounded-lg w-full">
+          <div className="flex justify-between items-start md:block">
+            <p className="text-sm text-dull-text pb-0 md:pb-2">Evidence</p>
+            <div className="rounded-lg w-1/2 md:w-full">
               <div
                 className="w-full aspect-video bg-white rounded-lg overflow-hidden cursor-pointer shadow-sm relative"
                 onClick={handleImageClick}
@@ -139,20 +153,24 @@ const ViewFraudReport = ({
             </div>
           </div>
 
-          <div>
-            <TextArea
-              label="Admin Notes"
-              value={adminNotes}
-              onChange={setAdminNotes}
-              placeholder="Add investigation notes for internal tracking..."
-              rows={4}
-            />
+          <div className="flex justify-between items-start md:block gap-4">
+            <p className="text-sm text-dull-text mb-0 md:mb-2 pt-3 md:pt-0 shrink-0">
+              Admin Notes
+            </p>
+            <div className="w-2/3 md:w-full">
+              <TextArea
+                value={adminNotes}
+                onChange={setAdminNotes}
+                placeholder="Add investigation notes for internal tracking..."
+                rows={4}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
           <Button
             type="button"
             onClick={handleCancel}

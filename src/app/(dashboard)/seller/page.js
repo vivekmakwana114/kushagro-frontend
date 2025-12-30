@@ -5,12 +5,12 @@ import { sellerData } from "./sellerData";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
-import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
-import { bookingFilterConfig, suspendSellerConfig } from "./sellerConfig";
+
 import { getSellerColumns } from "./sellerColumn";
 import SellerFilterForm from "./SellerFilterForm";
+import ActionPopup from "@/components/common/ActionPopup";
 
 const options = {
   select: true,
@@ -120,18 +120,45 @@ const SellerPage = () => {
               },
             }}
             bulkActionsConfig={[
-              {
-                label: "Suspend Seller",
-                iconUrl: "/assets/icon/suspendCustomer.svg",
-                component: (
-                  <PopupForm
-                    config={suspendSellerConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Suspended:", data)}
-                    onCancel={() => console.log("Cancelled")}
-                  />
-                ),
-              },
+                {
+              label: "Suspend Seller",
+              iconUrl: "/assets/icon/suspendCustomer.svg",
+              type: "modal_component",
+              component: (
+                <ActionPopup
+                  heading="Suspend Selected Sellers?"
+                  subHeading="You are about to suspend 12 Sellers. They will lose access to all app features until reactivated. Please select a common reason for suspension."
+                  confirmText="Confirm Suspend All"
+                  confirmColor="red"
+                  dropdownOptions={[
+                    {
+                      label: "Deactivation requested by the Sellers.",
+                      value: "Deactivation requested by the Sellers.",
+                    },
+                    {
+                      label: "Inappropriate behavior",
+                      value: "Inappropriate behavior",
+                    },
+                    { label: "Multiple no-shows", value: "Multiple no-shows" },
+                    {
+                      label: "Payment-related issues",
+                      value: "Payment-related issues",
+                    },
+                    {
+                      label: "Spam or fake account",
+                      value: "Spam or fake account",
+                    },
+                    { label: "Other", value: "Other" },
+                  ]}
+                  dropdownLabel="Select Suspension Reason"
+                  dropdownPlaceholder="Deactivation requested by the Sellers."
+                  textareaLabel="Note"
+                  textareaPlaceholder="Add a Note"
+                />
+              ),
+              onApply: (data, rows) =>
+                console.log("Bulk Suspended:", rows, data),
+            },
 
               {
                 label: "Export Selection",

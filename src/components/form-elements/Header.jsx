@@ -9,11 +9,21 @@ import React from "react";
  * @param {string | React.ReactNode} content - Alternate content
  * @param {object} css - Inline styles
  */
-const Header = ({ type = "header", label, text, content, css = {} }) => {
+const Header = ({
+  type = "header",
+  label,
+  text,
+  content,
+  css = {},
+  className = "",
+}) => {
   switch (type) {
     case "header":
       return (
-        <h2 className="text-lg font-medium text-black" style={css}>
+        <h2
+          className={`text-lg font-medium text-black ${className}`}
+          style={css}
+        >
           {label}
         </h2>
       );
@@ -21,7 +31,7 @@ const Header = ({ type = "header", label, text, content, css = {} }) => {
     case "subheader":
       return (
         <p
-          className="text-sm md:text-[12px] text-dull-text wrarp-break-words leading-relaxed"
+          className={`text-sm md:text-[12px] text-dull-text wrarp-break-words leading-relaxed ${className}`}
           style={css}
         >
           {text || label}

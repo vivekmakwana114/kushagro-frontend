@@ -1,17 +1,8 @@
 "use client";
 
-import StarRating from "@/components/ui/starRating";
 import PopupForm from "@/components/ui/popupform";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import {
-  deleteSellerConfig,
-  getSellerConfig,
-  markAsActiveConfig,
-  markAsInactiveConfig,
-  reactivateSellerConfig,
-  suspendSellerConfig,
-} from "./sellerConfig";
 import ViewUser from "../buyer/viewUser";
+import ActionPopup from "@/components/common/ActionPopup";
 
 export const getSellerColumns = () => [
   {
@@ -99,17 +90,6 @@ export const getSellerColumns = () => [
     },
   },
 
-  // {
-  //   key: "avg_rating",
-  //   title: "Rating",
-  //   sortable: true,
-  //   render: (value) => (
-  //     <div className="text-black-500">
-  //       <StarRating value={value} />
-  //     </div>
-  //   ),
-  // },
-
   {
     key: "id_status",
     title: "ID Status",
@@ -169,14 +149,44 @@ export const getSellerColumns = () => [
                 {
                   label: "Suspend Seller",
                   iconUrl: "/assets/icon/suspendCustomer.svg",
+                  type: "modal_component",
                   component: (
-                    <PopupForm
-                      config={suspendSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
+                    <ActionPopup
+                      heading="Suspend Seller?"
+                      subHeading="Are you sure you want to suspend this Seller’s account? This will prevent Seller from placing orders, or accessing their profile until reactivated."
+                      confirmText="Confirm Suspend"
+                      confirmColor="red"
+                      dropdownOptions={[
+                        {
+                          label: "Inappropriate behavior",
+                          value: "Inappropriate behavior",
+                        },
+                        {
+                          label: "Multiple no-shows",
+                          value: "Multiple no-shows",
+                        },
+                        {
+                          label: "Payment-related issues",
+                          value: "Payment-related issues",
+                        },
+                        {
+                          label: "Spam or fake account",
+                          value: "Spam or fake account",
+                        },
+                        { label: "Buyer request", value: "Buyer request" },
+                        {
+                          label: "Missing essential Buyer details.",
+                          value: "Missing essential Buyer details.",
+                        },
+                        { label: "Other", value: "Other" },
+                      ]}
+                      dropdownLabel="Select Suspension Reason"
+                      dropdownPlaceholder="Select Suspension Reason"
+                      textareaLabel="Note"
+                      textareaPlaceholder="Add a Note"
                     />
                   ),
+                  onApply: (data) => console.log("Suspend Buyer:", row, data),
                 },
                 {
                   label: "Mark as Verfied ID",
@@ -242,19 +252,20 @@ export const getSellerColumns = () => [
                   url: "/seller/details/profile/",
                 },
 
-                {
-                  label: "Reactivate Seller",
-                  iconUrl: "/assets/icon/markCompleted.svg",
-                  component: (
-                    <PopupForm
-                      config={reactivateSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Reactivated:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
-                },
-                
+{
+                label: "Reactivate Seller",
+                iconUrl: "/assets/icon/reactivateCustomer.svg",
+                type: "modal_component",
+                component: (
+                  <ActionPopup
+                    heading="Reactivate Seller?"
+                    subHeading="Are you sure you want to reactivate this Seller’s account? Once reactivated, Seller will regain full access to Ksa, including booking appointments and making purchases."
+                    confirmText="Confirm Reactivation"
+                    confirmColor="text-secondary1"
+                  />
+                ),
+                onApply: (data) => console.log("Reactivate Seller:", row, data),
+              },
               ];
 
             default:

@@ -80,7 +80,7 @@ const TransactionFilterForm = ({ onCancel, onApply }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className=" flex flex-col h-full bg-white">
       <div className="flex justify-between items-start">
         <div className="space-y-1">
           <Header type="header" label="Advance Filters" />
