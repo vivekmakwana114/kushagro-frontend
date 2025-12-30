@@ -12,10 +12,12 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
   const defaultData = {
     orderId: "#KSA23102456145258",
     totalAmount: "$1600",
-    transactionId: "#TXN542I8390",
+    transactionId: "#TXN54218390",
     date: "15 Jul, 2025",
     paymentMethod: "PayStack",
-    status: "Complete",
+    status: "Cancelled",
+    cancellationReason:
+      "Customer changed their mind about the product specifications.",
     product: {
       name: "Chana Dal",
       category: "Cereals",
@@ -40,7 +42,7 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
       taxes: "$2.00",
       platformFee: "$10.00",
       totalPayable: "$812.00",
-      paymentStatus: "Paid",
+      paymentStatus: "Refunded",
     },
   };
 
@@ -62,51 +64,86 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                 padding: 20px;
                 color: #000;
               }
-              .invoice-header {
-                font-size: 18px;
-                font-weight: bold;
-                margin-bottom: 20px;
+              .flex {
                 display: flex;
+              }
+              .justify-between {
                 justify-content: space-between;
+              }
+              .items-center {
                 align-items: center;
               }
-              .invoice-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
+              .mb-4 {
+                margin-bottom: 1rem;
               }
-              .invoice-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 12px 0;
-                border-bottom: 1px solid #e5e7eb;
+              .space-y-4 > * + * {
+                margin-top: 1rem;
               }
-              .invoice-row:last-child {
-                border-bottom: none;
+              .pb-4 {
+                padding-bottom: 1rem;
               }
-              .invoice-label {
+              .pt-1 {
+                padding-top: 0.25rem;
+              }
+              .border {
+                border: 1px solid #e5e7eb;
+              }
+              .border-b {
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-color: #e5e7eb;
+              }
+              .border-dashed {
+                border-bottom-style: dashed;
+              }
+              .p-5 {
+                padding: 1.25rem;
+              }
+              .rounded-lg {
+                border-radius: 0.5rem;
+              }
+              .text-sm {
+                font-size: 14px;
+              }
+              .text-dull-text {
                 color: #6b7280;
-                font-size: 14px;
               }
-              .invoice-value {
-                color: #000;
-                font-size: 14px;
-                font-weight: 500;
-              }
-              .invoice-total {
+              .font-semibold {
                 font-weight: 600;
-                font-size: 15px;
               }
-              .payment-status {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
+              .font-bold {
+                font-weight: 700;
               }
-              .status-dot {
-                width: 8px;
-                height: 8px;
+              .text-black {
+                color: #000;
+              }
+              .gap-2 {
+                gap: 0.5rem;
+              }
+              .w-4 {
+                width: 1rem;
+              }
+              .h-4 {
+                height: 1rem;
+              }
+              .bg-green-500 {
                 background-color: #10b981;
-                border-radius: 50%;
+              }
+              .text-red-500 {
+                color: #ef4444;
+              }
+              .bg-red-500 {
+                background-color: #ef4444;
+              }
+              .bg-gray-500 {
+                background-color: #6b7280;
+              }
+              .rounded-full {
+                border-radius: 9999px;
+              }
+              /* SVG Styles for Print */
+              svg {
+                display: block;
               }
               @media print {
                 body {
@@ -150,7 +187,7 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
         </button>
       </div>
 
-      <div className="w-full h-px bg-[var(--border-admin)] mb-4" />
+      <div className="w-full h-px bg-(--border-admin) mb-4" />
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar">
@@ -175,7 +212,7 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
               </div>
               <div>
                 <p className="text-sm text-dull-text mb-1">Transaction ID</p>
-                <p className="text-sm font-medium text-black">
+                <p className="text-sm font-medium text-secondary1">
                   {data.transactionId}
                 </p>
               </div>
@@ -191,16 +228,24 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
               </div>
               <div>
                 <p className="text-sm text-dull-text mb-1">Status</p>
-                <p className="text-sm font-medium text-secondary1">
+                <p
+                  className={`text-sm font-medium ${
+                    data.status === "Complete"
+                      ? "text-secondary1"
+                      : data.status === "Cancelled"
+                      ? "text-red-500"
+                      : "text-black"
+                  }`}
+                >
                   {data.status}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Buyer/Seller Information */}
+          {/* Buyer/Seller Information - Side by Side for Order Module */}
           {module === "order" && (
-            <>
+            <div className="grid grid-cols-2 gap-6">
               {/* Buyer Info */}
               <div>
                 <p className="text-sm text-dull-text mb-3">Buyer</p>
@@ -248,56 +293,6 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                   </div>
                 </div>
               </div>
-            </>
-          )}
-
-          {module === "buyer" && (
-            <div>
-              <p className="text-sm text-dull-text mb-3">Seller</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
-                  <Image
-                    src={data.seller.avatar}
-                    alt={data.seller.name}
-                    fill
-                    sizes="40px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-black truncate">
-                    {data.seller.name}
-                  </p>
-                  <p className="text-xs text-dull-text truncate">
-                    {data.seller.email}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {module === "seller" && (
-            <div>
-              <p className="text-sm text-dull-text mb-3">Buyer</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
-                  <Image
-                    src={data.buyer.avatar}
-                    alt={data.buyer.name}
-                    fill
-                    sizes="40px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-black truncate">
-                    {data.buyer.name}
-                  </p>
-                  <p className="text-xs text-dull-text truncate">
-                    {data.buyer.email}
-                  </p>
-                </div>
-              </div>
             </div>
           )}
 
@@ -306,9 +301,9 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
             <h3 className="text-base font-semibold text-black mb-3">
               Product Ordered
             </h3>
-            <div className="border border-[var(--border-admin)] rounded-lg overflow-hidden">
+            <div className="border border-(--border-admin) rounded-lg overflow-hidden">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 bg-gray-50 px-4 py-3 border-b border-[var(--border-admin)]">
+              <div className="grid grid-cols-12 gap-4 bg-gray-50 px-4 py-3 border-b border-(--border-admin)">
                 <div className="col-span-5 text-sm font-medium text-black">
                   Product Name
                 </div>
@@ -355,6 +350,16 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                 </div>
               </div>
             </div>
+            {data.status === "Cancelled" && data.cancellationReason && (
+              <div className="mt-4 border border-(--border-admin) rounded-lg p-4">
+                <p className="text-sm  text-dull-text mb-1">
+                  Cancellation Reason:
+                </p>
+                <p className="text-sm font-medium text-black">
+                  {data.cancellationReason}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Invoice Details Section */}
@@ -374,47 +379,84 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
 
             {/* Invoice Content - This will be printed */}
             <div ref={invoiceRef}>
-              <div className="invoice-header">
-                <span>Invoice Details</span>
-                <span className="text-sm font-normal text-dull-text">
-                  Invoice ID
-                </span>
-                <span className="text-sm font-medium text-black">
-                  {data.invoice.invoiceId}
-                </span>
-              </div>
+              <div className="border border-(--border-admin) rounded-lg p-5 bg-white">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-sm text-dull-text">Invoice ID</span>
+                  <span className="text-sm font-semibold text-secondary1">
+                    {data.invoice.invoiceId}
+                  </span>
+                </div>
 
-              <div className="space-y-3">
-                <div className="invoice-row">
-                  <span className="invoice-label">Item Total</span>
-                  <span className="invoice-value">
-                    {data.invoice.itemTotal}
-                  </span>
-                </div>
-                <div className="invoice-row">
-                  <span className="invoice-label">Taxes(if any)</span>
-                  <span className="invoice-value">{data.invoice.taxes}</span>
-                </div>
-                <div className="invoice-row">
-                  <span className="invoice-label">Platform Fee</span>
-                  <span className="invoice-value">
-                    {data.invoice.platformFee}
-                  </span>
-                </div>
-                <div className="invoice-row">
-                  <span className="invoice-label invoice-total">
-                    Total Payable Amount
-                  </span>
-                  <span className="invoice-value invoice-total">
-                    {data.invoice.totalPayable}
-                  </span>
-                </div>
-                <div className="invoice-row">
-                  <span className="invoice-label">Payment Status</span>
-                  <span className="invoice-value payment-status">
-                    <span className="status-dot"></span>
-                    {data.invoice.paymentStatus}
-                  </span>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-4 border-b border-dashed border-(--border-admin)">
+                    <span className="text-sm text-dull-text">Item Total</span>
+                    <span className="text-sm font-semibold text-black">
+                      {data.invoice.itemTotal}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pb-4 border-b border-dashed border-(--border-admin)">
+                    <span className="text-sm text-dull-text">
+                      Taxes(if any)
+                    </span>
+                    <span className="text-sm font-semibold text-black">
+                      {data.invoice.taxes}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pb-4 border-b border-dashed border-(--border-admin)">
+                    <span className="text-sm text-dull-text">Platform Fee</span>
+                    <span className="text-sm font-semibold text-black">
+                      {data.invoice.platformFee}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pb-4 border-b border-dashed border-(--border-admin)">
+                    <span className="text-sm text-dull-text">
+                      Total Payable Amount
+                    </span>
+                    <span className="text-sm font-bold text-black">
+                      {data.invoice.totalPayable}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-1">
+                    <span className="text-sm text-dull-text">
+                      Payment Status
+                    </span>
+                    <span
+                      className={`text-sm font-semibold flex items-center gap-2 ${
+                        data.invoice.paymentStatus === "Paid"
+                          ? "text-secondary1"
+                          : data.invoice.paymentStatus === "Refunded"
+                          ? "text-red-500"
+                          : "text-black"
+                      }`}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                          data.invoice.paymentStatus === "Paid"
+                            ? "bg-green-500"
+                            : data.invoice.paymentStatus === "Refunded"
+                            ? "bg-red-500"
+                            : "bg-gray-500"
+                        }`}
+                      >
+                        <svg
+                          width="10"
+                          height="8"
+                          viewBox="0 0 10 8"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M9 1L3.5 6.5L1 4"
+                            stroke="white"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      {data.invoice.paymentStatus}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -120,7 +120,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails module="buyer" />,
+                  component: <ViewOrderDetails />,
                 },
                 // {
                 //   label: "Edit Booking",

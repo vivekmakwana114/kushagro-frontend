@@ -13,7 +13,7 @@ const Header = ({ type = "header", label, text, content, css = {} }) => {
   switch (type) {
     case "header":
       return (
-        <h2 className="text-lg font-bold text-black" style={css}>
+        <h2 className="text-lg font-medium text-black" style={css}>
           {label}
         </h2>
       );
@@ -21,7 +21,7 @@ const Header = ({ type = "header", label, text, content, css = {} }) => {
     case "subheader":
       return (
         <p
-          className="text-sm text-dull-text wrarp-break-words leading-relaxed"
+          className="text-sm md:text-[12px] text-dull-text wrarp-break-words leading-relaxed"
           style={css}
         >
           {text || label}

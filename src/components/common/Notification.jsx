@@ -184,7 +184,7 @@ const Notification = ({ isOpen, heading, subHeading }) => {
 
           {/* Notification list */}
           <div
-            className={`transition-all duration-300 overflow-y-auto ${
+            className={`transition-all duration-300 overflow-y-auto no-scrollbar ${
               isExpanded ? "max-h-[500px]" : "max-h-[300px]"
             }`}
           >

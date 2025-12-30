@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleSwitch } from "@/components/ui/toggle";
+import useAutoDismissError from "@/hooks/useAutoDismissError";
 
 const GeneralSettingsPage = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notifications, setNotifications] = useState(false);
   const [platformAccess, setPlatformAccess] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useAutoDismissError({});
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

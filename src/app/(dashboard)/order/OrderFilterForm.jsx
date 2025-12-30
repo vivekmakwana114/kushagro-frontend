@@ -5,6 +5,7 @@ import CheckboxGroup from "@/components/form-elements/CheckboxGroup";
 import DateRange from "@/components/form-elements/DateRange";
 import NumberRange from "@/components/form-elements/NumberRange";
 import { Button } from "@/components/ui/button";
+import useAutoDismissError from "@/hooks/useAutoDismissError";
 
 const OrderFilterForm = ({ onCancel, onApply }) => {
   // State for the form
@@ -15,7 +16,7 @@ const OrderFilterForm = ({ onCancel, onApply }) => {
   const [amountFrom, setAmountFrom] = useState("");
   const [amountTo, setAmountTo] = useState("");
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors, clearErrors] = useAutoDismissError({});
 
   const handleApply = () => {
     const newErrors = {};
@@ -84,6 +85,7 @@ const OrderFilterForm = ({ onCancel, onApply }) => {
   };
 
   const handleCancel = () => {
+    clearErrors();
     if (onCancel) onCancel();
   };
 

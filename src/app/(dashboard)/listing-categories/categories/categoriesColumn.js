@@ -1,5 +1,5 @@
 "use client";
-import DetailView from "@/components/modules/DetailView";
+import CategoryForm from "./CategoryForm";
 import {
   deleteConfig,
   markAsActiveConfig,
@@ -81,7 +81,7 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
                   label: "Edit Category",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <CategoryForm data={row} />,
                 },
                 {
                   label: "Mark As InActive",
@@ -115,7 +115,7 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
                   label: "Edit Category",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <CategoryForm data={row} />,
                 },
                 {
                   label: "Mark As Active",

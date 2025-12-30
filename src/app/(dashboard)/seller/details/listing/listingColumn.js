@@ -1,9 +1,6 @@
 "use client";
-import DetailView from "@/components/modules/DetailView";
-import {
-  markAsActiveConfig,
-  markAsInactiveConfig,
-} from "./listingConfig";
+import ViewListingDetails from "@/components/common/ViewListingDetails";
+import { markAsActiveConfig, markAsInactiveConfig } from "./listingConfig";
 import PopupForm from "@/components/ui/popupform";
 
 export const getListingColumns = () => [
@@ -86,7 +83,7 @@ export const getListingColumns = () => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewListingDetails data={row} />,
                 },
                 {
                   label: "Mark As InActive",
@@ -108,7 +105,7 @@ export const getListingColumns = () => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewListingDetails data={row} />,
                 },
                 {
                   label: "Mark As Active",

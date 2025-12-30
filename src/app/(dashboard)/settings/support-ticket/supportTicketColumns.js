@@ -1,12 +1,13 @@
 "use client";
 
-import DetailView from "@/components/modules/DetailView";
+// import DetailView from "@/components/modules/DetailView";
+import ViewSupportTicket from "./ViewSupportTicket";
 
 import PopupForm from "@/components/ui/popupform";
 import ViewUser from "../../buyer/viewUser";
 import {
   deleteSupportTicketConfig,
-  supportTicketDetailsConfig,
+  // supportTicketDetailsConfig,
 } from "./supportTicketConfig";
 
 export const supportTicketColumns = [
@@ -102,7 +103,7 @@ export const supportTicketColumns = [
                 label: "View Details",
                 iconUrl: "/assets/icon/viewCustomer.svg",
                 type: "sidebar",
-                component: <DetailView config={supportTicketDetailsConfig} />,
+                component: <ViewSupportTicket />,
               },
               {
                 label: "Mark as In Process",
@@ -132,7 +133,7 @@ export const supportTicketColumns = [
                 label: "View Details",
                 iconUrl: "/assets/icon/viewCustomer.svg",
                 type: "sidebar",
-                component: <DetailView config={supportTicketDetailsConfig} />,
+                component: <ViewSupportTicket />,
               },
               {
                 label: "Mark as In Done",
@@ -162,7 +163,7 @@ export const supportTicketColumns = [
               label: "View Details",
               iconUrl: "/assets/icon/viewCustomer.svg",
               type: "sidebar",
-              component: <DetailView config={supportTicketDetailsConfig} />,
+              component: <ViewSupportTicket />,
             },
             {
               label: "Mark as In Process",

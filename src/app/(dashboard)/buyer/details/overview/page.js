@@ -6,9 +6,7 @@ import Image from "next/image";
 
 import { useRouter } from "next/navigation";
 import PopupForm from "@/components/ui/popupform";
-import {
-  reactivateBuyerConfig,
-} from "./overviewConfig";
+import { reactivateBuyerConfig } from "./overviewConfig";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./farudReportColumn";
@@ -91,7 +89,7 @@ const ClientDetails = () => {
         <PortfolioCard data={OverviewData} />
       </div>
 
-    {/* Buyer Details */}
+      {/* Buyer Details */}
       <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
         {/* header */}
         <div className="flex justify-between items-center border-b pb-4 mb-6">

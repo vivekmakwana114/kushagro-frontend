@@ -4,6 +4,7 @@ import Header from "@/components/form-elements/Header";
 import CheckboxGroup from "@/components/form-elements/CheckboxGroup";
 import DateRange from "@/components/form-elements/DateRange";
 import { Button } from "@/components/ui/button";
+import useAutoDismissError from "@/hooks/useAutoDismissError";
 
 const SupportTicketFilterForm = ({ onCancel, onApply }) => {
   // State for the form
@@ -11,7 +12,7 @@ const SupportTicketFilterForm = ({ onCancel, onApply }) => {
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors, clearErrors] = useAutoDismissError({});
 
   const handleApply = () => {
     const newErrors = {};
@@ -45,6 +46,7 @@ const SupportTicketFilterForm = ({ onCancel, onApply }) => {
   };
 
   const handleCancel = () => {
+    clearErrors();
     if (onCancel) onCancel();
   };
 

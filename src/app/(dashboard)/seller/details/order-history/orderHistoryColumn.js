@@ -2,15 +2,6 @@
 
 import PopupForm from "@/components/ui/popupform";
 import {
-  deleteOrderConfig,
-  deleteOrderConfigAll,
-  getOrderConfig,
-  markAsActiveConfig,
-  markAsInactiveBulkConfig,
-  markAsInactiveConfig,
-  orderHistoryConfig,
-  suspendOrderConfig,
-  bookingDetailsConfig,
   refundDetailsConfig,
   markAsCompleteConfig,
   flagOrderConfig,
@@ -129,7 +120,7 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails module="seller" />,
+                  component: <ViewOrderDetails/>,
                 },
                 {
                   label: "Mark As Complete",

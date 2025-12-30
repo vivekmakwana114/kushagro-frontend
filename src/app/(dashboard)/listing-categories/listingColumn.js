@@ -8,6 +8,7 @@ import {
   markAsInactiveConfig,
 } from "./listingConfig";
 import PopupForm from "@/components/ui/popupform";
+import ViewListingDetails from "@/components/common/ViewListingDetails";
 
 export const getOfferColumns = (handleDeleteOffer) => [
   {
@@ -107,7 +108,7 @@ export const getOfferColumns = (handleDeleteOffer) => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewListingDetails data={row} onClose={() => {}} />,
                 },
                 {
                   label: "Mark As InActive",
@@ -129,7 +130,7 @@ export const getOfferColumns = (handleDeleteOffer) => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component:  <ViewListingDetails data={row} onClose={() => {}} />,
                 },
                 {
                   label: "Mark As Active",

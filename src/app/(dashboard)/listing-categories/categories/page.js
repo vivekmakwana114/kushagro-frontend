@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Download, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
 import DynamicForm from "@/components/modules/DynamicFormRendering";
+import CategoryForm from "./CategoryForm";
 import Image from "next/image";
 import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
@@ -109,15 +110,13 @@ const ListingCategoriesPage = () => {
           <ActionComponent
             actions={downloadActions}
             buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
-            icon={
-              <Download className="w-5 h-5 text-secondary1" />
-            }
+            icon={<Download className="w-5 h-5 text-secondary1" />}
           />
           <ActionComponent
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={""} />,
+                component: <CategoryForm />,
               },
             ]}
             icon={
@@ -129,7 +128,7 @@ const ListingCategoriesPage = () => {
               />
             }
             text={<span className="hidden sm:inline">Add Category</span>}
-            buttonClassName="flex items-center justify-center gap-2 bg-secondary1 text-white w-10 h-10 sm:w-auto sm:px-4 sm:py-2 rounded-md hover:bg-secondary1/80 cursor-pointer"
+            buttonClassName="flex items-center justify-center md:gap-2 bg-secondary1 text-white w-10 h-10 sm:w-auto sm:px-4 sm:py-2 rounded-md hover:bg-secondary1/80 cursor-pointer"
           />
         </div>
       </div>
