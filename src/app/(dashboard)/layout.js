@@ -14,21 +14,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 const outfit = Outfit({ variable: "--font-outfit", subsets: ["latin"] });
 
 export default function DashboardLayout({ children }) {
-  return(
+  return (
     <div className="flex min-h-screen">
       <div className="fixed left-0 top-0 h-full">
         <LeftSidebar />
       </div>
 
       <div className="w-full h-full md:pl-[72px] pl-0">
-        <header className="fixed top-0 right-0 h-16 md:left-[72px] left-0 bg-white border-b border-gray-200 z-10">
+        <header className="fixed top-0 right-0 h-16 md:left-[72px] left-0 bg-white border-b border-gray-200 z-40">
           <Header />
         </header>
-
 
         <main className="pt-16 overflow-y-auto overflow-x-hidden w-full">
           <div className="p-4 md:p-6 w-full max-w-[100vw] overflow-x-hidden">
@@ -37,6 +35,5 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
     </div>
-  )
+  );
 }
-

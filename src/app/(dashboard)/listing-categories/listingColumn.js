@@ -1,13 +1,7 @@
 "use client";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import DetailView from "@/components/modules/DetailView";
-import {
-  editOfferConfig,
-  getOfferDetailsConfig,
-  markAsActiveConfig,
-  markAsInactiveConfig,
-} from "./listingConfig";
-import PopupForm from "@/components/ui/popupform";
+import ViewListingDetails from "@/components/common/ViewListingDetails";
+import ViewUser from "../buyer/viewUser";
+import ActionPopup from "@/components/common/ActionPopup";
 
 export const getOfferColumns = (handleDeleteOffer) => [
   {
@@ -107,20 +101,22 @@ export const getOfferColumns = (handleDeleteOffer) => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <ViewListingDetails data={row} onClose={() => {}} />,
                 },
                 {
-                  label: "Mark As InActive",
-                  iconUrl: "/assets/icon/markInactive.svg",
-                  type: "popUp",
-                  component: (
-                    <PopupForm
-                      config={markAsInactiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Marked as active:", data)}
-                    />
-                  ),
-                },
+                label: "mark As Inactive",
+                iconUrl: "/assets/icon/markInactive.svg",
+                type: "modal_component",
+                component: (
+                  <ActionPopup
+                    heading="Mark As Inactive?"
+                    subHeading="Are you sure you want to inactivate this listing? Once inactivated, this listing will be removed from the marketplace and will no longer be visible to buyers."
+                    confirmText="Confirm Inactivation"
+                    confirmColor="text-secondary1"
+                  />
+                ),
+                onApply: (data) => console.log("Reactivate Buyer:", row, data),
+              },
               ];
 
             case "inactive":
@@ -129,18 +125,14 @@ export const getOfferColumns = (handleDeleteOffer) => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component:  <ViewListingDetails data={row} onClose={() => {}} />,
                 },
                 {
                   label: "Mark As Active",
                   iconUrl: "/assets/icon/markCompleted.svg",
                   type: "popUp",
                   component: (
-                    <PopupForm
-                      config={markAsActiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Marked as active:", data)}
-                    />
+                   <ViewUser/>
                   ),
                 },
               ];

@@ -5,11 +5,9 @@ import PortfolioCard from "@/components/common/PortfolioCard";
 import Image from "next/image";
 
 import { useRouter } from "next/navigation";
-import PopupForm from "@/components/ui/popupform";
-import {
-  reactivateBuyerConfig,
-  reactivateCustomerConfig,
-} from "./overviewConfig";
+// import PopupForm from "@/components/ui/popupform";
+// import { reactivateBuyerConfig } from "./overviewConfig";
+import ActionPopup from "@/components/common/ActionPopup";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./farudReportColumn";
@@ -92,7 +90,7 @@ const ClientDetails = () => {
         <PortfolioCard data={OverviewData} />
       </div>
 
-    {/* Buyer Details */}
+      {/* Buyer Details */}
       <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
         {/* header */}
         <div className="flex justify-between items-center border-b pb-4 mb-6">
@@ -215,33 +213,22 @@ const ClientDetails = () => {
         </button>
 
         {isReactivateOpen && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black opacity-60"
-              onClick={() => setIsReactivateOpen(false)}
-            ></div>
-            <div
-              className="relative bg-white rounded-lg shadow-xl mx-4 my-8 overflow-auto z-[1001]"
-              style={{
-                maxWidth: "90vw",
-                maxHeight: "90vh",
-                width: "500px",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <PopupForm
-                  config={reactivateBuyerConfig}
-                  width="500px"
-                  onApply={(data) => {
-                    console.log("Reactivated:", data);
-                    setIsReactivateOpen(false);
-                  }}
-                  onCancel={() => setIsReactivateOpen(false)}
-                />
-              </div>
-            </div>
-          </div>
+          <ActionPopup
+            isOpen={isReactivateOpen}
+            onClose={() => setIsReactivateOpen(false)}
+            onCancel={() => setIsReactivateOpen(false)}
+            heading="Reactivate Buyer?"
+            subHeading={[
+              "Are you sure you want to reactivate this Buyer’s account?",
+              "Once reactivated, Buyer will regain full access to kushagro,",
+              "including Booking appointments and making purchases.",
+            ]}
+            confirmText="Confirm Reactivation"
+            onApply={(data) => {
+              console.log("Reactivated:", data);
+              setIsReactivateOpen(false);
+            }}
+          />
         )}
       </div>
     </div>

@@ -15,7 +15,7 @@ export const sellerData = [
     total_earning: 1000,
     // avg_rating: 4.8,
     id_status: "verified",
-    status: "active",
+    status: "suspended",
     actions: [
       { id: 1, action: "View Profile", url: "/users/1" },
       { id: 2, action: "Edit Profile", url: "/users/1/edit" },

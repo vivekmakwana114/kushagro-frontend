@@ -1,7 +1,6 @@
 "use client";
 
-import { reactivateCustomerConfig, suspendCustomerConfig } from "./buyerConfig";
-import PopupForm from "@/components/ui/popupform";
+import ActionPopup from "@/components/common/ActionPopup";
 
 export const getBuyerColumns = () => [
   {
@@ -116,14 +115,16 @@ export const getBuyerColumns = () => [
               {
                 label: "Reactivate Buyer",
                 iconUrl: "/assets/icon/reactivateCustomer.svg",
+                type: "modal_component",
                 component: (
-                  <PopupForm
-                    config={reactivateCustomerConfig}
-                    width="500px"
-                    onApply={(data) => console.log("Suspended:", data)}
-                    onCancel={() => console.log("Cancelled")}
+                  <ActionPopup
+                    heading="Reactivate Buyer?"
+                    subHeading="Are you sure you want to reactivate this Buyer’s account? Once reactivated, Buyer will regain full access to Ksa, including booking appointments and making purchases."
+                    confirmText="Confirm Reactivation"
+                    confirmColor="text-secondary1"
                   />
                 ),
+                onApply: (data) => console.log("Reactivate Buyer:", row, data),
               },
             ];
           }
@@ -138,14 +139,41 @@ export const getBuyerColumns = () => [
             {
               label: "Suspend Buyer",
               iconUrl: "/assets/icon/suspendCustomer.svg",
+              type: "modal_component",
               component: (
-                <PopupForm
-                  config={suspendCustomerConfig}
-                  width="500px"
-                  onApply={(data) => console.log("Suspended:", data)}
-                  onCancel={() => console.log("Cancelled")}
+                <ActionPopup
+                  heading="Suspend Buyer?"
+                  subHeading="Are you sure you want to suspend this Buyer’s account? This will prevent Buyer from placing orders, or accessing their profile until reactivated."
+                  confirmText="Confirm Suspend"
+                  confirmColor="red"
+                  dropdownOptions={[
+                    {
+                      label: "Inappropriate behavior",
+                      value: "Inappropriate behavior",
+                    },
+                    { label: "Multiple no-shows", value: "Multiple no-shows" },
+                    {
+                      label: "Payment-related issues",
+                      value: "Payment-related issues",
+                    },
+                    {
+                      label: "Spam or fake account",
+                      value: "Spam or fake account",
+                    },
+                    { label: "Buyer request", value: "Buyer request" },
+                    {
+                      label: "Missing essential Buyer details.",
+                      value: "Missing essential Buyer details.",
+                    },
+                    { label: "Other", value: "Other" },
+                  ]}
+                  dropdownLabel="Select Suspension Reason"
+                  dropdownPlaceholder="Select Suspension Reason"
+                  textareaLabel="Note"
+                  textareaPlaceholder="Add a Note"
                 />
               ),
+              onApply: (data) => console.log("Suspend Buyer:", row, data),
             },
 
             {

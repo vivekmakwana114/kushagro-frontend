@@ -5,20 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import { getOrderColumns } from "./orderColumn";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+import OrderFilterForm from "./OrderFilterForm";
 import { orderData } from "./orderData";
-import {
-  orderFilterConfig,
-  deleteOrderConfigAll,
-  markAsActiveConfig,
-  markAsInactiveBulkConfig,
-  deleteOrderConfig,
-} from "./orderConfig";
 import Image from "next/image";
 import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
-import PopupForm from "@/components/ui/popupform";
 import Pagination from "@/components/ui/pagination";
 import ViewUser from "../buyer/viewUser";
+import ActionPopup from "@/components/common/ActionPopup";
 
 const downloadActions = [
   {
@@ -68,19 +61,19 @@ const OrderPage = () => {
   const orderColumns = getOrderColumns();
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 flex-none">
         <div className="relative mb-2 w-[400px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-dull-text)]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-dull-text" />
           <Input className="pl-10" placeholder="Search here..." />
         </div>
 
         <div className="flex gap-2">
           <ActionComponent
             actions={downloadActions}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+            buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md hover:bg-gray-50"
             icon={
-              <Download className="w-5 h-5 text-[var(--color-secondary1)]" />
+              <Download className="w-5 h-5 text-secondary1" />
             }
           />
 
@@ -88,78 +81,112 @@ const OrderPage = () => {
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={orderFilterConfig} />,
+                component: <OrderFilterForm />,
               },
             ]}
-            icon={<Filter className="w-5 h-5 text-[var(--color-secondary1)]" />}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md hover:bg-gray-50"
+            icon={<Filter className="w-5 h-5 text-secondary1" />}
+            buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md hover:bg-gray-50"
           />
         </div>
       </div>
 
-      <GridCommonComponent
-        data={currentData}
-        options={options}
-        columns={orderColumns.map((col) => {
-          if (col.key === "actions") {
-            return {
-              ...col,
-              component: {
-                ...col.component,
-                options: {
-                  ...col.component.options,
-                  actions: (row) => col.component.options.actions(row),
+      <div className="flex-1 overflow-y-auto min-h-0 no-scrollbar">
+        <GridCommonComponent
+          data={currentData}
+          options={options}
+          columns={orderColumns.map((col) => {
+            if (col.key === "actions") {
+              return {
+                ...col,
+                component: {
+                  ...col.component,
+                  options: {
+                    ...col.component.options,
+                    actions: (row) => col.component.options.actions(row),
+                  },
                 },
-              },
-            };
-          }
-          return col;
-        })}
-        theme={{
-          border: "border-gray-300",
-          header: {
-            bg: "bg-gray-100",
-          },
-        }}
-        bulkActionsConfig={[
-          {
-            label: "Mark As Complete",
-            iconUrl: "/assets/icon/markCompleted.svg",
-            type: "popUp",
-            component: <ViewUser />,
-          },
-          {
+              };
+            }
+            return col;
+          })}
+          theme={{
+            border: "border-gray-300",
+            header: {
+              bg: "bg-gray-100",
+            },
+          }}
+          bulkActionsConfig={[
+            {
+              label: "Mark As Complete",
+              iconUrl: "/assets/icon/markCompleted.svg",
+              type: "popUp",
+              component: <ViewUser />,
+            },
+                {
                   label: "Flag Order",
                   iconUrl: "/assets/icon/flag.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Flag These Orders?"
+                      subHeading="Are you sure you want to flag these orders for further review? Flagged Orders will be marked in the system and may require follow-up by the support or moderation team."
+                      confirmText="Confirm Flag"
+                      confirmColor="bg-[#2E5B20] hover:bg-[#254a1a] text-white"
+                      dropdownOptions={[
+                        {
+                          label: "Suspicious activity",
+                          value: "Suspicious activity",
+                        },
+                        {
+                          label: "Payment discrepancy",
+                          value: "Payment discrepancy",
+                        },
+                        { label: "Buyer complaint", value: "Buyer complaint" },
+                        {
+                          label: "No-show without update",
+                          value: "No-show without update",
+                        },
+                        { label: "Stylist issue", value: "Stylist issue" },
+                        { label: "Other", value: "Other" },
+                      ]}
+                      dropdownLabel="Select a reason for flagging this Order"
+                      dropdownPlaceholder="Suspicious activity"
+                      textareaLabel="Note"
+                      textareaPlaceholder="Add a Note"
+                    />
+                  ),
+                  onApply: (data) => console.log("Flag Order:", row, data),
                 },
-          {
-            label: "Export Selection",
-            iconUrl: "/assets/icon/downloadGray.svg",
-            children: [
-              { header: "Download List" },
-              {
-                label: "Download PDF",
-                icon: <BsFilePdf className="w-4 h-4 text-[#7B7B7B]" />,
-                onClick: (rows) => console.log(rows, "Download PDF"),
-              },
-              {
-                label: "Download CSV",
-                icon: <BsFileSpreadsheet className="w-4 h-4 text-[#7B7B7B]" />,
-                onClick: (rows) => console.log(rows, "Download CSV"),
-              },
-            ],
-          },
-          
-        ]}
-      />
+            {
+              label: "Export Selection",
+              iconUrl: "/assets/icon/downloadGray.svg",
+              children: [
+                { header: "Download List" },
+                {
+                  label: "Download PDF",
+                  icon: <BsFilePdf className="w-4 h-4 text-[#7B7B7B]" />,
+                  onClick: (rows) => console.log(rows, "Download PDF"),
+                },
+                {
+                  label: "Download CSV",
+                  icon: (
+                    <BsFileSpreadsheet className="w-4 h-4 text-[#7B7B7B]" />
+                  ),
+                  onClick: (rows) => console.log(rows, "Download CSV"),
+                },
+              ],
+            },
+          ]}
+        />
+      </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
+      <div className="flex-none mt-2">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </div>
     </div>
   );
 };

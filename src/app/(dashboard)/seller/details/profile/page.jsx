@@ -6,8 +6,10 @@ import PortfolioCards from "@/components/common/PortfolioCard";
 import { useRouter } from "next/navigation";
 import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./farudReportColumn";
-import PopupForm from "@/components/ui/popupform";
-import { reactivateBuyerConfig, rejectSellerConfig } from "./profileConfig";
+// import PopupForm from "@/components/ui/popupform";
+// import { reactivateBuyerConfig } from "./profileConfig";
+import ActionPopup from "@/components/common/ActionPopup";
+import { toast } from "sonner";
 import ReviewsDrawer from "@/components/common/reviews/ReviewsDrawer";
 import { reviewsData } from "@/components/common/reviews/reviewsData";
 
@@ -243,7 +245,12 @@ const SellerProfilePage = () => {
                   {seller.verificationStatus}
                 </span>
                 <div className="flex gap-2">
-                  <button className="w-8 h-8 flex items-center justify-center bg-secondary1/10 rounded hover:bg-green-100 transition-colors">
+                  <button
+                    className="w-8 h-8 flex items-center justify-center bg-secondary1/10 rounded hover:bg-green-100 transition-colors"
+                    onClick={() => {
+                      toast.success(`${seller.name} verified successfully!`);
+                    }}
+                  >
                     <Image
                       src="/assets/icon/check.svg"
                       width={16}
@@ -383,63 +390,68 @@ const SellerProfilePage = () => {
         </button>
 
         {isReactivateOpen && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black opacity-60"
-              onClick={() => setIsReactivateOpen(false)}
-            ></div>
-            <div
-              className="relative bg-white rounded-lg shadow-xl mx-4 my-8 overflow-auto z-[1001]"
-              style={{
-                maxWidth: "90vw",
-                maxHeight: "90vh",
-                width: "500px",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <PopupForm
-                  config={reactivateBuyerConfig}
-                  width="500px"
-                  onApply={(data) => {
-                    console.log("Reactivated:", data);
-                    setIsReactivateOpen(false);
-                  }}
-                  onCancel={() => setIsReactivateOpen(false)}
-                />
-              </div>
-            </div>
-          </div>
+          <ActionPopup
+            isOpen={isReactivateOpen}
+            onClose={() => setIsReactivateOpen(false)}
+            onCancel={() => setIsReactivateOpen(false)}
+            heading="Reactivate Seller?"
+            subHeading={[
+              "Are you sure you want to reactivate this Seller’s account?",
+              "Once reactivated, Seller will regain full access to kushagro,",
+              "including Booking appointments and making purchases.",
+            ]}
+            confirmText="Confirm Reactivation"
+            onApply={(data) => {
+              console.log("Reactivated:", data);
+              setIsReactivateOpen(false);
+            }}
+          />
         )}
 
         {isRejectOpen && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black opacity-60"
-              onClick={() => setIsRejectOpen(false)}
-            ></div>
-            <div
-              className="relative bg-white rounded-lg shadow-xl mx-4 my-8 overflow-auto z-[1001]"
-              style={{
-                maxWidth: "90vw",
-                maxHeight: "90vh",
-                width: "500px",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <PopupForm
-                  config={rejectSellerConfig}
-                  width="500px"
-                  onApply={(data) => {
-                    console.log("Rejected:", data);
-                    setIsRejectOpen(false);
-                  }}
-                  onCancel={() => setIsRejectOpen(false)}
-                />
-              </div>
-            </div>
-          </div>
+          <ActionPopup
+            isOpen={isRejectOpen}
+            onClose={() => setIsRejectOpen(false)}
+            onCancel={() => setIsRejectOpen(false)}
+            heading="Reject Seller Verification?"
+            subHeading="The ID document submitted by this seller will be rejected. Please select a reason so the seller is informed and can upload the correct document. The seller will be notified and asked to upload a valid ID again."
+            confirmText="Reject ID"
+            confirmColor="red"
+            dropdownLabel="Select Rejection Reason"
+            dropdownPlaceholder="Select Reason"
+            dropdownOptions={[
+              {
+                label: "Blurry or unclear ID photo",
+                value: "Blurry or unclear ID photo",
+              },
+              {
+                label: "ID does not match seller’s name",
+                value: "ID does not match seller’s name",
+              },
+              {
+                label: "Expired ID document",
+                value: "Expired ID document",
+              },
+              {
+                label: "Wrong document type uploaded",
+                value: "Wrong document type uploaded",
+              },
+              {
+                label: "Incomplete ID (front/back missing)",
+                value: "Incomplete ID (front/back missing)",
+              },
+              {
+                label: "Suspected tampering or invalid ID",
+                value: "Suspected tampering or invalid ID",
+              },
+              { label: "Other", value: "Other" },
+            ]}
+            onApply={(data) => {
+              console.log("Rejected:", data);
+              toast.error(`${seller.name} rejected.`);
+              setIsRejectOpen(false);
+            }}
+          />
         )}
 
         {/* Image Expansion Modal */}

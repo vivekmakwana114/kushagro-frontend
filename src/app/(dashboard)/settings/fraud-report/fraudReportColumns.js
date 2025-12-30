@@ -1,13 +1,7 @@
 "use client";
 
-import DetailView from "@/components/modules/DetailView";
-
-import PopupForm from "@/components/ui/popupform";
-import ViewUser from "../../buyer/viewUser";
-import {
-  deleteSupportTicketConfig,
-  supportTicketDetailsConfig,
-} from "./fruadReportConfig";
+import ViewFraudReport from "@/components/common/ViewFraudReport";
+import ActionPopup from "@/components/common/ActionPopup";
 
 export const fraudReportColumns = [
   {
@@ -99,20 +93,21 @@ export const fraudReportColumns = [
               label: "View Report",
               iconUrl: "/assets/icon/viewCustomer.svg",
               type: "sidebar",
-              component: <DetailView config={supportTicketDetailsConfig} />,
+              component: <ViewFraudReport userType="seller" />,
             },
             {
               label: "Delete Report",
               iconUrl: "/assets/icon/deleteBarbershop.svg",
-              type: "popUp",
+              type: "modal_component",
               component: (
-                <PopupForm
-                  config={deleteSupportTicketConfig}
-                  width="600px"
-                  onApply={(data) => console.log("Ticket Deleted", data)}
-                  onCancel={() => console.log("Cancelled")}
+                <ActionPopup
+                  heading="Delete Fraud Ticket?"
+                  subHeading="Are you sure you want to delete this fraud ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                  confirmText="Confirm Delete"
+                  confirmColor="red"
                 />
               ),
+              onApply: (data) => console.log("Delete:", row, data),
             },
           ];
         },

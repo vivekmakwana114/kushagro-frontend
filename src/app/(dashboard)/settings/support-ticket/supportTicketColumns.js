@@ -1,13 +1,9 @@
 "use client";
+import ViewSupportTicket from "./ViewSupportTicket";
 
-import DetailView from "@/components/modules/DetailView";
-
-import PopupForm from "@/components/ui/popupform";
 import ViewUser from "../../buyer/viewUser";
-import {
-  deleteSupportTicketConfig,
-  supportTicketDetailsConfig,
-} from "./supportTicketConfig";
+
+import ActionPopup from "@/components/common/ActionPopup";
 
 export const supportTicketColumns = [
   {
@@ -102,7 +98,7 @@ export const supportTicketColumns = [
                 label: "View Details",
                 iconUrl: "/assets/icon/viewCustomer.svg",
                 type: "sidebar",
-                component: <DetailView config={supportTicketDetailsConfig} />,
+                component: <ViewSupportTicket />,
               },
               {
                 label: "Mark as In Process",
@@ -113,15 +109,16 @@ export const supportTicketColumns = [
               {
                 label: "Delete Ticket",
                 iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "popUp",
+                type: "modal_component",
                 component: (
-                  <PopupForm
-                    config={deleteSupportTicketConfig}
-                    width="600px"
-                    onApply={(data) => console.log("Ticket Deleted", data)}
-                    onCancel={() => console.log("Cancelled")}
+                  <ActionPopup
+                    heading="Delete Support Ticket?"
+                    subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                    confirmText="Delete Ticket"
+                    confirmColor="red"
                   />
                 ),
+                onApply: (data) => console.log("Delete:", row, data),
               },
             ];
           }
@@ -132,7 +129,7 @@ export const supportTicketColumns = [
                 label: "View Details",
                 iconUrl: "/assets/icon/viewCustomer.svg",
                 type: "sidebar",
-                component: <DetailView config={supportTicketDetailsConfig} />,
+                component: <ViewSupportTicket />,
               },
               {
                 label: "Mark as In Done",
@@ -143,15 +140,16 @@ export const supportTicketColumns = [
               {
                 label: "Delete Ticket",
                 iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "popUp",
+                type: "modal_component",
                 component: (
-                  <PopupForm
-                    config={deleteSupportTicketConfig}
-                    width="600px"
-                    onApply={(data) => console.log("Ticket Deleted", data)}
-                    onCancel={() => console.log("Cancelled")}
+                  <ActionPopup
+                    heading="Delete Support Ticket?"
+                    subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                    confirmText="Delete Ticket"
+                    confirmColor="red"
                   />
                 ),
+                onApply: (data) => console.log("Delete:", row, data),
               },
             ];
           }
@@ -162,7 +160,7 @@ export const supportTicketColumns = [
               label: "View Details",
               iconUrl: "/assets/icon/viewCustomer.svg",
               type: "sidebar",
-              component: <DetailView config={supportTicketDetailsConfig} />,
+              component: <ViewSupportTicket />,
             },
             {
               label: "Mark as In Process",
@@ -177,18 +175,19 @@ export const supportTicketColumns = [
               component: <ViewUser />,
             },
             {
-              label: "Delete Ticket",
-              iconUrl: "/assets/icon/deleteBarbershop.svg",
-              type: "popUp",
-              component: (
-                <PopupForm
-                  config={deleteSupportTicketConfig}
-                  width="600px"
-                  onApply={(data) => console.log("Ticket Deleted", data)}
-                  onCancel={() => console.log("Cancelled")}
-                />
-              ),
-            },
+                label: "Delete Ticket",
+                iconUrl: "/assets/icon/deleteBarbershop.svg",
+                type: "modal_component",
+                component: (
+                  <ActionPopup
+                    heading="Delete Support Ticket?"
+                    subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                    confirmText="Delete Ticket"
+                    confirmColor="red"
+                  />
+                ),
+                onApply: (data) => console.log("Delete:", row, data),
+              },
           ];
         },
       },

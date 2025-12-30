@@ -3,153 +3,179 @@ import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-const Notification = ({ isOpen, heading, subHeading }) => {
+const Notification = ({
+  isOpen,
+  heading = "Notifications Feed",
+  subHeading = "Your central hub for platform-wide alerts and operational updates.",
+}) => {
   const ref = useRef();
   const [isExpanded, setIsExpanded] = useState(false);
   const [readAll, setReadAll] = useState(false);
 
-  // Notifications data with types
+  // Notifications data matching the design
   const notifications = [
     {
-      type: "booking",
-      name: "Aaliyah Johnson",
-      title: "New Appointment Booked",
-      description:
-        "Aaliyah Johnson booked by Tyrone Hill for June 15 at 2:00 PM.",
-      time: "2m ago",
-    },
-    {
-      type: "client",
-      name: "Nia Banks",
-      description: "Nia Banks (nia.b@gmail.com) just signed up.",
-      title: "New Client Registered",
+      type: "seller_registered",
+      name: "James Smith",
+      title: "New seller registered",
+      description: "James Smith Join as a new seller.",
       time: "5m ago",
+      initials: "JS",
+      isRead: false,
     },
     {
-      type: "payment",
-      title: "Payment Received",
-      description:
-        "$1,200 received for Booking #BK2308 (Aaliyah Johnson – Tyrone Hill).",
-      time: "1h ago",
+      type: "buyer_registered",
+      name: "Olivia Davis",
+      title: "New buyer registered",
+      description: "Olivia Davis Join as new Buyer",
+      time: "10m ago",
+      initials: "OD",
+      isRead: false,
     },
     {
-      type: "product",
-      title: "Product Order Placed",
-      description: "Malik Carter ordered “Herbal Scalp Oil” – Order #LOC2048.",
-      image: "/assets/icon/notification_product.svg",
-      time: "2h ago",
+      type: "seller_id_uploaded",
+      title: "Seller ID uploaded",
+      description: (
+        <>
+          Sophia Martinez has submitted their government ID for Verification.{" "}
+          <span className="text-green-600 underline cursor-pointer font-medium">
+            Verify now
+          </span>
+        </>
+      ),
+      time: "15m ago",
+      isRead: false,
     },
     {
-      type: "review",
-      title: "Review Received",
-      description: "“Excellent service!” (5★) review for Brielle Thomas.",
-      time: "3h ago",
+      type: "listing_created",
+      title: "Listing created",
+      description: "Isabella Garcia added a new listing.",
+      time: "20m ago",
+      isRead: false,
     },
     {
-      type: "cancelled",
-      title: "Appointment Canceled",
-      description:
-        "Booking cancelled by Client Nia Banks (Stylist: DeShawn Miller).",
-      time: "3h 25m ago",
+      type: "listing_updated",
+      title: "Listing updated",
+      description: "Lucas Rodriguez edited details of an existing listing.",
+      time: "25m ago",
+      isRead: false,
     },
     {
-      type: "cancelled",
-      title: "Appointment Canceled",
-      description:
-        "Booking cancelled by Client Nia Banks (Stylist: DeShawn Miller).",
-      time: "3h 25m ago",
+      type: "suspicious_activity",
+      title: "Suspicious activity reported",
+      description: "Mason Lee submitted a fraud report.",
+      time: "30m ago",
+      isRead: false,
     },
     {
-      type: "cancelled",
-      title: "Appointment Canceled",
-      description:
-        "Booking cancelled by Client Nia Banks (Stylist: DeShawn Miller).",
-      time: "3h 25m ago",
+      type: "payment_successful",
+      title: "Payment successful",
+      description: (
+        <>
+          Payment received for Order ID{" "}
+          <span className="text-green-600 font-medium underline cursor-pointer">
+            #KSA6516146465
+          </span>
+          .
+        </>
+      ),
+      time: "35m ago",
+      isRead: false,
     },
     {
-      type: "cancelled",
-      title: "Appointment Canceled",
-      description:
-        "Booking cancelled by Client Nia Banks (Stylist: DeShawn Miller).",
-      time: "3h 25m ago",
+      type: "payment_failed",
+      title: "Payment failed",
+      description: (
+        <>
+          A transaction failed during processing for Order ID{" "}
+          <span className="text-green-600 font-medium underline cursor-pointer">
+            #KSA6516146465
+          </span>
+          .
+        </>
+      ),
+      time: "40m ago",
+      isRead: false,
     },
   ];
 
-  // Based on the type of notification icon will appear.
   const renderIcon = (n) => {
+    // Common styles for icon container
     const baseStyle =
-      "w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50 overflow-hidden";
+      "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0";
 
     switch (n.type) {
-      case "booking":
+      case "seller_registered":
         return (
-          <div className={baseStyle}>
+          <div className={`${baseStyle} bg-[#365E32]`}>
+            <span className="text-white font-medium text-lg">{n.initials}</span>
+          </div>
+        );
+      case "buyer_registered":
+        return (
+          <div className={`${baseStyle} bg-[#365E32]`}>
+            <span className="text-white font-medium text-lg">{n.initials}</span>
+          </div>
+        );
+      case "seller_id_uploaded":
+        return (
+          <div className={`${baseStyle} overflow-hidden`}>
             <Image
-              src="/assets/icon/notification_booking.svg"
-              alt="Booking"
-              width={20}
-              height={20}
+              src="/assets/icon/notification_seller_ID.svg"
+              alt="Seller ID"
+              width={24}
+              height={24}
+              className="w-12 h-12"
             />
           </div>
         );
-      case "client":
-        const initials = n.name
-          .split(" ")
-          .map((p) => p[0])
-          .join("")
-          .toUpperCase();
+      case "listing_created":
+      case "listing_updated":
         return (
-          <div className={`${baseStyle} bg-primary1 text-white font-bold`}>
-            {initials}
-          </div>
-        );
-      case "payment":
-        return (
-          <div className={baseStyle}>
+          <div className={`${baseStyle} border border-gray-200`}>
             <Image
-              src="/assets/icon/notification_payment.svg"
-              alt="Payment"
+              src="/assets/icon/notification_listing.svg"
+              alt="Listing"
               width={24}
               height={24}
             />
           </div>
         );
-      case "review":
+      case "suspicious_activity":
         return (
-          <div className={baseStyle}>
+          <div className={`${baseStyle} border border-gray-200`}>
             <Image
-              src="/assets/icon/notification_review.svg"
-              alt="review"
-              width={20}
-              height={20}
+              src="/assets/icon/notification_suspicious_activity.svg"
+              alt="Suspicious"
+              width={24}
+              height={24}
             />
           </div>
         );
-      case "cancelled":
+      case "payment_successful":
         return (
-          <div className={baseStyle}>
+          <div className={`${baseStyle} border border-gray-200`}>
             <Image
-              src="/assets/icon/notification_booking_cancelled.svg"
-              alt="Booking Cancelled"
-              width={20}
-              height={20}
+              src="/assets/icon/notification_payment_success.svg"
+              alt="Success"
+              width={24}
+              height={24}
             />
           </div>
         );
-      case "product":
+      case "payment_failed":
         return (
-          <div className={baseStyle}>
+          <div className={`${baseStyle} border border-gray-200`}>
             <Image
-              src={n.image}
-              alt="Product"
-              width={40}
-              height={40}
-              className="object-cover rounded-md"
+              src="/assets/icon/notification_payment_failed.svg"
+              alt="Failed"
+              width={24}
+              height={24}
             />
           </div>
         );
       default:
-        return null;
+        return <div className={`${baseStyle} bg-gray-100`}></div>;
     }
   };
 
@@ -162,80 +188,56 @@ const Notification = ({ isOpen, heading, subHeading }) => {
           animate={{ opacity: 1, y: -10 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
-          className="absolute top-14 -right-22 w-[90vw] sm:w-[500px] bg-white shadow-xl rounded-xl border border-gray-200 z-50"
+          className="fixed sm:absolute top-20 sm:top-14 left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0 right-auto sm:right-0 w-[95vw] sm:w-[550px] bg-white shadow-xl rounded-xl border border-gray-200 z-50 overflow-hidden"
         >
           {/* Header */}
-          <div className="p-4 border-b">
-            <div className="flex justify-between items-center">
-              <h3 className="text-base font-semibold text-[var(--color-black)]">
+          <div className="p-5 border-b border-gray-100">
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="text-lg font-bold text-gray-900 leading-tight">
                 {heading}
               </h3>
               <button
-                className="text-xs text-primary1 hover:underline"
+                className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
                 onClick={() => setReadAll(true)}
               >
                 Mark all as Read
               </button>
             </div>
-            <h5 className="text-sm text-[var(--color-dull-text)] mt-1">
-              {subHeading}
-            </h5>
+            <p className="text-sm text-gray-500">{subHeading}</p>
           </div>
 
           {/* Notification list */}
           <div
-            className={`transition-all duration-300 overflow-y-auto ${
-              isExpanded ? "max-h-[500px]" : "max-h-[300px]"
+            className={`transition-all duration-300 overflow-y-auto no-scrollbar ${
+              isExpanded ? "max-h-[600px]" : "max-h-[450px]"
             }`}
           >
             {notifications.map((n, i) => (
               <div
                 key={i}
-                className="flex gap-3 p-4 border-b hover:bg-gray-50 transition"
+                className="flex gap-4 p-5 border-b border-gray-100 hover:bg-gray-50 transition-colors last:border-0"
               >
-                <div className="flex-shrink-0">{renderIcon(n)}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center">
-                    <p className="font-medium text-sm text-[var(--color-secondary1)] truncate">
+                {renderIcon(n)}
+                <div className="flex-1 min-w-0 pt-0.5">
+                  <div className="flex justify-between items-start mb-0.5">
+                    <h4 className="font-semibold text-[15px] text-gray-900">
                       {n.title}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          readAll
-                            ? "bg-[var(--color-dull-text)]"
-                            : "bg-[var(--color-primary1)]"
-                        } transition-colors duration-300`}
-                      ></span>
-
-                      <p className="text-xs text-gray-400">{n.time}</p>
+                    </h4>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {!readAll && !n.isRead && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                      )}
+                      <span className="text-xs text-gray-400 font-medium">
+                        {n.time}
+                      </span>
                     </div>
                   </div>
-                  <p className="text-sm text-[var(--color-placeholder-color)] mt-0.5 line-clamp-2 sm:line-clamp-none">
+                  <p className="text-[13px] text-gray-500 leading-normal">
                     {n.description}
                   </p>
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Footer */}
-          <div className="p-3 border-t flex justify-end items-center">
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-1 text-sm text-primary1 font-medium hover:underline transition-all"
-            >
-              <span>{isExpanded ? "Collapse" : "View More"}</span>
-              <Image
-                src="/assets/icon/rightarrow.svg"
-                alt="View More"
-                width={18}
-                height={18}
-                className={`transition-transform duration-300 ${
-                  isExpanded ? "rotate-270" : "rotate-0"
-                }`}
-              />
-            </button>
           </div>
         </motion.div>
       )}

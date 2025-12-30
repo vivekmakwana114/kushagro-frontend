@@ -1,7 +1,6 @@
 "use client";
-import DetailView from "@/components/modules/DetailView";
-import { transactionDetailsConfig } from "./transactionConfig";
-import PopupForm from "@/components/ui/popupform";
+import ViewTransactionDetails from "@/components/common/ViewTransactionDetails";
+
 import ViewUser from "../../buyer/viewUser";
 
 export const transactionColumn = [
@@ -68,7 +67,7 @@ export const transactionColumn = [
       },
       sign: "+$",
       position: "start",
-    }, 
+    },
   },
   {
     key: "method",
@@ -112,7 +111,7 @@ export const transactionColumn = [
               label: "View Details",
               iconUrl: "/assets/icon/ViewCustomer.svg",
               type: "sidebar",
-              component: <DetailView config={transactionDetailsConfig} />,
+              component: <ViewTransactionDetails />,
             },
             {
               label: "Download Invoice",

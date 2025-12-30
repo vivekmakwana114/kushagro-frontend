@@ -89,4 +89,13 @@ export const transactionData = [
     amount: 300,
     status: "Paid",
   },
+  {
+    transaction_id: "#TRN-1092",
+    date: "2025-07-24",
+    buyer: "Jack Davis",
+    type: "Booking Payment",
+    barber: "Emily Brown",
+    amount: 300,
+    status: "Paid",
+  },
 ];

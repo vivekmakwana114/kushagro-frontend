@@ -36,7 +36,7 @@ const DashboardView = () => {
             title="Listing by Category"
             data={listingData}
             columns = {listingColumns}
-            link="/listing"
+            link="/listing-categories"
           />
         </div>
       </div>
@@ -46,7 +46,7 @@ const DashboardView = () => {
             title="Recent Payments"
             data={paymentData}
             columns={paymentColumns}
-            link="/payments"
+            link="/payment-and-payouts/all-transaction"
           />
         </div>
         <div className="lg:w-[40%] w-full">

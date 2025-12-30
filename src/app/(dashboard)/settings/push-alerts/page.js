@@ -1,25 +1,25 @@
 "use client";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SettingsSection from "@/components/ui/SettingSection";
-import React, { useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
+import useAutoDismissError from "@/hooks/useAutoDismissError";
 
 const PushAlertsPage = () => {
   const [notification, setNotificationTitle] = useState("");
   const [bodyContent, setBodyContent] = useState("");
   const [receiver, setReceiver] = useState("");
   const [type, setType] = useState("");
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useAutoDismissError({});
   const [showDropdowns, setShowDropdowns] = useState({
     receiver: false,
     type: false,
   });
 
   const receiverOptions = [
-    { label: "All Customers", value: "All Customers" },
-    { label: "All Barbers", value: "All Barbers" },
-    { label: "All Barbershops", value: "All Barbershops" },
+    { label: "All buyers", value: "All buyers" },
+    { label: "All sellers", value: "All sellers" },
   ];
 
   const typeOptions = [
@@ -74,8 +74,10 @@ const PushAlertsPage = () => {
   const handleSubmit = () => {
     const newErrors = {};
 
-    if (!notification) newErrors.notification = "Notification title is required";
-    if (!bodyContent) newErrors.bodyContent = "Notification content is required";
+    if (!notification)
+      newErrors.notification = "Notification title is required";
+    if (!bodyContent)
+      newErrors.bodyContent = "Notification content is required";
     if (!receiver) newErrors.receiver = "Receiver is required";
     if (!type) newErrors.type = "Type is required";
 

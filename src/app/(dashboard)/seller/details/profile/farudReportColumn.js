@@ -1,7 +1,5 @@
 "use client";
-
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import PopupForm from "@/components/ui/popupform";
+import ViewFraudReport from "@/components/common/ViewFraudReport";
 
 export const getFraudReportColumns = () => [
   {
@@ -34,6 +32,7 @@ export const getFraudReportColumns = () => [
   {
     key: "reason",
     title: "Reason",
+    mobileStack: true,
     component: {
       type: "phone",
       style: {
@@ -69,14 +68,7 @@ export const getFraudReportColumns = () => [
               label: "View Report",
               iconUrl: "/assets/icon/ViewCustomer.svg",
               type: "sidebar",
-              component: (
-                <DynamicForm
-                  config={""}
-                  width="500px"
-                  onApply={(data) => console.log("Suspended Buyer:", data)}
-                  onCancel={() => console.log("Closed")}
-                />
-              ),
+              component: <ViewFraudReport userType="seller" />,
             },
             {
               label: "Delete Report",

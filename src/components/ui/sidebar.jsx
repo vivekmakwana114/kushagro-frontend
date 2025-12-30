@@ -140,6 +140,7 @@ function Sidebar({
   collapsible = "offcanvas",
   className,
   children,
+  onOpenChange,
   ...props
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
@@ -161,7 +162,11 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+      <Sheet
+        open={openMobile}
+        onOpenChange={onOpenChange || setOpenMobile}
+        {...props}
+      >
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"

@@ -50,13 +50,13 @@ const PoliciesPage = () => {
   };
 
   return (
-    <div className="space-y-6 pt-4">
+    <div className="space-y-6 pt-4 h-full md:h-[calc(100vh-9rem)] overflow-y-auto custom-scroll">
       {policies.map((policy) => (
         <Card
           key={policy.id}
-          className="w-full bg-white shadow-sm border border-[var(--border-admin)]"
+          className="w-full bg-white shadow-sm border border-(--border-admin)"
         >
-          <CardHeader className="flex flex-row items-center justify-between pb-1 border-b border-[var(--border-admin)]">
+          <CardHeader className="flex flex-row items-center justify-between pb-1 border-b border-(--border-admin)">
             <CardTitle className="text-lg font-bold text-black">
               {policy.title}
             </CardTitle>

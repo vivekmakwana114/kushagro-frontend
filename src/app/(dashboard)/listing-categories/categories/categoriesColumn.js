@@ -1,11 +1,7 @@
 "use client";
-import DetailView from "@/components/modules/DetailView";
-import {
-  deleteConfig,
-  markAsActiveConfig,
-  markAsInactiveConfig,
-} from "./categoriesConfig";
-import PopupForm from "@/components/ui/popupform";
+import ActionPopup from "@/components/common/ActionPopup";
+import CategoryForm from "./CategoryForm";
+import ViewUser from "../../buyer/viewUser";
 
 export const getCategoriesColumns = (handleDeleteOffer) => [
   {
@@ -81,31 +77,37 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
                   label: "Edit Category",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <CategoryForm data={row} />,
                 },
                 {
-                  label: "Mark As InActive",
+                  label: "mark As Inactive",
                   iconUrl: "/assets/icon/markInactive.svg",
-                  type: "popUp",
+                  type: "modal_component",
                   component: (
-                    <PopupForm
-                      config={markAsInactiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Marked as active:", data)}
+                    <ActionPopup
+                      heading="Mark As Inactive?"
+                      subHeading="Are you sure you want to inactivate this listing? Once inactivated, this listing will be removed from the marketplace and will no longer be visible to buyers."
+                      confirmText="Confirm Inactivation"
+                      confirmColor="text-secondary1"
                     />
                   ),
+                  onApply: (data) =>
+                    console.log("Reactivate Buyer:", row, data),
                 },
                 {
                   label: "Delete",
                   iconUrl: "/assets/icon/delete.svg",
-                  type: "popUp",
+                  type: "modal_component",
                   component: (
-                    <PopupForm
-                      config={deleteConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Marked as active:", data)}
+                    <ActionPopup
+                      heading="Cannot Delete Category"
+                      subHeading="Cannot delete category as it's being currently active."
+                      confirmText="Close"
+                      confirmColor="bg-white hover:bg-[#254a1a] text-secondary1"
+                      cancelText={null}
                     />
                   ),
+                  onApply: (data) => {},
                 },
               ];
 
@@ -115,34 +117,27 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
                   label: "Edit Category",
                   iconUrl: "/assets/icon/viewCustomer.svg",
                   type: "sidebar",
-                  component: <DetailView config={""} />,
+                  component: <CategoryForm data={row} />,
                 },
                 {
                   label: "Mark As Active",
                   iconUrl: "/assets/icon/markCompleted.svg",
                   type: "popUp",
-                  component: (
-                    <PopupForm
-                      config={markAsActiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Marked as active:", data)}
-                    />
-                  ),
+                  component: <ViewUser />,
                 },
                 {
                   label: "Delete",
                   iconUrl: "/assets/icon/delete.svg",
-                  type: "popUp",
-                  style: {
-                    color: "var(--color-red)",
-                  },
+                  type: "modal_component",
                   component: (
-                    <PopupForm
-                      config={deleteConfig}
-                      width="500px"
-                      onApply={(data) => console.log("deleted:", data)}
+                    <ActionPopup
+                      heading="Delete?"
+                      subHeading="Are you sure you want to delete this listing? Once deleted, this listing will be removed from the marketplace and will no longer be visible to buyers."
+                      confirmText="Confirm Delete"
+                      confirmColor="red"
                     />
                   ),
+                  onApply: (data) => console.log("Delete:", row, data),
                 },
               ];
 

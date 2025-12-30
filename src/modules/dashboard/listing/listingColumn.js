@@ -1,6 +1,8 @@
 "use client";
-import PopupForm from "@/components/ui/popupform";
-import { rejectSellerConfig } from "./listingConfig";
+
+import { toast } from "sonner";
+import ActionPopup from "@/components/common/ActionPopup";
+
 export const listingColumns = [
   {
     key: "category",
@@ -62,11 +64,68 @@ export const verificationColumns = [
     title: "Action",
     sortable: false,
     component: {
-      type: "verification_action",
-      props: {
-        rejectConfig: rejectSellerConfig,
-        PopupComponent: PopupForm,
-        onReject: (row) => console.log("Rejected", row),
+      type: "action",
+      options: {
+        direct: true,
+        actions: (row) => [
+          {
+            iconUrl: "/assets/icon/check.svg",
+            className:
+              "w-8 h-8 flex items-center justify-center rounded bg-[#DCFCE7] text-[#16A34A] hover:bg-[#d1fae5] transition-colors",
+            onClick: () => {
+              toast.success(
+                `${row?.seller?.name || "Seller"} verified successfully!`
+              );
+            },
+          },
+          {
+            iconUrl: "/assets/icon/cross.svg",
+            className:
+              "w-8 h-8 flex items-center justify-center rounded bg-[#FEE2E2] text-[#DC2626] hover:bg-[#fecaca] transition-colors",
+            type: "modal_component",
+            component: (
+              <ActionPopup
+                heading="Reject Seller Verification?"
+                subHeading="The ID document submitted by this seller will be rejected. Please select a reason so the seller is informed and can upload the correct document. The seller will be notified and asked to upload a valid ID again."
+                confirmText="Reject ID"
+                confirmColor="red"
+                dropdownLabel="Select Rejection Reason"
+                dropdownPlaceholder="Select Reason"
+                dropdownOptions={[
+                  {
+                    label: "Blurry or unclear ID photo",
+                    value: "Blurry or unclear ID photo",
+                  },
+                  {
+                    label: "ID does not match seller’s name",
+                    value: "ID does not match seller’s name",
+                  },
+                  {
+                    label: "Expired ID document",
+                    value: "Expired ID document",
+                  },
+                  {
+                    label: "Wrong document type uploaded",
+                    value: "Wrong document type uploaded",
+                  },
+                  {
+                    label: "Incomplete ID (front/back missing)",
+                    value: "Incomplete ID (front/back missing)",
+                  },
+                  {
+                    label: "Suspected tampering or invalid ID",
+                    value: "Suspected tampering or invalid ID",
+                  },
+                  { label: "Other", value: "Other" },
+                ]}
+              />
+            ),
+            onApply: (data) => {
+              console.log("Rejected", row, data);
+              toast.error(`${row?.seller?.name || "Seller"} rejected.`);
+            },
+          },
+        ],
       },
     },
   },

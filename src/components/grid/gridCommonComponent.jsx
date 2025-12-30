@@ -7,7 +7,7 @@ import DateFormateComponent from "./dateFormateComponent";
 import CurrencyComponent from "./currencyComponent";
 import BadgeComponent from "./badgeComponent";
 import ActionComponent from "./actionComponent";
-import VerificationActionComponent from "./verificationActionComponent";
+
 import IdImageComponent from "./idImageComponent";
 import TimeRangeCell from "../ui/timerangecell";
 import Image from "next/image";
@@ -109,7 +109,7 @@ const GridCommonComponent = ({
     return path.split(".").reduce((acc, part) => acc && acc[part], obj);
   };
 
-  const renderCellContent = (column, value, row) => {
+  const renderCellContent = (column, value, row, context = {}) => {
     if (column?.render) {
       return column?.render(value);
     }
@@ -178,11 +178,15 @@ const GridCommonComponent = ({
             />
           );
         case "phone":
+          let phoneStyle = column.component.style;
+          if (context.isMobile && column.mobileStack) {
+            phoneStyle = { ...phoneStyle, whiteSpace: "normal" };
+          }
           return (
             <PhoneComponent
               data={value}
               {...column.component.props}
-              style={column.component.style}
+              style={phoneStyle}
             />
           );
         case "date":
@@ -246,14 +250,6 @@ const GridCommonComponent = ({
             </label>
           );
 
-        case "verification_action":
-          return (
-            <VerificationActionComponent
-              row={row}
-              {...column.component.props}
-              // style={column.component.style}
-            />
-          );
 
         case "id_image":
           return (
@@ -578,22 +574,52 @@ const GridCommonComponent = ({
                     .filter(
                       (column) => !column.isPrimary && !column.nonExpandable
                     )
-                    .map((column, colIndex) => (
-                      <div
-                        key={colIndex}
-                        className={`flex justify-between items-center py-1 sm:py-2 border-b border-gray-200 last:border-b-0 min-h-[2rem]
+                    .map((column, colIndex) => {
+                      // Check for mobileStack property
+                      const isStacked = column.mobileStack;
+
+                      return (
+                        <div
+                          key={colIndex}
+                          className={`${
+                            isStacked
+                              ? "flex flex-col items-start py-2" // Stacked layout
+                              : "flex justify-between items-center py-1 sm:py-2" // Default layout
+                          } border-b border-gray-200 last:border-b-0 min-h-[2rem]
                         ${column.component?.style?.text}`}
-                      >
-                        <span className="text-xs sm:text-sm font-medium text-gray-600 flex-shrink-0 w-24 sm:w-32">
-                          {column.title}
-                        </span>
-                        <div className="text-xs sm:text-sm text-gray-900 text-right flex-1 min-w-0 ml-2">
-                          <div className="flex items-center justify-end w-full">
-                            {renderCellContent(column, row[column.key], row)}
+                        >
+                          <span
+                            className={`text-xs sm:text-sm font-medium text-gray-600 flex-shrink-0 ${
+                              isStacked ? "mb-1 w-full" : "w-24 sm:w-32"
+                            }`}
+                          >
+                            {column.title}
+                          </span>
+                          <div
+                            className={`text-xs sm:text-sm text-gray-900 ${
+                              isStacked
+                                ? "w-full text-left"
+                                : "text-right flex-1 min-w-0 ml-2"
+                            }`}
+                          >
+                            <div
+                              className={`flex ${
+                                isStacked
+                                  ? "items-start w-full"
+                                  : "items-center justify-end w-full"
+                              }`}
+                            >
+                              {renderCellContent(
+                                column,
+                                row[column.key],
+                                row,
+                                { isMobile: true } // context
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                 </div>
               </div>
             )}

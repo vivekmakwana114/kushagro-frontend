@@ -39,8 +39,6 @@ const routeMap = {
   "/seller": "Seller",
   "/seller/details/profile": "Seller Details",
   "/seller/details/seller": "Seller",
-  "/seller/details/availability": "Availability",
-  "/seller/details/gallery": "Gallery",
 
   "/listing-categories": "Listing & Categories",
   "/listing-categories/categories": "Categories",
@@ -58,9 +56,6 @@ const routeMap = {
   "/settings/email": "Email Settings",
   "/settings/payments": "Payments",
 
-  // breadcrumbs for the barber
-  "/barber/appointment": "My Appointments",
-  "/barber/availibility": "Availability",
 };
 
 const Header = () => {
@@ -240,8 +235,8 @@ const Header = () => {
                 className="flex items-center gap-2 cursor-pointer p-3"
                 onClick={() => router.push("/profile")}
               >
-                <User className="text-[var(--color-placeholder-color)] h-4 w-4" />
-                <span className="text-[var(--color-placeholder-color)]">
+                <User className="text-dull-text h-4 w-4" />
+                <span className="text-dull-text">
                   My Profile
                 </span>
               </DropdownMenuItem>
@@ -250,8 +245,8 @@ const Header = () => {
                 className="flex items-center gap-2 cursor-pointer p-3 "
                 onClick={() => router.push("/auth")}
               >
-                <LogOut className="text-[var(--color-placeholder-color)] h-4 w-4" />
-                <span className="text-[var(--color-placeholder-color)]">
+                <LogOut className="text-dull-text h-4 w-4" />
+                <span className="text-dull-text">
                   Log out
                 </span>
               </DropdownMenuItem>
