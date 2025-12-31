@@ -142,7 +142,7 @@ export const getSellerColumns = () => [
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
                   url: "/seller/details/profile/",
                 },
@@ -213,7 +213,7 @@ export const getSellerColumns = () => [
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
                   url: "/seller/details/profile/",
                 },
@@ -247,7 +247,7 @@ export const getSellerColumns = () => [
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
                   url: "/seller/details/profile/",
                 },
@@ -272,7 +272,7 @@ export const getSellerColumns = () => [
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
                   url: "/seller/details/profile/",
                 },

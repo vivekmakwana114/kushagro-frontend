@@ -113,7 +113,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails />,
                 },
@@ -196,7 +196,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="buyer" />,
                 },
@@ -211,7 +211,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="buyer" />,
                 },

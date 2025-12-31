@@ -109,7 +109,7 @@ export const transactionColumn = [
           return [
             {
               label: "View Details",
-              iconUrl: "/assets/icon/ViewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
               component: <ViewTransactionDetails />,
             },

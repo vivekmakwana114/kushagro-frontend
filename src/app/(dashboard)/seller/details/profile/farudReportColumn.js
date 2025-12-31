@@ -66,21 +66,13 @@ export const getFraudReportColumns = () => [
           return [
             {
               label: "View Report",
-              iconUrl: "/assets/icon/ViewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
               component: <ViewFraudReport userType="seller" />,
             },
             {
               label: "Delete Report",
               iconUrl: "/assets/icon/deleteBarbershop.svg",
-              // component: (
-              //   <PopupForm
-              //     config={""}
-              //     width="500px"
-              //     onApply={(data) => console.log("Suspended Buyer:", data)}
-              //     onCancel={() => console.log("Closed")}
-              //   />
-              // ),
             },
           ];
         },

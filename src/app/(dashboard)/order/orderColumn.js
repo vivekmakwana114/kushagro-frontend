@@ -156,7 +156,7 @@ export const getOrderColumns = () => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="order" />,
                 },
@@ -239,7 +239,7 @@ export const getOrderColumns = () => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="order" />,
                 },
@@ -253,8 +253,8 @@ export const getOrderColumns = () => [
             case "cancelled":
               return [
                 {
-                  label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  label: "View Order",  
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="order" />,
                 },

@@ -115,7 +115,7 @@ export const getOrderColumns = (role) => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails/>,
                 },
@@ -200,7 +200,7 @@ export const getOrderColumns = (role) => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="seller" />,
                 },
@@ -215,7 +215,7 @@ export const getOrderColumns = (role) => [
               return [
                 {
                   label: "View Order",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewOrderDetails module="seller" />,
                 },

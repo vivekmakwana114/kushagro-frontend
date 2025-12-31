@@ -96,7 +96,7 @@ export const supportTicketColumns = [
             return [
               {
                 label: "View Details",
-                iconUrl: "/assets/icon/viewCustomer.svg",
+                iconUrl: "/assets/icon/View.svg",
                 type: "sidebar",
                 component: <ViewSupportTicket />,
               },
@@ -127,7 +127,7 @@ export const supportTicketColumns = [
             return [
               {
                 label: "View Details",
-                iconUrl: "/assets/icon/viewCustomer.svg",
+                iconUrl: "/assets/icon/View.svg",
                 type: "sidebar",
                 component: <ViewSupportTicket />,
               },
@@ -158,7 +158,7 @@ export const supportTicketColumns = [
           return [
             {
               label: "View Details",
-              iconUrl: "/assets/icon/viewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
               component: <ViewSupportTicket />,
             },

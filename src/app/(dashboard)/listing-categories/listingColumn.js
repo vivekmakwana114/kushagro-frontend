@@ -99,7 +99,7 @@ export const getOfferColumns = (handleDeleteOffer) => [
               return [
                 {
                   label: "View Listing",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewListingDetails data={row} onClose={() => {}} />,
                 },
@@ -123,7 +123,7 @@ export const getOfferColumns = (handleDeleteOffer) => [
               return [
                 {
                   label: "View Listing",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component:  <ViewListingDetails data={row} onClose={() => {}} />,
                 },

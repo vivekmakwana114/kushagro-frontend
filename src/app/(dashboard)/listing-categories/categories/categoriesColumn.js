@@ -75,7 +75,7 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
               return [
                 {
                   label: "Edit Category",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/editBooking.svg",
                   type: "sidebar",
                   component: <CategoryForm data={row} />,
                 },
@@ -115,7 +115,7 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
               return [
                 {
                   label: "Edit Category",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <CategoryForm data={row} />,
                 },

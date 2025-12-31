@@ -80,7 +80,7 @@ export const getListingColumns = () => [
               return [
                 {
                   label: "View Listing",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewListingDetails data={row} />,
                 },
@@ -104,7 +104,7 @@ export const getListingColumns = () => [
               return [
                 {
                   label: "View Listing",
-                  iconUrl: "/assets/icon/viewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
                   component: <ViewListingDetails data={row} />,
                 },

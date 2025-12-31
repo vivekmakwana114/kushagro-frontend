@@ -91,7 +91,7 @@ export const fraudReportColumns = [
           return [
             {
               label: "View Report",
-              iconUrl: "/assets/icon/viewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
               component: <ViewFraudReport userType="seller" />,
             },

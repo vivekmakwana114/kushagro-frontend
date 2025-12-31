@@ -66,7 +66,7 @@ export const getFraudReportColumns = () => [
           return [
             {
               label: "View Report",
-              iconUrl: "/assets/icon/ViewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
               component: <ViewFraudReport userType="buyer" />,
             },

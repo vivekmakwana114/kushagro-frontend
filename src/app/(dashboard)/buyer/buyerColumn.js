@@ -108,7 +108,7 @@ export const getBuyerColumns = () => [
             return [
               {
                 label: "View Buyer",
-                iconUrl: "/assets/icon/ViewCustomer.svg",
+                iconUrl: "/assets/icon/View.svg",
                 type: "navigate",
                 url: "/buyer/details/overview/",
               },
@@ -132,7 +132,7 @@ export const getBuyerColumns = () => [
           return [
             {
               label: "View Buyer",
-              iconUrl: "/assets/icon/ViewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "navigate",
               url: "/buyer/details/overview/",
             },
