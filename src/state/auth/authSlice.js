@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   login,
   forgotPassword,
-  verifyResetToken as verifyTokenApi,
+  verifyOtp as verifyOtpApi,
   resetPassword as resetPasswordApi,
 } from "./authService";
 
@@ -36,29 +36,29 @@ export const sendForgotPassword = createAsyncThunk(
   }
 );
 
-// Verify reset token sent via email
-export const verifyResetToken = createAsyncThunk(
-  "auth/verifyResetToken",
-  async (token, { rejectWithValue }) => {
+// Verify OTP
+export const verifyOtp = createAsyncThunk(
+  "auth/verifyOtp",
+  async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await verifyTokenApi(token);
+      const res = await verifyOtpApi(email, otp);
       return res.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data || {
-          message: err.message || "Invalid or expired token",
+          message: err.message || "Invalid OTP",
         }
       );
     }
   }
 );
 
-// Perform password reset using token
+// Perform password reset using otp
 export const performResetPassword = createAsyncThunk(
   "auth/performResetPassword",
-  async ({ token, password }, { rejectWithValue }) => {
+  async ({ email, password, otp }, { rejectWithValue }) => {
     try {
-      const res = await resetPasswordApi({ token, password });
+      const res = await resetPasswordApi({ email, password, otp });
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -125,6 +125,18 @@ const authSlice = createSlice({
         } catch (_) {}
       }
     },
+    logout: (state) => {
+      state.user = null;
+      state.tokens = null;
+      state.role = null;
+      state.status = "idle";
+      state.error = null;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("auth");
+        } catch (_) {}
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -173,19 +185,19 @@ const authSlice = createSlice({
         state.forgotPasswordMessage = null;
       })
 
-      // verify reset token reducers
-      .addCase(verifyResetToken.pending, (state) => {
+      // verify otp reducers
+      .addCase(verifyOtp.pending, (state) => {
         state.verifyStatus = "loading";
         state.verifyMessage = null;
         state.error = null;
       })
-      .addCase(verifyResetToken.fulfilled, (state, action) => {
+      .addCase(verifyOtp.fulfilled, (state, action) => {
         state.verifyStatus = "succeeded";
-        state.verifyMessage = action.payload.message || "Token verified";
+        state.verifyMessage = action.payload.message || "OTP verified";
       })
-      .addCase(verifyResetToken.rejected, (state, action) => {
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.verifyStatus = "failed";
-        state.error = action.payload?.message || "Invalid or expired token";
+        state.error = action.payload?.message || "Invalid OTP";
       })
 
       // perform reset password reducers
@@ -206,5 +218,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUserRole } = authSlice.actions;
+export const { setUserRole, logout } = authSlice.actions;
 export default authSlice.reducer;

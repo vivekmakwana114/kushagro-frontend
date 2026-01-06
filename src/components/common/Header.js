@@ -24,6 +24,8 @@ import {
 } from "../ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { logout } from "@/state/auth/authSlice";
 
 import { useEffect, useRef, useState, Fragment } from "react";
 import Notification from "@/components/common/Notification";
@@ -31,7 +33,7 @@ import Notification from "@/components/common/Notification";
 // Map of routes to their display names
 const routeMap = {
   "/": "Dashboard",
-  
+
   "/buyer": "Buyer",
   "/buyer/details": "Buyer Details",
   "/buyer/details/product-order": "Product Orders",
@@ -55,11 +57,11 @@ const routeMap = {
   "/settings/policies": "Policies",
   "/settings/email": "Email Settings",
   "/settings/payments": "Payments",
-
 };
 
 const Header = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { toggle, isOpen } = useSideBarStore();
   const pathname = usePathname();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -174,7 +176,7 @@ const Header = () => {
         <div className="relative" ref={notificationRef}>
           <div
             onClick={() => setIsNotificationOpen((prev) => !prev)}
-            className="w-[30px] h-[30px] border border-[var(--border-admin)] 
+            className="w-[30px] h-[30px] border border-(--border-admin) 
                    rounded-[6px] flex items-center justify-center shadow-md cursor-pointer"
           >
             <Image
@@ -196,11 +198,11 @@ const Header = () => {
         <div className="flex flex-row gap-2 items-center ">
           <div className="hidden md:flex md:flex-col gap-0.5">
             <div className="flex items-center justify-end">
-              <p className="text-[12px] font-medium text-[var(--color-placeholder-color)] text-left">
+              <p className="text-[12px] font-medium text-placeholder-color text-left">
                 Hello
               </p>
             </div>
-            <p className="text-[14px] font-medium text-[var(--dark)] truncate">
+            <p className="text-[14px] font-medium text-(--dark) truncate">
               John Doe
             </p>
           </div>
@@ -236,26 +238,25 @@ const Header = () => {
                 onClick={() => router.push("/profile")}
               >
                 <User className="text-dull-text h-4 w-4" />
-                <span className="text-dull-text">
-                  My Profile
-                </span>
+                <span className="text-dull-text">My Profile</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer p-3 "
-                onClick={() => router.push("/auth")}
+                onClick={() => {
+                  dispatch(logout());
+                  router.push("/auth");
+                }}
               >
                 <LogOut className="text-dull-text h-4 w-4" />
-                <span className="text-dull-text">
-                  Log out
-                </span>
+                <span className="text-dull-text">Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Hamburger Menu */}
           <div
-            className="flex md:hidden w-[30px] h-[30px] border border-[var(--border-admin)] rounded-[6px] items-center justify-center shadow-md cursor-pointer"
+            className="flex md:hidden w-[30px] h-[30px] border border-(--border-admin) rounded-[6px] items-center justify-center shadow-md cursor-pointer"
             onClick={toggle}
             data-hamburger="true"
           >

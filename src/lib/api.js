@@ -1,13 +1,12 @@
 import axios from "axios";
 
-const RAW_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "";
+const RAW_BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL || "https://api-kushagro-dev.onrender.com";
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/g, "");
 
 export const api = axios.create({
-  baseURL: BASE_URL || undefined,
-  withCredentials: true,
+  baseURL: BASE_URL,
 });
-
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
