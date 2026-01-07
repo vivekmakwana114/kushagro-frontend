@@ -86,15 +86,18 @@ const AuthPage = () => {
     }
   }, [currentView, reset]);
 
+  // login function
   const handleLogin = (data) => {
     toast.loading("Logging in...");
     dispatch(loginUser(data));
   };
 
+  // forget password
   const handleForgotPassword = () => {
     setCurrentView("forgot-password");
   };
 
+  // send forgot password
   const handleSendForgotPassword = (data) => {
     if (!data.email) return;
     setForgotEmail(data.email);
@@ -112,6 +115,7 @@ const AuthPage = () => {
       });
   };
 
+  // resend otp
   const handleResend = () => {
     if (!forgotEmail) {
       toast.error("No email to resend");
@@ -130,6 +134,7 @@ const AuthPage = () => {
       });
   };
 
+  // verify otp
   const handleVerifyOtp = () => {
     if (otp.length !== 4) {
       toast.error("Please enter a valid 4-digit OTP");
@@ -159,6 +164,7 @@ const AuthPage = () => {
       });
   };
 
+  // reset password
   const handleResetPassword = (data) => {
     const { password, confirmPassword } = data;
 

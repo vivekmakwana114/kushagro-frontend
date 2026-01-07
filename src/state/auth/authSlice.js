@@ -147,9 +147,10 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
-        state.tokens = action.payload.tokens;
-        state.redirect = action.payload.redirect;
+        const data = action.payload.data || action.payload;
+        state.user = data.user;
+        state.tokens = data.tokens;
+        state.redirect = data.redirect;
         if (typeof window !== "undefined") {
           try {
             localStorage.setItem(

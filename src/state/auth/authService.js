@@ -12,10 +12,10 @@ export const forgotPassword = (email) => {
 
 // Verify OTP
 export const verifyOtp = (email, otp) => {
-  return api.post(`/v1/auth/verify/otp`, { email, otp });
+  return api.post(`/v1/auth/verify/forgot/otp`, { email, otp });
 };
 
 // Reset password using token and new password
 export const resetPassword = ({ email, password, otp }) => {
-  return api.post(`/v1/auth/password/reset`, { email, password, otp });
+  return api.post(`/v1/auth/reset/password`, { email, password, otp });
 };
