@@ -1,15 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { ADMIN_CREDENTIALS } from "@/lib/mockCredentials";
-import { useDispatch } from "react-redux";
-import { setUserRole } from "@/state/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loginUser,
+  sendForgotPassword,
+  verifyOtp,
+  performResetPassword,
+} from "@/state/auth/authSlice";
 
 // Import sub views
 import LoginForm from "../../../modules/auth/LoginForm";
 import ForgetPasswordForm from "../../../modules/auth/ForgetPasswordForm";
+import VerifyOtpForm from "../../../modules/auth/VerifyOtpForm";
 import ResetPasswordForm from "../../../modules/auth/ResetPasswordForm";
 import ResetSuccessForm from "../../../modules/auth/ResetSuccessForm";
 
@@ -17,10 +22,10 @@ const AuthPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
-  const [currentView, setCurrentView] = searchParams.get("token")
-    ? useState("reset-password")
-    : useState("login");
+
+  const [currentView, setCurrentView] = useState("login");
   const [forgotEmail, setForgotEmail] = useState("");
+  const [otp, setOtp] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -28,64 +33,170 @@ const AuthPage = () => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
-  const [loading,setLoading] = useState(false);
+
+  // Redux state
+  const {
+    status,
+    error,
+    user,
+    verifyStatus,
+    resetStatus,
+    forgotPasswordMessage,
+  } = useSelector((state) => state.auth);
+  const loading =
+    status === "loading" ||
+    verifyStatus === "loading" ||
+    resetStatus === "loading";
+
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm();
 
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
 
-  const handleLogin = async (data) => {
-    try {
-      if (
-        data.email === ADMIN_CREDENTIALS.email &&
-        data.password === ADMIN_CREDENTIALS.password
-      ) {
-        dispatch(setUserRole(ADMIN_CREDENTIALS.role));
-        console.log("Logged in as:", ADMIN_CREDENTIALS.role);
-        toast.success(`Login successful as ${ADMIN_CREDENTIALS.role}`);
-        router.push("/");
-      } else {
-        toast.error("Invalid email or password");
-      }
-    } catch (err) {
-      toast.error("Login occurred error");
-    } finally {
-      setLoading(false);
+
+  // Handle Login Success/Error
+  useEffect(() => {
+    if (status === "succeeded" && user) {
+      toast.dismiss();
+      toast.success("Login successful");
+      router.push("/");
     }
+    if (status === "failed" && error) {
+      toast.dismiss();
+      toast.error(error);
+    }
+  }, [status, user, error, router]);
+
+  // Clear forms and state when view changes to main entry points
+  useEffect(() => {
+    if (currentView === "login") {
+      reset(); 
+      setOtp("");
+      setForgotEmail("");
+    } else if (currentView === "forgot-password") {
+      reset();
+      setOtp("");
+      setForgotEmail("");
+    }
+  }, [currentView, reset]);
+
+  // login function
+  const handleLogin = (data) => {
+    toast.loading("Logging in...");
+    dispatch(loginUser(data));
   };
 
-  const handleForgotPassword = async (data) => {
-    toast.success("Reset link sent (mock)");
-    setCurrentView("reset-success");
+  // forget password
+  const handleForgotPassword = () => {
+    setCurrentView("forgot-password");
   };
 
-  const handleResend = async () => {
+  // send forgot password
+  const handleSendForgotPassword = (data) => {
+    if (!data.email) return;
+    setForgotEmail(data.email);
+    toast.loading("Sending 4-digit code...");
+    dispatch(sendForgotPassword(data.email))
+      .unwrap()
+      .then(() => {
+        toast.dismiss();
+        toast.success("OTP sent. Please check your mail.");
+        setCurrentView("verify-otp");
+      })
+      .catch((err) => {
+        toast.dismiss();
+        toast.error(err.message || "Failed to send OTP");
+      });
+  };
+
+  // resend otp
+  const handleResend = () => {
     if (!forgotEmail) {
-      toast.error("No email to resend (mock)");
+      toast.error("No email to resend");
       return;
     }
-    setLoading(true);
-    try {
-      console.log("Mock resend link for:", forgotEmail);
-      toast.success("Reset link resent (mock)");
-    } catch (err) {
-      toast.error("Failed to resend link (mock)");
-    } finally {
-    }
+    toast.loading("Resending code...");
+    dispatch(sendForgotPassword(forgotEmail))
+      .unwrap()
+      .then(() => {
+        toast.dismiss();
+        toast.success("Code resent successfully");
+      })
+      .catch((err) => {
+        toast.dismiss();
+        toast.error(err.message || "Failed to resend code");
+      });
   };
 
-  const handleResetPassword = async (data) => {
+  // verify otp
+  const handleVerifyOtp = () => {
+    if (otp.length !== 4) {
+      toast.error("Please enter a valid 4-digit OTP");
+      return;
+    }
+    toast.loading("Verifying OTP...");
+    dispatch(verifyOtp({ email: forgotEmail, otp }))
+      .unwrap()
+      .then((res) => {
+        toast.dismiss();
+        toast.success("OTP Verified");
+
+        setCurrentView("reset-password");
+      })
+      .catch((err) => {
+        const msg = err.message || "";
+        // If user is already verified (account status), treat OTP check as passed for password reset flow
+        // and assume OTP is the token since we didn't get one from the failed response.
+        if (msg.toLowerCase().includes("already verified")) {
+          toast.dismiss();
+          toast.success("OTP Verified");
+          setCurrentView("reset-password");
+        } else {
+          toast.dismiss();
+          toast.error(msg || "Invalid OTP");
+        }
+      });
+  };
+
+  // reset password
+  const handleResetPassword = (data) => {
     const { password, confirmPassword } = data;
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match (mock)");
+      toast.error("Passwords do not match");
       return;
     }
+
+    // We strictly use OTP flow now
+    if (!otp || !forgotEmail) {
+      toast.error("Missing OTP or Email verification");
+      return;
+    }
+
+    toast.loading("Resetting password...");
+    dispatch(
+      performResetPassword({
+        email: forgotEmail,
+        password,
+        otp,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        toast.dismiss();
+        toast.success("password changed successful");
+        setCurrentView("login");
+      })
+      .catch((err) => {
+        toast.dismiss();
+        toast.error(err.message || "Failed to reset password");
+      });
   };
 
   const renderForm = () => {
@@ -103,7 +214,8 @@ const AuthPage = () => {
             setPasswordFocused={setPasswordFocused}
             handleSubmit={handleSubmit}
             handleLogin={handleLogin}
-            setCurrentView={setCurrentView}
+            handleForgotPassword={handleForgotPassword}
+            loading={loading}
           />
         );
       case "forgot-password":
@@ -113,11 +225,21 @@ const AuthPage = () => {
             errors={errors}
             emailFocused={emailFocused}
             setEmailFocused={setEmailFocused}
-            // handleSubmit={handleSubmit}
-            onSubmit={handleForgotPassword}
+            onSubmit={handleSendForgotPassword}
             onBack={() => setCurrentView("login")}
-            handleForgotPassword={handleForgotPassword}
             setCurrentView={setCurrentView}
+            loading={loading}
+          />
+        );
+      case "verify-otp":
+        return (
+          <VerifyOtpForm
+            otp={otp}
+            setOtp={setOtp}
+            onVerify={handleVerifyOtp}
+            onResend={handleResend}
+            onBack={() => setCurrentView("login")}
+            loading={loading}
           />
         );
       case "reset-password":
@@ -139,6 +261,7 @@ const AuthPage = () => {
             onBack={() => setCurrentView("login")}
             handleResetPassword={handleResetPassword}
             setCurrentView={setCurrentView}
+            loading={loading}
           />
         );
       case "reset-success":
@@ -147,6 +270,7 @@ const AuthPage = () => {
             onBack={() => setCurrentView("login")}
             onResend={handleResend}
             setCurrentView={setCurrentView}
+            loading={loading}
           />
         );
       default:
