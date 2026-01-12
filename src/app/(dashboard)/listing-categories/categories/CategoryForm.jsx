@@ -12,7 +12,6 @@ import useAutoDismissError from "@/hooks/useAutoDismissError";
 const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
   const dispatch = useDispatch();
   const handleClose = onClose || onCancel;
-  console.log("CategoryForm Data Prop:", data);
   const isEditMode = !!data;
   const [categoryName, setCategoryName] = useState("");
   const [status, setStatus] = useState("ACTIVE");
@@ -23,7 +22,6 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
 
   useEffect(() => {
     if (data) {
-      console.log("Initializing Form with Data:", data);
       // Map initial API data to form state (fast render)
       setCategoryName(data.name || data.category || "");
       setStatus(
@@ -124,7 +122,6 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
       })),
     };
 
-    console.log("Form Submitted Payload:", payload);
     if (onSubmit) onSubmit(payload);
     if (handleClose) handleClose();
   };
