@@ -1,11 +1,10 @@
 "use client";
 import ActionPopup from "@/components/common/ActionPopup";
 import CategoryForm from "./CategoryForm";
-import ViewUser from "../../buyer/viewUser";
 
-export const getCategoriesColumns = (handleDeleteOffer) => [
+export const getCategoriesColumns = ({ onEdit, onDelete, onStatusChange }) => [
   {
-    key: "category",
+    key: "name",
     title: "Category",
     sortable: true,
     component: {
@@ -18,7 +17,7 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
   },
 
   {
-    key: "created_on",
+    key: "createdAt",
     title: "Created On",
     sortable: true,
     component: {
@@ -26,7 +25,7 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
       style: { color: "var(--color-dull-text)", fontWeight: "500" },
 
       options: {
-        format: "dd MM, yyyy", // Example: Jul 15, 2025
+        format: "dd MM, yyyy",
       },
     },
   },
@@ -70,80 +69,74 @@ export const getCategoriesColumns = (handleDeleteOffer) => [
       style: {},
       options: {
         actions: (row) => {
-          switch (row.status) {
-            case "active":
-              return [
-                {
-                  label: "Edit Category",
-                  iconUrl: "/assets/icon/editBooking.svg",
-                  type: "sidebar",
-                  component: <CategoryForm data={row} />,
-                },
-                {
-                  label: "mark As Inactive",
-                  iconUrl: "/assets/icon/markInactive.svg",
-                  type: "modal_component",
-                  component: (
-                    <ActionPopup
-                      heading="Mark As Inactive?"
-                      subHeading="Are you sure you want to inactivate this listing? Once inactivated, this listing will be removed from the marketplace and will no longer be visible to buyers."
-                      confirmText="Confirm Inactivation"
-                      confirmColor="text-secondary1"
-                    />
-                  ),
-                  onApply: (data) =>
-                    console.log("Reactivate Buyer:", row, data),
-                },
-                {
-                  label: "Delete",
-                  iconUrl: "/assets/icon/delete.svg",
-                  type: "modal_component",
-                  component: (
-                    <ActionPopup
-                      heading="Cannot Delete Category"
-                      subHeading="Cannot delete category as it's being currently active."
-                      confirmText="Close"
-                      confirmColor="bg-white hover:bg-[#254a1a] text-secondary1"
-                      cancelText={null}
-                    />
-                  ),
-                  onApply: (data) => {},
-                },
-              ];
+          const isActive = row.status?.toLowerCase() === "active";
 
-            case "inactive":
-              return [
-                {
-                  label: "Edit Category",
-                  iconUrl: "/assets/icon/View.svg",
-                  type: "sidebar",
-                  component: <CategoryForm data={row} />,
-                },
-                {
-                  label: "Mark As Active",
-                  iconUrl: "/assets/icon/markCompleted.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
-                },
-                {
-                  label: "Delete",
-                  iconUrl: "/assets/icon/delete.svg",
-                  type: "modal_component",
-                  component: (
-                    <ActionPopup
-                      heading="Delete?"
-                      subHeading="Are you sure you want to delete this listing? Once deleted, this listing will be removed from the marketplace and will no longer be visible to buyers."
-                      confirmText="Confirm Delete"
-                      confirmColor="red"
-                    />
-                  ),
-                  onApply: (data) => console.log("Delete:", row, data),
-                },
-              ];
-
-            default:
-              return [];
-          }
+          return [
+            {
+              label: "Edit Category",
+              iconUrl: "/assets/icon/editBooking.svg",
+              type: "sidebar",
+              component: (
+                <CategoryForm
+                  data={row}
+                  onSubmit={(formData) => onEdit(row._id || row.id, formData)}
+                />
+              ),
+            },
+            {
+              label: isActive ? "Mark As Inactive" : "Mark As Active",
+              iconUrl: isActive
+                ? "/assets/icon/markInactive.svg"
+                : "/assets/icon/markCompleted.svg",
+              type: "modal_component",
+              component: (
+                <ActionPopup
+                  heading={isActive ? "Mark As Inactive?" : "Mark As Active?"}
+                  subHeading={
+                    isActive
+                      ? "Are you sure you want to inactivate this category? It will be hidden from the marketplace."
+                      : "Are you sure you want to activate this category? It will be visible in the marketplace."
+                  }
+                  confirmText={
+                    isActive ? "Confirm Inactivation" : "Confirm Activation"
+                  }
+                  confirmColor="text-secondary1"
+                />
+              ),
+              onApply: () =>
+                onStatusChange(
+                  row._id || row.id,
+                  isActive ? "INACTIVE" : "ACTIVE"
+                ),
+            },
+            {
+              label: "Delete",
+              iconUrl: "/assets/icon/delete.svg",
+              type: "modal_component",
+              component: isActive ? (
+                <ActionPopup
+                  heading="Cannot Delete Category"
+                  subHeading="This category is active and has listed products. Please mark it as inactive before deleting."
+                  confirmText="Okay"
+                  confirmColor="text-secondary1"
+                  showCancel={false}
+                />
+              ) : (
+                <ActionPopup
+                  heading="Delete Category?"
+                  subHeading="Are you sure you want to delete this category? This action cannot be undone."
+                  confirmText="Delete"
+                  confirmColor="red"
+                />
+              ),
+              onApply: () => {
+                if (isActive) {
+                  return;
+                }
+                onDelete(row._id || row.id);
+              },
+            },
+          ];
         },
       },
     },

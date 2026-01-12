@@ -250,7 +250,6 @@ const GridCommonComponent = ({
             </label>
           );
 
-
         case "id_image":
           return (
             <IdImageComponent
@@ -389,6 +388,18 @@ const GridCommonComponent = ({
                 </tr>
               </thead>
               <tbody className="bg-white">
+                {sortedData.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={
+                        columns.length + (select ? 1 : 0) + (order ? 1 : 0)
+                      }
+                      className="px-6 py-12 text-center text-(--color-dull-text)"
+                    >
+                      No Data Available
+                    </td>
+                  </tr>
+                )}
                 {sortedData.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}
@@ -626,6 +637,11 @@ const GridCommonComponent = ({
           </div>
         );
       })}
+      {sortedData.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-(--color-dull-text)">
+          <p>No Data Available</p>
+        </div>
+      )}
     </div>
   );
 
