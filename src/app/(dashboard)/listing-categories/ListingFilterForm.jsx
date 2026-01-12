@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 const ListingFilterForm = ({ onCancel, onApply }) => {
   // State for the form
   const [status, setStatus] = useState(["all"]);
-  const [paymentStatus, setPaymentStatus] = useState(["all"]);
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [priceFrom, setPriceFrom] = useState("");
@@ -63,15 +62,12 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
 
     // Check if form is empty
     const isStatusAll = status.length === 1 && status[0] === "all";
-    const isPaymentStatusAll =
-      paymentStatus.length === 1 && paymentStatus[0] === "all";
     const isDateRangeEmpty = !dateFrom && !dateTo;
     const isPriceRangeEmpty = !priceFrom && !priceTo;
     const isCategoriesEmpty = selectedCategories.length === 0;
 
     if (
       isStatusAll &&
-      isPaymentStatusAll &&
       isDateRangeEmpty &&
       isPriceRangeEmpty &&
       isCategoriesEmpty
@@ -86,7 +82,6 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
 
     const filterData = {
       status,
-      paymentStatus,
       dateRange: { from: dateFrom, to: dateTo },
       priceRange: { from: priceFrom, to: priceTo },
       categories: selectedCategories,
@@ -138,23 +133,6 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
             onChange={(val) => {
               if (val.length === 0) setStatus(["all"]);
               else setStatus(val);
-            }}
-            singleSelect={true}
-          />
-
-          {/* Payment Status */}
-          <CheckboxGroup
-            label="Payment Status"
-            options={[
-              { value: "all", label: "All" },
-              { value: "paid", label: "Paid" },
-              { value: "pending", label: "Pending" },
-              { value: "refunded", label: "Refunded" },
-            ]}
-            value={paymentStatus}
-            onChange={(val) => {
-              if (val.length === 0) setPaymentStatus(["all"]);
-              else setPaymentStatus(val);
             }}
             singleSelect={true}
           />

@@ -94,46 +94,64 @@ export const getOfferColumns = (handleDeleteOffer) => [
       style: {},
       options: {
         actions: (row) => {
-          switch (row.status) {
-            case "active":
+          const status = row.status ? row.status.toUpperCase() : "INACTIVE";
+
+          switch (status) {
+            case "ACTIVE":
               return [
                 {
                   label: "View Listing",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewListingDetails data={row} onClose={() => {}} />,
+                  component: (
+                    <ViewListingDetails
+                      listingId={row._id}
+                      onClose={() => {}}
+                    />
+                  ),
                 },
                 {
-                label: "mark As Inactive",
-                iconUrl: "/assets/icon/markInactive.svg",
-                type: "modal_component",
-                component: (
-                  <ActionPopup
-                    heading="Mark As Inactive?"
-                    subHeading="Are you sure you want to inactivate this listing? Once inactivated, this listing will be removed from the marketplace and will no longer be visible to buyers."
-                    confirmText="Confirm Inactivation"
-                    confirmColor="text-secondary1"
-                  />
-                ),
-                onApply: (data) => console.log("Reactivate Buyer:", row, data),
-              },
+                  label: "Mark As Inactive",
+                  iconUrl: "/assets/icon/markInactive.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Mark As Inactive?"
+                      subHeading="Are you sure you want to inactivate this listing? Once inactivated, this listing will be removed from the marketplace and will no longer be visible to buyers."
+                      confirmText="Confirm Inactivation"
+                      confirmColor="text-secondary1"
+                    />
+                  ),
+                  onApply: () => handleDeleteOffer(row, "INACTIVE"), // Calling callback passed as 'handleDeleteOffer' which is actually 'handleStatusUpdate'
+                },
               ];
 
-            case "inactive":
+            case "INACTIVE":
               return [
                 {
                   label: "View Listing",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component:  <ViewListingDetails data={row} onClose={() => {}} />,
+                  component: (
+                    <ViewListingDetails
+                      listingId={row._id}
+                      onClose={() => {}}
+                    />
+                  ),
                 },
                 {
                   label: "Mark As Active",
                   iconUrl: "/assets/icon/markCompleted.svg",
-                  type: "popUp",
+                  type: "modal_component", // using ActionPopup for consistency/safeguard, or could be direct
                   component: (
-                   <ViewUser/>
+                    <ActionPopup
+                      heading="Mark As Active?"
+                      subHeading="Are you sure you want to activate this listing? It will be visible to buyer."
+                      confirmText="Confirm Activation"
+                      confirmColor="text-green-600"
+                    />
                   ),
+                  onApply: () => handleDeleteOffer(row, "ACTIVE"),
                 },
               ];
 
