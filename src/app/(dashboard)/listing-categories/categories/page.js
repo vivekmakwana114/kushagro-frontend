@@ -1,16 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { Input } from "@/components/ui/input";
 import { Download, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
 import CategoryForm from "./CategoryForm";
 import Image from "next/image";
-import PopupForm from "@/components/ui/popupform";
-import Pagination from "@/components/ui/pagination";
-import { categoriesData } from "./categoriesData";
 import { getCategoriesColumns } from "./categoriesColumn";
 
+// import from redux store
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCategories,
+  createNewCategory,
+  updateExistingCategory,
+  removeCategory,
+  updateExistingCategoryStatus,
+} from "@/state/categories/categoriesSlice";
+import { useDebounce } from "@/hooks/useDebounce";
 const options = {
   select: false,
   order: false,
@@ -18,9 +25,7 @@ const options = {
 };
 
 const downloadActions = [
-  {
-    header: "Download List",
-  },
+  { header: "Download List" },
   {
     label: "Download PDF",
     icon: (
@@ -43,56 +48,57 @@ const downloadActions = [
         height={16}
       />
     ),
-
     onClick: () => console.log("Download CSV"),
   },
 ];
 
 const ListingCategoriesPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = categoriesData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(categoriesData.length / itemsPerPage);
+  const dispatch = useDispatch();
 
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
-  const [showCannotDeletePopup, setShowCannotDeletePopup] = useState(false);
-  const [selectedOffer, setSelectedOffer] = useState(null);
-  const [createdOffers, setCreatedOffers] = useState([]);
-  const [showBulkCannotDeletePopup, setShowBulkCannotDeletePopup] =
-    useState(false);
-  const [selectedBulkOffers, setSelectedBulkOffers] = useState([]);
+  const { categories, totalPages, loading, success } = useSelector(
+    (state) => state.categories
+  );
 
-  const handleCreateOffer = (formData) => {
-    const transformedOffer = {
-      id: Date.now(),
-      offerName: formData.offerName || "",
-      couponCode: formData.couponCode || "",
-      usageLimit: formData.usageLimit || "",
-      discount: formData.discount || "",
-      maxDiscount: formData.maxDiscount || "",
-      status: formData.status || "inactive",
+  // ... inside component ...
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const fetchedRef = useRef(false);
 
-      DateRange: {
-        from: formData.DateRange_from,
-        to: formData.DateRange_to,
-      },
+  useEffect(() => {
+    // Fetch all categories (no pagination args)
+    if (!fetchedRef.current) {
+      dispatch(fetchCategories({}));
+      fetchedRef.current = true;
+    }
+  }, [dispatch]);
 
-      "cart value": formData["cart value"] || "",
-
-      description: formData.description || "",
-    };
-
-    setCreatedOffers((prev) => [...prev, transformedOffer]);
+  // Handlers
+  const handleSearch = (e) => {
+    setSearchTerm(e?.target?.value);
   };
 
-  const handleDeleteOffer = (row) => {
-    setSelectedOffer(row);
-    setShowDeletePopup(true);
+  const handleCreateCategory = async (formData) => {
+    await dispatch(createNewCategory(formData));
   };
 
-  const categoriesColumns = getCategoriesColumns(handleDeleteOffer);
+  const handleUpdateCategory = async (id, formData) => {
+    await dispatch(updateExistingCategory({ id, categoryData: formData }));
+  };
+
+  const handleStatusChange = async (id, status) => {
+    await dispatch(updateExistingCategoryStatus({ id, status }));
+  };
+
+  const handleDeleteCategory = async (id) => {
+    await dispatch(removeCategory({ id }));
+  };
+
+  // Pass handlers to columns
+  const categoriesColumns = getCategoriesColumns({
+    onEdit: handleUpdateCategory,
+    onDelete: handleDeleteCategory,
+    onStatusChange: handleStatusChange,
+  });
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -102,6 +108,8 @@ const ListingCategoriesPage = () => {
           <Input
             className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
             placeholder="Search here..."
+            value={searchTerm}
+            onChange={handleSearch}
           />
         </div>
 
@@ -115,13 +123,13 @@ const ListingCategoriesPage = () => {
             actions={[
               {
                 type: "sidebar",
-                component: <CategoryForm />,
+                component: <CategoryForm onSubmit={handleCreateCategory} />,
               },
             ]}
             icon={
               <Image
                 src="/icons/plusbutton.svg"
-                alt="Create Offer"
+                alt="Create Category"
                 width={18}
                 height={18}
               />
@@ -132,9 +140,29 @@ const ListingCategoriesPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-50">
+            Data is loading...
+          </div>
+        )}
+
         <GridCommonComponent
-          data={[...currentData, ...createdOffers]}
+          data={
+            // Fallback client-side filtering since API ignores search param
+            (debouncedSearchTerm
+              ? categories.filter((c) =>
+                  c.name
+                    ?.toLowerCase()
+                    .includes(debouncedSearchTerm.toLowerCase())
+                )
+              : categories
+            ).map((item) => ({
+              ...item,
+              total_listing: item.total_listing ?? "NA",
+              name: item.name || "NA",
+            }))
+          }
           options={options}
           columns={categoriesColumns?.map((col) => {
             if (col.key === "actions") {
@@ -157,105 +185,6 @@ const ListingCategoriesPage = () => {
               bg: "bg-[var(--color-background)]",
             },
           }}
-        />
-      </div>
-
-      {/* Single Delete Popup */}
-      {showDeletePopup && selectedOffer && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowDeletePopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={DeleteOfferConfig}
-              width="600px"
-              onApply={() => {
-                const offerName = selectedOffer?.offerName
-                  ?.trim()
-                  ?.toLowerCase();
-                const offerExists = offerData?.some(
-                  (offer) =>
-                    offer.offerName?.trim()?.toLowerCase() === offerName
-                );
-
-                if (offerExists) {
-                  setShowDeletePopup(false);
-                  setShowCannotDeletePopup(true);
-                } else {
-                  setShowDeletePopup(false);
-                }
-              }}
-              onCancel={() => setShowDeletePopup(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Cannot Delete Single Offer Popup */}
-      {showCannotDeletePopup && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowCannotDeletePopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={cannotDeleteOfferConfig}
-              width="500px"
-              onApply={() => setShowCannotDeletePopup(false)}
-              onCancel={() => setShowCannotDeletePopup(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Cannot Delete Bulk Offers Popup */}
-      {showBulkCannotDeletePopup && selectedBulkOffers?.length > 0 && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowBulkCannotDeletePopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={{
-                ...cannotDeleteOfferConfigAll,
-                body: {
-                  ...cannotDeleteOfferConfigAll.body,
-                  content: (
-                    <div className="space-y-3">
-                      <p className="text-placeholder-color text-sm">
-                        The following {selectedBulkOffers.length} offer(s)
-                        cannot be deleted because they already exist in the
-                        system:
-                      </p>
-                      <ul className="list-disc list-inside text-red text-sm space-y-1 max-h-60 overflow-y-auto">
-                        {selectedBulkOffers.map((offer, i) => (
-                          <li key={i}>{offer.offerName || "Unnamed Offer"}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ),
-                },
-              }}
-              width="500px"
-              onApply={() => {
-                setShowBulkCannotDeletePopup(false);
-                setSelectedBulkOffers([]);
-              }}
-              onCancel={() => {
-                setShowBulkCannotDeletePopup(false);
-                setSelectedBulkOffers([]);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="flex-none mt-2">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
         />
       </div>
     </div>

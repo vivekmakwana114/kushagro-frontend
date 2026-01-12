@@ -1,29 +1,78 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { fetchCategoryById } from "@/state/categories/categoriesSlice";
 import Header from "@/components/form-elements/Header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MinusCircle, X } from "lucide-react";
+import { PlusCircle, MinusCircle } from "lucide-react";
 import SelectCheckbox from "@/components/form-elements/SelectCheckbox";
 import useAutoDismissError from "@/hooks/useAutoDismissError";
 
-const CategoryForm = ({ data, onClose, onSubmit }) => {
+const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
+  const dispatch = useDispatch();
+  const handleClose = onClose || onCancel;
   const isEditMode = !!data;
   const [categoryName, setCategoryName] = useState("");
-  const [status, setStatus] = useState("Active");
+  const [status, setStatus] = useState("ACTIVE");
   const [dynamicFields, setDynamicFields] = useState([]);
   const [errors, setErrors, clearErrors] = useAutoDismissError({});
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const lastFetchedId = useRef(null);
 
   useEffect(() => {
     if (data) {
-      setCategoryName(data.category || "");
+      // Map initial API data to form state (fast render)
+      setCategoryName(data.name || data.category || "");
       setStatus(
         data.status
-          ? data.status.charAt(0).toUpperCase() + data.status.slice(1)
-          : "Active"
+          ? data.status.toUpperCase() // Ensure backend enum format
+          : "ACTIVE"
       );
+
+      // Fetch full details (for fields)
+      const id = data._id || data.id;
+      if (id && id !== lastFetchedId.current) {
+        lastFetchedId.current = id;
+        setLoadingDetails(true);
+        dispatch(fetchCategoryById(id))
+          .unwrap()
+          .then((responseData) => {
+            const categoryData = responseData.data || responseData;
+            if (categoryData) {
+              // Update fields from full data
+              if (categoryData.fields && Array.isArray(categoryData.fields)) {
+                setDynamicFields(
+                  categoryData.fields.map((f) => ({
+                    id: f._id || Date.now() + Math.random(),
+                    name: f.label || f.key,
+                    label: f.label || "Field Name",
+                    value: f.key || "",
+                  }))
+                );
+              }
+              // Optional: ensure other fields are in sync if API returns more up-to-date info
+            }
+          })
+          .catch((err) =>
+            console.error("Failed to fetch full category details:", err)
+          )
+          .finally(() => setLoadingDetails(false));
+      }
+
+      // Existing local logic fallback if fields present in prop (though unlikely for list view)
+      if (data.fields && Array.isArray(data.fields)) {
+        setDynamicFields(
+          data.fields.map((f) => ({
+            id: f._id || Date.now() + Math.random(),
+            name: f.label || f.key,
+            label: f.label || "Field Name",
+            value: f.key || "",
+          }))
+        );
+      }
     }
-  }, [data]);
+  }, [data, dispatch]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -40,7 +89,7 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
   const handleAddField = () => {
     setDynamicFields([
       ...dynamicFields,
-      { id: Date.now(), name: "", label: "Field Name" },
+      { id: Date.now(), name: "", label: "New Field" },
     ]);
   };
 
@@ -60,14 +109,21 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const formData = {
-      categoryName,
-      status,
-      fields: dynamicFields,
+    // Transform to Backend Schema
+    const payload = {
+      name: categoryName,
+      status: status.toUpperCase(),
+      fields: dynamicFields.map((field, index) => ({
+        label: field.name,
+        key: field.name.toLowerCase().replace(/\s+/g, "_"),
+        type: "TEXT",
+        isRequired: false,
+        order: index + 1,
+      })),
     };
-    console.log("Form Submitted:", formData);
-    if (onSubmit) onSubmit(formData);
-    if (onClose) onClose();
+
+    if (onSubmit) onSubmit(payload);
+    if (handleClose) handleClose();
   };
 
   return (
@@ -82,8 +138,8 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
             type="subheader"
             text={
               isEditMode
-                ? "Edit a listing category to organize products across the platform."
-                : "Create a new listing category to organize products across the platform."
+                ? "Edit a listing category."
+                : "Create a new listing category."
             }
           />
         </div>
@@ -122,13 +178,15 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
               label="Status"
               placeholder="Select Status"
               options={[
-                { label: "Active", value: "Active" },
-                { label: "Inactive", value: "Inactive" },
+                { label: "Active", value: "ACTIVE" },
+                { label: "Inactive", value: "INACTIVE" },
               ]}
               value={status ? [status] : []}
               onChange={(newValues) => {
                 const newValue =
-                  newValues.length > 0 ? newValues[newValues.length - 1] : "";
+                  newValues.length > 0
+                    ? newValues[newValues.length - 1].toUpperCase()
+                    : "";
                 setStatus(newValue);
                 if (errors.status) {
                   setErrors((prev) => ({ ...prev, status: "" }));
@@ -143,7 +201,7 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
           <div className="pt-2">
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm font-medium text-[#2E5B20]">
-                Add Fields
+                Add Fields (Name)
               </span>
               <button
                 type="button"
@@ -155,30 +213,36 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
             </div>
 
             <div className="space-y-4">
-              {dynamicFields.map((field) => (
-                <div key={field.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-sm font-medium text-black">
-                      {field.label}
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveField(field.id)}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <MinusCircle className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <Input
-                    value={field.name}
-                    onChange={(e) =>
-                      handleFieldChange(field.id, e.target.value)
-                    }
-                    placeholder="e.g. Breed"
-                    className="h-11"
-                  />
+              {loadingDetails ? (
+                <div className="text-center text-sm text-gray-500 py-4">
+                  Loading fields...
                 </div>
-              ))}
+              ) : (
+                dynamicFields.map((field) => (
+                  <div key={field.id} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-black">
+                        {field.name || "Field Label"}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveField(field.id)}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <MinusCircle className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <Input
+                      value={field.name}
+                      onChange={(e) =>
+                        handleFieldChange(field.id, e.target.value)
+                      }
+                      placeholder="e.g. Breed"
+                      className="h-11"
+                    />
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -191,7 +255,7 @@ const CategoryForm = ({ data, onClose, onSubmit }) => {
             variant="outline"
             onClick={() => {
               clearErrors();
-              if (onClose) onClose();
+              if (handleClose) handleClose();
             }}
             className="w-full h-11 border-secondary1 text-secondary1 hover:bg-secondary1/10"
           >

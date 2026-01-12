@@ -12,15 +12,20 @@ api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("auth");
+      // console.log("Debug: Raw auth from storage:", raw);
       if (raw) {
         const { tokens } = JSON.parse(raw);
-        const token = tokens?.accessToken;
+        // console.log("Debug: Parsed tokens:", tokens);
+        const token = tokens?.access?.token;
+        // console.log("Debug: Extracted token:", token);
         if (token) {
           config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      console.error("Debug: Error in interceptor:", e);
+    }
   }
   return config;
 });
