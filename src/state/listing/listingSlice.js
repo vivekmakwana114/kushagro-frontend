@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 // Async Thunks
 
+// fetch all products we are displaying in listing page grid panel.
 export const fetchProducts = createAsyncThunk(
   "listing/fetchProducts",
   async (params, { rejectWithValue }) => {
@@ -22,6 +23,7 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
+// this is specific product details form.
 export const fetchProductDetails = createAsyncThunk(
   "listing/fetchProductDetails",
   async (id, { rejectWithValue }) => {
@@ -36,13 +38,14 @@ export const fetchProductDetails = createAsyncThunk(
   }
 );
 
+// update product status (active/inactive)
 export const updateProductStatusThunk = createAsyncThunk(
   "listing/updateStatus",
   async ({ id, status }, { rejectWithValue, dispatch }) => {
     try {
       const response = await updateProductStatus(id, status);
       toast.success("Product status updated successfully");
-      dispatch(fetchProductDetails(id, status));
+      dispatch(fetchProducts());
       return response.data;
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update status");
@@ -51,6 +54,7 @@ export const updateProductStatusThunk = createAsyncThunk(
   }
 );
 
+// slices with initial state.
 const listingSlice = createSlice({
   name: "listing",
   initialState: {
@@ -104,7 +108,6 @@ const listingSlice = createSlice({
 
     // Update Product Status
     builder.addCase(updateProductStatusThunk.fulfilled, (state, action) => {
-      // Optimistically update the status in the list
       const index = state.listings.findIndex(
         (item) => item._id === action.payload._id
       );

@@ -6,14 +6,19 @@ export const getProducts = (params) => {
 
   if (params.page) queryParams.append("page", params.page);
   if (params.limit) queryParams.append("limit", params.limit);
-  if (params.search) queryParams.append("search", params.search);
+  if (params.search) queryParams.append("name", params.search);
 
   // Appending filters
   if (params.status && params.status !== "all")
     queryParams.append("status", params.status);
 
-  // Note: Add other filters here as backend expects them (e.g. price range, categories etc.)
-  // Assuming backend takes these as query params for now based on user request "add params as required"
+  if (params.minPrice) queryParams.append("minPrice", params.minPrice);
+  if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice);
+
+  if (params.categoryId) queryParams.append("categoryId", params.categoryId);
+
+  if (params.dateFrom) queryParams.append("dateFrom", params.dateFrom);
+  if (params.dateTo) queryParams.append("dateTo", params.dateTo);
 
   const queryString = queryParams.toString();
   const url = queryString ? `/v1/product?${queryString}` : "/v1/product";

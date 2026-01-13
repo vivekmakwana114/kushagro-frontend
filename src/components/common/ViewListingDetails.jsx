@@ -9,22 +9,24 @@ import {
 } from "@/state/listing/listingSlice";
 import { Loader2 } from "lucide-react";
 
-const ViewListingDetails = ({ listingId, onClose }) => {
+const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
   const dispatch = useDispatch();
   const { listingDetails, detailsLoading, error } = useSelector(
     (state) => state.listing
   );
 
   useEffect(() => {
-    if (listingId) {
+    if (listingId && !propsData) {
       dispatch(fetchProductDetails(listingId));
     }
     return () => {
-      dispatch(clearListingDetails());
+      if (!propsData) {
+        dispatch(clearListingDetails());
+      }
     };
-  }, [listingId, dispatch]);
+  }, [listingId, dispatch, propsData]);
 
-  if (detailsLoading) {
+  if (detailsLoading && !propsData) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-secondary1" />
@@ -32,7 +34,7 @@ const ViewListingDetails = ({ listingId, onClose }) => {
     );
   }
 
-  if (error) {
+  if (error && !propsData) {
     return (
       <div className="flex h-full w-full items-center justify-center text-red-500">
         Failed to load details.
@@ -41,7 +43,8 @@ const ViewListingDetails = ({ listingId, onClose }) => {
   }
 
   // Check if listingDetails has nested data property (common in this API structure)
-  const data = listingDetails?.data || listingDetails;
+  // Use propsData if available, otherwise fall back to Redux state
+  const data = propsData || listingDetails?.data || listingDetails;
 
   const getCategoryName = (cat) => {
     if (!cat) return "N/A";
@@ -65,10 +68,13 @@ const ViewListingDetails = ({ listingId, onClose }) => {
     status: data?.status || "inactive",
     healthCondition: data?.healthCondition || "No health condition provided.",
     description: data?.description || "No description provided.",
-    images: data?.images && data?.images.length > 0 ? data.images : [],
+    images:
+      data?.images && data?.images.length > 0
+        ? data.images
+        : ["/assets/icon/image_not_found.svg"],
   };
 
-  const placeholderImage = "https://picsum.photos/200";
+  const placeholderImage = "/assets/icon/image_not_found.svg";
   const displayImages =
     listingData.images.length > 0 ? listingData.images : [placeholderImage];
 
@@ -136,7 +142,7 @@ const ViewListingDetails = ({ listingId, onClose }) => {
           </div>
           <div className="flex justify-between items-center md:block">
             <p className="text-sm text-dull-text mb-0 md:mb-1">Location</p>
-            <p className="text-base font-medium text-black">
+            <p className="text-base font-medium text-black whitespace-pre-wrap">
               {listingData.location}
             </p>
           </div>

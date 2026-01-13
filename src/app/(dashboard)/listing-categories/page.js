@@ -71,10 +71,35 @@ const ListingPage = () => {
   const handleFilterApply = (appliedFilters) => {
     // Map UI filters to API params
     const apiFilters = {};
+
+    // Status
     if (appliedFilters.status && appliedFilters.status[0] !== "all") {
       apiFilters.status = appliedFilters.status[0].toUpperCase();
     }
-    // Add other filter mappings as needed
+
+    // Date Range
+    if (appliedFilters.dateRange?.from) {
+      apiFilters.dateFrom = appliedFilters.dateRange.from;
+    }
+    if (appliedFilters.dateRange?.to) {
+      apiFilters.dateTo = appliedFilters.dateRange.to;
+    }
+
+    // Price Range
+    if (appliedFilters.priceRange?.from) {
+      apiFilters.minPrice = appliedFilters.priceRange.from;
+    }
+    if (appliedFilters.priceRange?.to) {
+      apiFilters.maxPrice = appliedFilters.priceRange.to;
+    }
+
+    // Categories
+    if (appliedFilters.categories && appliedFilters.categories.length > 0) {
+      // Backend currently only supports filtering by one category ID at a time (valid mongo id constraint).
+      // Taking the last selected one to replicate single-select behavior if user selected multiple.
+      apiFilters.categoryId =
+        appliedFilters.categories[appliedFilters.categories.length - 1];
+    }
 
     setFilters(apiFilters);
     setPage(1); // Reset to first page
@@ -87,26 +112,82 @@ const ListingPage = () => {
   const offerColumns = getOfferColumns(handleStatusUpdate);
 
   // Transform data for grid
-  const formattedListings = listings.map((item) => ({
-    ...item,
-    _id: item.id || item._id, // Handle both id flavors
-    product: {
-      name: item.name,
-      category: item.category?.name || item.categoryId || "N/A",
-      profile:
-        item?.images && item?.images?.length > 0
-          ? item?.images?.[0]
-          : "https://picsum.photos/200",
-    },
-    seller: {
-      name: item?.user?.fullName || item.user?.name || item?.sellerId || "N/A",
-      email: item.user?.email || "N/A",
-      profile: item.user?.profilePic || "https://picsum.photos/200",
-    },
-    price: item.price,
-    status: item.status,
-    created_on: item.createdAt || "N/A",
-  }));
+  const formattedListings = listings.map((item) => {
+    const missingFields = [];
+
+    // Helper to log missing fields and return N/A
+    const validateField = (val, fieldName) => {
+      if ((val === null || val === undefined || val === "") && val !== 0) {
+        missingFields.push(fieldName);
+        return "N/A";
+      }
+      return val;
+    };
+
+    // Helper to safely extract name/title from an object or return the value if it's primitive
+    const safeExtract = (val, fieldName) => {
+      if (val && typeof val === "object") {
+        // Try common name fields
+        return (
+          val.name ||
+          val.fullName ||
+          val.title ||
+          val.email ||
+          validateField(null, fieldName)
+        );
+      }
+      return validateField(val, fieldName);
+    };
+
+    const formattedItem = {
+      ...item,
+      _id: item.id || item._id, // Handle both id flavors
+      product: {
+        name: validateField(item.name, "product.name"),
+        // Prioritize populated category name, then categoryId (validated)
+        category:
+          item.category?.name ||
+          (typeof item.categoryId === "object"
+            ? item?.categoryId?.name
+            : item.categoryId) ||
+          validateField(null, "category"),
+        profile:
+          item?.images && item?.images?.length > 0
+            ? item?.images?.[0]
+            : "/assets/icon/image_not_found.svg",
+      },
+      seller: {
+        // Check sellerId object properties first (as per API response), then user object
+        name:
+          item?.sellerId?.name ||
+          item?.user?.fullName ||
+          item?.user?.name ||
+          validateField(null, "seller.name"),
+        email:
+          item?.sellerId?.email ||
+          item?.user?.email ||
+          validateField(null, "seller.email"),
+        profile:
+          item?.sellerId?.profile ||
+          item?.user?.profilePic ||
+          "/assets/icon/no_profile_icon.svg",
+      },
+      price: validateField(item?.price, "price"),
+      status: item?.status || "INACTIVE",
+      created_on: validateField(item?.createdAt, "created_on"),
+    };
+
+    if (missingFields.length > 0) {
+      console.warn(
+        `[Missing Data] Listing ID: ${
+          formattedItem._id
+        } - Missing fields: ${missingFields.join(", ")}`,
+        item
+      );
+    }
+
+    return formattedItem;
+  });
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">

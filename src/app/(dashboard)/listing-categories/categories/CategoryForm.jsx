@@ -89,7 +89,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
   const handleAddField = () => {
     setDynamicFields([
       ...dynamicFields,
-      { id: Date.now(), name: "", label: "New Field" },
+      { id: Date.now(), name: "", label: "New Field", type: "TEXT" },
     ]);
   };
 
@@ -97,10 +97,10 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
     setDynamicFields(dynamicFields.filter((field) => field.id !== id));
   };
 
-  const handleFieldChange = (id, value) => {
+  const handleFieldChange = (id, key, value) => {
     setDynamicFields(
       dynamicFields.map((field) =>
-        field.id === id ? { ...field, name: value } : field
+        field.id === id ? { ...field, [key]: value } : field
       )
     );
   };
@@ -116,7 +116,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
       fields: dynamicFields.map((field, index) => ({
         label: field.name,
         key: field.name.toLowerCase().replace(/\s+/g, "_"),
-        type: "TEXT",
+        type: field.type || "TEXT",
         isRequired: false,
         order: index + 1,
       })),
@@ -208,7 +208,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
                 onClick={handleAddField}
                 className="text-[#2E5B20] hover:text-[#1e3b15]"
               >
-                <PlusCircle className="w-5 h-5" />
+                <PlusCircle className="w-5 h-5"/>
               </button>
             </div>
 
@@ -222,7 +222,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
                   <div key={field.id} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-medium text-black">
-                        {field.name || "Field Label"}
+                        Field Name
                       </label>
                       <button
                         type="button"
@@ -232,14 +232,29 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
                         <MinusCircle className="w-5 h-5" />
                       </button>
                     </div>
-                    <Input
-                      value={field.name}
-                      onChange={(e) =>
-                        handleFieldChange(field.id, e.target.value)
-                      }
-                      placeholder="e.g. Breed"
-                      className="h-11"
-                    />
+                    <div className="flex gap-3 items-center">
+                      <Input
+                        value={field.name}
+                        onChange={(e) =>
+                          handleFieldChange(field.id, "name", e.target.value)
+                        }
+                        placeholder="e.g. Breed"
+                        className="h-11 flex-1"
+                      />
+                      <div className="flex-1 min-w-[120px]">
+                        <select
+                          value={field.type}
+                          onChange={(e) =>
+                            handleFieldChange(field.id, "type", e.target.value)
+                          }
+                          className="h-11 w-full rounded border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="TEXT">Text</option>
+                          <option value="NUMBER">Number</option>
+                          <option value="BOOLEAN">Boolean</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 ))
               )}
