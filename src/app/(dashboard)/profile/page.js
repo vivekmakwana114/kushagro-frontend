@@ -1,16 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Eye, EyeOff, Camera } from "lucide-react";
 import ActionPopup from "@/components/common/ActionPopup";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateUserProfile,
+  changeUserPassword,
+  uploadProfileImage,
+} from "@/state/profile/profileSlice";
 
 const ProfilePage = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { updateStatus, passwordStatus, uploadStatus } = useSelector(
+    (state) => state.profile
+  );
+
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [passwords, setPasswords] = useState({
-    current: "",
-    new: "",
-    confirm: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState({
     current: false,
@@ -19,26 +31,95 @@ const ProfilePage = () => {
   });
 
   const [profileData, setProfileData] = useState({
-    name: "Sofia Martine",
-    email: "sofiadmin@exampleemail.com",
-    profilePhoto: "/profile.jpg",
+    name: "",
+    email: "",
+    profile: "/profile.jpg",
   });
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+
+  // Sync with user data from Redux
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || "",
+        email: user.email || "",
+        profile: user.profile || "/profile.jpg",
+      });
+    }
+  }, [user]);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setSelectedImageFile(file);
+      // Show local preview
       const imageUrl = URL.createObjectURL(file);
-      setProfileData((prev) => ({ ...prev, profilePhoto: imageUrl }));
+      setProfileData((prev) => ({ ...prev, profile: imageUrl }));
     }
   };
 
-  const handleUpdateProfile = () => {
-    // Add validation if needed
+  const handleUpdateProfile = async () => {
     if (!profileData.name.trim()) {
       toast.error("Full Name cannot be empty");
       return;
     }
-    toast.success("Profile updated successfully!");
+
+    if (!user?._id && !user?.id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    const userId = user._id || user.id;
+
+    let profileImageUrl = profileData.profile;
+
+    // Upload image if a new file is selected
+    if (selectedImageFile) {
+      const formData = new FormData();
+      formData.append("images", selectedImageFile);
+
+      try {
+        const uploadResult = await dispatch(
+          uploadProfileImage(formData)
+        ).unwrap();
+
+        // Handle different response structures
+        if (
+          uploadResult?.images &&
+          Array.isArray(uploadResult.images) &&
+          uploadResult.images.length > 0
+        ) {
+          profileImageUrl = uploadResult.images[0];
+        } else if (
+          uploadResult?.url ||
+          (typeof uploadResult === "object" && uploadResult.url)
+        ) {
+          profileImageUrl = uploadResult.url || uploadResult.url;
+        } else if (typeof uploadResult === "string") {
+          profileImageUrl = uploadResult;
+        } else {
+          toast.error("Image upload failed: Invalid response format");
+          return;
+        }
+      } catch (err) {
+        toast.error("Failed to upload image. Please try again.");
+        return;
+      }
+    }
+
+    const payload = {
+      name: profileData.name,
+      profile: profileImageUrl,
+    };
+
+    try {
+      const result = await dispatch(
+        updateUserProfile({ id: userId, data: payload })
+      ).unwrap();
+      toast.success(result.message || "Profile updated successfully!");
+    } catch (err) {
+      toast.error(err.message || "Failed to update profile");
+    }
   };
 
   const togglePasswordVisibility = (field) => {
@@ -50,25 +131,36 @@ const ProfilePage = () => {
     setPasswords((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmitPassword = () => {
-    // Validation
-    if (!passwords.current || !passwords.new || !passwords.confirm) {
+  const handleSubmitPassword = async () => {
+    if (
+      !passwords.currentPassword ||
+      !passwords.newPassword ||
+      !passwords.confirmPassword
+    ) {
       toast.error("All password fields are required.");
       return;
     }
-    if (passwords.new.length < 6) {
+    if (passwords.newPassword.length < 6) {
       toast.error("New password must be at least 6 characters long.");
       return;
     }
-    if (passwords.new !== passwords.confirm) {
+    if (passwords.newPassword !== passwords.confirmPassword) {
       toast.error("New passwords do not match!");
       return;
     }
 
-    console.log("Change Password Data:", passwords);
-    toast.success("Password changed successfully!");
-    setIsPasswordOpen(false);
-    setPasswords({ current: "", new: "", confirm: "" });
+    try {
+      const result = await dispatch(changeUserPassword(passwords)).unwrap();
+      toast.success(result.message || "Password changed successfully!");
+      setIsPasswordOpen(false);
+      setPasswords({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      toast.error(err.message || "Failed to change password");
+    }
   };
 
   return (
@@ -98,12 +190,17 @@ const ProfilePage = () => {
           </div>
           <div className="w-full md:w-2/3 flex justify-center md:justify-center">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg relative bg-gray-100">
                 <Image
-                  src={profileData.profilePhoto}
+                  src={
+                    profileData.profile &&
+                    profileData.profile.startsWith("blob")
+                      ? profileData.profile
+                      : profileData.profile || "/profile.jpg"
+                  }
                   alt={profileData.name}
-                  width={128}
-                  height={128}
+                  fill
+                  unoptimized
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -171,9 +268,16 @@ const ProfilePage = () => {
           <div className="w-full md:w-2/3 md:pl-10">
             <button
               onClick={handleUpdateProfile}
-              className="w-full md:w-[450px] bg-[#2E5B20] hover:bg-[#254a1a] text-white font-medium py-2.5 rounded-md transition-colors text-sm"
+              disabled={
+                updateStatus === "loading" || uploadStatus === "loading"
+              }
+              className="w-full md:w-[450px] bg-[#2E5B20] hover:bg-[#254a1a] text-white font-medium py-2.5 rounded-md transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Update Profile
+              {uploadStatus === "loading"
+                ? "Uploading Image..."
+                : updateStatus === "loading"
+                ? "Updating..."
+                : "Update Profile"}
             </button>
           </div>
         </div>
@@ -212,10 +316,13 @@ const ProfilePage = () => {
           isOpen={isPasswordOpen}
           heading="Change Password"
           subHeading="Change your password to keep your account secure. Make sure it's strong and unique."
-          confirmText="Update Password"
+          confirmText={
+            passwordStatus === "loading" ? "Updating..." : "Update Password"
+          }
           confirmColor="bg-[#2E5B20] hover:bg-[#254a1a] text-white"
           onClose={() => setIsPasswordOpen(false)}
           onConfirm={handleSubmitPassword}
+          loading={passwordStatus === "loading"}
         >
           <div className="space-y-4">
             {/* Current Password */}
@@ -248,8 +355,8 @@ const ProfilePage = () => {
                 </div>
                 <input
                   type={showPassword.current ? "text" : "password"}
-                  name="current"
-                  value={passwords.current}
+                  name="currentPassword"
+                  value={passwords.currentPassword}
                   onChange={handlePasswordChange}
                   placeholder="Enter Your Current Password"
                   className="w-full pl-10 pr-10 border border-gray-300 rounded-md py-2.5 outline-none focus:ring-1 focus:ring-[#2E5B20] focus:border-[#2E5B20] text-sm"
@@ -298,8 +405,8 @@ const ProfilePage = () => {
                 </div>
                 <input
                   type={showPassword.new ? "text" : "password"}
-                  name="new"
-                  value={passwords.new}
+                  name="newPassword"
+                  value={passwords.newPassword}
                   onChange={handlePasswordChange}
                   placeholder="Create a New Password"
                   className="w-full pl-10 pr-10 border border-gray-300 rounded-md py-2.5 outline-none focus:ring-1 focus:ring-[#2E5B20] focus:border-[#2E5B20] text-sm"
@@ -344,8 +451,8 @@ const ProfilePage = () => {
                 </div>
                 <input
                   type={showPassword.confirm ? "text" : "password"}
-                  name="confirm"
-                  value={passwords.confirm}
+                  name="confirmPassword"
+                  value={passwords.confirmPassword}
                   onChange={handlePasswordChange}
                   placeholder="Re-enter Your New Password"
                   className="w-full pl-10 pr-10 border border-gray-300 rounded-md py-2.5 outline-none focus:ring-1 focus:ring-[#2E5B20] focus:border-[#2E5B20] text-sm"

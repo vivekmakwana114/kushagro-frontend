@@ -5,6 +5,7 @@ import {
   verifyOtp as verifyOtpApi,
   resetPassword as resetPasswordApi,
 } from "./authService";
+import { updateUserProfile } from "../profile/profileSlice";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -215,6 +216,28 @@ const authSlice = createSlice({
       .addCase(performResetPassword.rejected, (state, action) => {
         state.resetStatus = "failed";
         state.error = action.payload?.message || "Failed to reset password";
+      })
+
+      // Sync with profile update
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        // action.payload contains { success: true, message: "...", data: {...} }
+        // We need to merge action.payload.data into state.user
+        const updatedUserData = action.payload.data || action.payload;
+        state.user = { ...state.user, ...updatedUserData };
+        if (typeof window !== "undefined") {
+          try {
+            const currentAuth = JSON.parse(
+              localStorage.getItem("auth") || "{}"
+            );
+            localStorage.setItem(
+              "auth",
+              JSON.stringify({
+                ...currentAuth,
+                user: state.user,
+              })
+            );
+          } catch (_) {}
+        }
       });
   },
 });
