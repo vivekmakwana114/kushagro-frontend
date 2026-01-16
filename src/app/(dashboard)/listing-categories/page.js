@@ -106,7 +106,10 @@ const ListingPage = () => {
   };
 
   const handleStatusUpdate = (row, newStatus) => {
-    dispatch(updateProductStatusThunk({ id: row._id, status: newStatus }));
+    const params = { page, limit: 10, search, ...filters };
+    dispatch(
+      updateProductStatusThunk({ id: row._id, status: newStatus, params })
+    );
   };
 
   const offerColumns = getOfferColumns(handleStatusUpdate);
@@ -229,7 +232,12 @@ const ListingPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-50">
+            Data is loading...
+          </div>
+        )}
         <GridCommonComponent
           data={formattedListings}
           loading={loading}

@@ -59,7 +59,6 @@ const ListingCategoriesPage = () => {
     (state) => state.categories
   );
 
-  // ... inside component ...
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const fetchedRef = useRef(false);
@@ -159,7 +158,7 @@ const ListingCategoriesPage = () => {
               : categories
             ).map((item) => ({
               ...item,
-              total_listing: item.total_listing ?? "NA",
+              productCount: item.productCount ?? "NA",
               name: item.name || "NA",
             }))
           }

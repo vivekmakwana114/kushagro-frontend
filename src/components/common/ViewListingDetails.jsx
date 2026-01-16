@@ -7,6 +7,7 @@ import {
   fetchProductDetails,
   clearListingDetails,
 } from "@/state/listing/listingSlice";
+import { fetchCategoryById } from "@/state/categories/categoriesSlice";
 import { Loader2 } from "lucide-react";
 
 const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
@@ -14,6 +15,8 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
   const { listingDetails, detailsLoading, error } = useSelector(
     (state) => state.listing
   );
+
+  const [categoryFields, setCategoryFields] = React.useState([]);
 
   useEffect(() => {
     if (listingId && !propsData) {
@@ -25,6 +28,39 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
       }
     };
   }, [listingId, dispatch, propsData]);
+
+  // Use propsData if available, otherwise fall back to Redux state
+  const data = propsData || listingDetails?.data || listingDetails;
+
+  // New Effect: Fetch category fields if not present in data
+  useEffect(() => {
+    if (!data) return;
+
+    const cat = data.category || data.categoryId;
+
+    // If we already have fields in the category object, use them
+    if (cat && cat.fields && Array.isArray(cat.fields)) {
+      setCategoryFields(cat.fields);
+      return;
+    }
+
+    // Otherwise, if we have a category ID, fetch the full category
+    const catId = cat && typeof cat === "object" ? cat._id || cat.id : cat;
+
+    if (catId) {
+      dispatch(fetchCategoryById(catId))
+        .unwrap()
+        .then((res) => {
+          const fullCat = res.data || res;
+          if (fullCat && fullCat.fields) {
+            setCategoryFields(fullCat.fields);
+          }
+        })
+        .catch((err) =>
+          console.error("Failed to fetch category fields for listing:", err)
+        );
+    }
+  }, [data, dispatch]);
 
   if (detailsLoading && !propsData) {
     return (
@@ -42,9 +78,9 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
     );
   }
 
-  // Check if listingDetails has nested data property (common in this API structure)
-  // Use propsData if available, otherwise fall back to Redux state
-  const data = propsData || listingDetails?.data || listingDetails;
+  // Debug logs
+  console.log("ViewListingDetails Data (Rendered):", data);
+  console.log("ViewListingDetails Category Fields:", categoryFields);
 
   const getCategoryName = (cat) => {
     if (!cat) return "N/A";
@@ -62,9 +98,6 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
       (typeof data?.location === "object"
         ? data?.location?.address
         : data?.location) || "N/A",
-    breed: data?.breed || "N/A",
-    age: data?.age ? `${data.age} Years` : "N/A",
-    weight: data?.weight ? `${data.weight} Kg` : "N/A",
     status: data?.status || "inactive",
     healthCondition: data?.healthCondition || "No health condition provided.",
     description: data?.description || "No description provided.",
@@ -110,7 +143,7 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
               >
                 <Image
                   src={img}
-                  alt={`Listing photo ${index + 1}`}
+                  alt={`Listing photo ${index}`}
                   fill
                   className="object-cover hover:scale-105 transition-transform"
                 />
@@ -148,25 +181,6 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
           </div>
 
           <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-dull-text mb-0 md:mb-1">Breed</p>
-            <p className="text-base font-medium text-black">
-              {listingData.breed}
-            </p>
-          </div>
-          <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-dull-text mb-0 md:mb-1">Age</p>
-            <p className="text-base font-medium text-black">
-              {listingData.age}
-            </p>
-          </div>
-
-          <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-dull-text mb-0 md:mb-1">Weight</p>
-            <p className="text-base font-medium text-black">
-              {listingData.weight}
-            </p>
-          </div>
-          <div className="flex justify-between items-center md:block">
             <p className="text-sm text-dull-text mb-0 md:mb-1">Status</p>
             <p
               className={`text-base font-medium ${
@@ -179,6 +193,21 @@ const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
                 listingData.status.slice(1)}
             </p>
           </div>
+
+          {/* Dynamic Fields */}
+          {categoryFields.map((field) => (
+            <div
+              key={field._id || field.key}
+              className="flex justify-between items-center md:block"
+            >
+              <p className="text-sm text-dull-text mb-0 md:mb-1">
+                {field.label}
+              </p>
+              <p className="text-base font-medium text-black">
+                {data[field.key] || data.extraFields?.[field.key] || "N/A"}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Health and Condition */}

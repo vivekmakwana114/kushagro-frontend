@@ -3,7 +3,7 @@
 const PhoneComponent = ({ data, style }) => {
   return (
     <div style={style} className="whitespace-nowrap">
-      {data || "-"}
+      {data || data === 0 ? data : "-"}
     </div>
   );
 };

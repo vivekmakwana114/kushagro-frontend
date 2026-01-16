@@ -41,11 +41,11 @@ export const fetchProductDetails = createAsyncThunk(
 // update product status (active/inactive)
 export const updateProductStatusThunk = createAsyncThunk(
   "listing/updateStatus",
-  async ({ id, status }, { rejectWithValue, dispatch }) => {
+  async ({ id, status, params }, { rejectWithValue, dispatch }) => {
     try {
       const response = await updateProductStatus(id, status);
       toast.success("Product status updated successfully");
-      dispatch(fetchProducts());
+      dispatch(fetchProducts(params || {})); // Refetch with current params
       return response.data;
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update status");

@@ -31,6 +31,7 @@ export const fetchCategories = createAsyncThunk(
   async ({ page, limit, search }, { rejectWithValue }) => {
     try {
       const response = await getAllCategories(page, limit, search);
+      console.log("response", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

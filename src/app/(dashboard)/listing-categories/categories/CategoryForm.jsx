@@ -40,6 +40,10 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
           .then((responseData) => {
             const categoryData = responseData.data || responseData;
             if (categoryData) {
+              console.log(
+                "CategoryForm Fetched Data (Edit Mode):",
+                categoryData
+              );
               // Update fields from full data
               if (categoryData.fields && Array.isArray(categoryData.fields)) {
                 setDynamicFields(
@@ -121,6 +125,8 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
         order: index + 1,
       })),
     };
+
+    console.log("CategoryForm Payload (Create/Update):", payload);
 
     if (onSubmit) onSubmit(payload);
     if (handleClose) handleClose();
@@ -208,7 +214,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
                 onClick={handleAddField}
                 className="text-[#2E5B20] hover:text-[#1e3b15]"
               >
-                <PlusCircle className="w-5 h-5"/>
+                <PlusCircle className="w-5 h-5" />
               </button>
             </div>
 
