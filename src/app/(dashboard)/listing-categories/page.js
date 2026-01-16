@@ -1,15 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import { offerData } from "./listingData";
 import { getOfferColumns } from "./listingColumn";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
 import ActionComponent from "@/components/grid/actionComponent";
 import ListingFilterForm from "./ListingFilterForm";
 import Image from "next/image";
-
-import PopupForm from "@/components/ui/popupform";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchProducts,
+  updateProductStatusThunk,
+} from "@/state/listing/listingSlice";
+import { useDebounce } from "@/hooks/useDebounce";
 import Pagination from "@/components/ui/pagination";
 
 const options = {
@@ -49,50 +52,145 @@ const downloadActions = [
   },
 ];
 const ListingPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = offerData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(offerData.length / itemsPerPage);
+  const dispatch = useDispatch();
+  const { listings, totalListings, totalPages, currentPage, loading } =
+    useSelector((state) => state.listing);
 
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
-  const [showCannotDeletePopup, setShowCannotDeletePopup] = useState(false);
-  const [selectedOffer, setSelectedOffer] = useState(null);
-  const [createdOffers, setCreatedOffers] = useState([]);
-  const [showBulkCannotDeletePopup, setShowBulkCannotDeletePopup] =
-    useState(false);
-  const [selectedBulkOffers, setSelectedBulkOffers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({});
 
-  const handleCreateOffer = (formData) => {
-    const transformedOffer = {
-      id: Date.now(),
-      offerName: formData.offerName || "",
-      couponCode: formData.couponCode || "",
-      usageLimit: formData.usageLimit || "",
-      discount: formData.discount || "",
-      maxDiscount: formData.maxDiscount || "",
-      status: formData.status || "inactive",
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      dispatch(fetchProducts({ page, limit: 10, search, ...filters }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search, page, filters, dispatch]);
 
-      DateRange: {
-        from: formData.DateRange_from,
-        to: formData.DateRange_to,
-      },
+  const handleFilterApply = (appliedFilters) => {
+    // Map UI filters to API params
+    const apiFilters = {};
 
-      "cart value": formData["cart value"] || "",
+    // Status
+    if (appliedFilters.status && appliedFilters.status[0] !== "all") {
+      apiFilters.status = appliedFilters.status[0].toUpperCase();
+    }
 
-      description: formData.description || "",
+    // Date Range
+    if (appliedFilters.dateRange?.from) {
+      apiFilters.dateFrom = appliedFilters.dateRange.from;
+    }
+    if (appliedFilters.dateRange?.to) {
+      apiFilters.dateTo = appliedFilters.dateRange.to;
+    }
+
+    // Price Range
+    if (appliedFilters.priceRange?.from) {
+      apiFilters.minPrice = appliedFilters.priceRange.from;
+    }
+    if (appliedFilters.priceRange?.to) {
+      apiFilters.maxPrice = appliedFilters.priceRange.to;
+    }
+
+    // Categories
+    if (appliedFilters.categories && appliedFilters.categories.length > 0) {
+      // Backend currently only supports filtering by one category ID at a time (valid mongo id constraint).
+      // Taking the last selected one to replicate single-select behavior if user selected multiple.
+      apiFilters.categoryId =
+        appliedFilters.categories[appliedFilters.categories.length - 1];
+    }
+
+    setFilters(apiFilters);
+    setPage(1); // Reset to first page
+  };
+
+  const handleStatusUpdate = (row, newStatus) => {
+    const params = { page, limit: 10, search, ...filters };
+    dispatch(
+      updateProductStatusThunk({ id: row._id, status: newStatus, params })
+    );
+  };
+
+  const offerColumns = getOfferColumns(handleStatusUpdate);
+
+  // Transform data for grid
+  const formattedListings = listings.map((item) => {
+    const missingFields = [];
+
+    // Helper to log missing fields and return N/A
+    const validateField = (val, fieldName) => {
+      if ((val === null || val === undefined || val === "") && val !== 0) {
+        missingFields.push(fieldName);
+        return "N/A";
+      }
+      return val;
     };
 
-    setCreatedOffers((prev) => [...prev, transformedOffer]);
-  };
+    // Helper to safely extract name/title from an object or return the value if it's primitive
+    const safeExtract = (val, fieldName) => {
+      if (val && typeof val === "object") {
+        // Try common name fields
+        return (
+          val.name ||
+          val.fullName ||
+          val.title ||
+          val.email ||
+          validateField(null, fieldName)
+        );
+      }
+      return validateField(val, fieldName);
+    };
 
-  const handleDeleteOffer = (row) => {
-    setSelectedOffer(row);
-    setShowDeletePopup(true);
-  };
+    const formattedItem = {
+      ...item,
+      _id: item.id || item._id, // Handle both id flavors
+      product: {
+        name: validateField(item.name, "product.name"),
+        // Prioritize populated category name, then categoryId (validated)
+        category:
+          item.category?.name ||
+          (typeof item.categoryId === "object"
+            ? item?.categoryId?.name
+            : item.categoryId) ||
+          validateField(null, "category"),
+        profile:
+          item?.images && item?.images?.length > 0
+            ? item?.images?.[0]
+            : "/assets/icon/image_not_found.svg",
+      },
+      seller: {
+        // Check sellerId object properties first (as per API response), then user object
+        name:
+          item?.sellerId?.name ||
+          item?.user?.fullName ||
+          item?.user?.name ||
+          validateField(null, "seller.name"),
+        email:
+          item?.sellerId?.email ||
+          item?.user?.email ||
+          validateField(null, "seller.email"),
+        profile:
+          item?.sellerId?.profile ||
+          item?.user?.profilePic ||
+          "/assets/icon/no_profile_icon.svg",
+      },
+      price: validateField(item?.price, "price"),
+      status: item?.status || "INACTIVE",
+      created_on: validateField(item?.createdAt, "created_on"),
+    };
 
-  const offerColumns = getOfferColumns(handleDeleteOffer);
+    if (missingFields.length > 0) {
+      console.warn(
+        `[Missing Data] Listing ID: ${
+          formattedItem._id
+        } - Missing fields: ${missingFields.join(", ")}`,
+        item
+      );
+    }
+
+    return formattedItem;
+  });
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -102,6 +200,8 @@ const ListingPage = () => {
           <Input
             className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
             placeholder="Search here..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -110,30 +210,37 @@ const ListingPage = () => {
             <ActionComponent
               actions={downloadActions}
               buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md hover:bg-gray-50"
-              icon={
-                <Download className="w-5 h-5 text-secondary1" />
-              }
+              icon={<Download className="w-5 h-5 text-secondary1" />}
             />
 
             <ActionComponent
               actions={[
                 {
                   type: "sidebar",
-                  component: <ListingFilterForm />,
+                  component: (
+                    <ListingFilterForm
+                      onApply={handleFilterApply}
+                      onCancel={() => {}}
+                    />
+                  ),
                 },
               ]}
-              icon={
-                <Filter className="w-5 h-5 text-secondary1" />
-              }
+              icon={<Filter className="w-5 h-5 text-secondary1" />}
               buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md hover:bg-gray-50"
             />
           </div>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-50">
+            Data is loading...
+          </div>
+        )}
         <GridCommonComponent
-          data={[...currentData, ...createdOffers]}
+          data={formattedListings}
+          loading={loading}
           options={options}
           columns={offerColumns?.map((col) => {
             if (col.key === "actions") {
@@ -159,102 +266,11 @@ const ListingPage = () => {
         />
       </div>
 
-      {/* Single Delete Popup */}
-      {showDeletePopup && selectedOffer && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowDeletePopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={DeleteOfferConfig}
-              width="600px"
-              onApply={() => {
-                const offerName = selectedOffer?.offerName
-                  ?.trim()
-                  ?.toLowerCase();
-                const offerExists = offerData?.some(
-                  (offer) =>
-                    offer.offerName?.trim()?.toLowerCase() === offerName
-                );
-
-                if (offerExists) {
-                  setShowDeletePopup(false);
-                  setShowCannotDeletePopup(true);
-                } else {
-                  setShowDeletePopup(false);
-                }
-              }}
-              onCancel={() => setShowDeletePopup(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Cannot Delete Single Offer Popup */}
-      {showCannotDeletePopup && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowCannotDeletePopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={cannotDeleteOfferConfig}
-              width="500px"
-              onApply={() => setShowCannotDeletePopup(false)}
-              onCancel={() => setShowCannotDeletePopup(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Cannot Delete Bulk Offers Popup */}
-      {showBulkCannotDeletePopup && selectedBulkOffers?.length > 0 && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowBulkCannotDeletePopup(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <PopupForm
-              config={{
-                ...cannotDeleteOfferConfigAll,
-                body: {
-                  ...cannotDeleteOfferConfigAll.body,
-                  content: (
-                    <div className="space-y-3">
-                      <p className="text-placeholder-color text-sm">
-                        The following {selectedBulkOffers.length} offer(s)
-                        cannot be deleted because they already exist in the
-                        system:
-                      </p>
-                      <ul className="list-disc list-inside text-red text-sm space-y-1 max-h-60 overflow-y-auto">
-                        {selectedBulkOffers.map((offer, i) => (
-                          <li key={i}>{offer.offerName || "Unnamed Offer"}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ),
-                },
-              }}
-              width="500px"
-              onApply={() => {
-                setShowBulkCannotDeletePopup(false);
-                setSelectedBulkOffers([]);
-              }}
-              onCancel={() => {
-                setShowBulkCannotDeletePopup(false);
-                setSelectedBulkOffers([]);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
       <div className="flex-none mt-2">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
+          onPageChange={(page) => setPage(page)}
         />
       </div>
     </div>

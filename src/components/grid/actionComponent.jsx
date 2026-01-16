@@ -300,6 +300,9 @@ const ActionComponent = ({
                 React.cloneElement(content, {
                   data,
                   onApply: (formData) => {
+                    if (content.props.onApply) {
+                      content.props.onApply(formData);
+                    }
                     closeAll();
                   },
                   onCancel: closeAll,
@@ -366,6 +369,9 @@ const ActionComponent = ({
                     data,
                     onCancel: closeAll,
                     onApply: (formData) => {
+                      if (content.props.onApply) {
+                        content.props.onApply(formData);
+                      }
                       closeAll();
                     },
                   })}

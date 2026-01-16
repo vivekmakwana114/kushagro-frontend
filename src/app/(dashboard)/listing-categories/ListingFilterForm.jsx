@@ -1,16 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/form-elements/Header";
 import CheckboxGroup from "@/components/form-elements/CheckboxGroup";
 import DateRange from "@/components/form-elements/DateRange";
 import NumberRange from "@/components/form-elements/NumberRange";
 import SelectCheckbox from "@/components/form-elements/SelectCheckbox";
 import { Button } from "@/components/ui/button";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from "@/state/categories/categoriesSlice";
 
 const ListingFilterForm = ({ onCancel, onApply }) => {
   // State for the form
+  const dispatch = useDispatch();
+  const { categories } = useSelector((state) => state.categories);
+
   const [status, setStatus] = useState(["all"]);
-  const [paymentStatus, setPaymentStatus] = useState(["all"]);
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [priceFrom, setPriceFrom] = useState("");
@@ -19,13 +23,14 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
 
   const [errors, setErrors] = useState({});
 
-  const categoryOptions = [
-    { label: "Livestock", value: "livestock" },
-    { label: "Cereals", value: "cereals" },
-    { label: "Vegetables", value: "vegetables" },
-    { label: "Fruits", value: "fruits" },
-    { label: "Spices", value: "spices" },
-  ];
+  useEffect(() => {
+    dispatch(fetchCategories({}));
+  }, [dispatch]);
+
+  const categoryOptions = categories.map((cat) => ({
+    label: cat.name,
+    value: cat._id || cat.id,
+  }));
 
   const handleApply = () => {
     const newErrors = {};
@@ -63,15 +68,12 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
 
     // Check if form is empty
     const isStatusAll = status.length === 1 && status[0] === "all";
-    const isPaymentStatusAll =
-      paymentStatus.length === 1 && paymentStatus[0] === "all";
     const isDateRangeEmpty = !dateFrom && !dateTo;
     const isPriceRangeEmpty = !priceFrom && !priceTo;
     const isCategoriesEmpty = selectedCategories.length === 0;
 
     if (
       isStatusAll &&
-      isPaymentStatusAll &&
       isDateRangeEmpty &&
       isPriceRangeEmpty &&
       isCategoriesEmpty
@@ -86,7 +88,6 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
 
     const filterData = {
       status,
-      paymentStatus,
       dateRange: { from: dateFrom, to: dateTo },
       priceRange: { from: priceFrom, to: priceTo },
       categories: selectedCategories,
@@ -142,23 +143,6 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
             singleSelect={true}
           />
 
-          {/* Payment Status */}
-          <CheckboxGroup
-            label="Payment Status"
-            options={[
-              { value: "all", label: "All" },
-              { value: "paid", label: "Paid" },
-              { value: "pending", label: "Pending" },
-              { value: "refunded", label: "Refunded" },
-            ]}
-            value={paymentStatus}
-            onChange={(val) => {
-              if (val.length === 0) setPaymentStatus(["all"]);
-              else setPaymentStatus(val);
-            }}
-            singleSelect={true}
-          />
-
           {/* Date Range */}
           <div>
             <DateRange
@@ -190,11 +174,18 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
           {/* Categories */}
           <div>
             <SelectCheckbox
-              label="Categories"
-              placeholder="Select Categories"
+              label="Category"
+              placeholder="Select Category"
               options={categoryOptions}
               value={selectedCategories}
-              onChange={setSelectedCategories}
+              onChange={(newValues) => {
+                if (newValues.length > 0) {
+                  const lastSelected = newValues[newValues.length - 1];
+                  setSelectedCategories([lastSelected]);
+                } else {
+                  setSelectedCategories([]);
+                }
+              }}
             />
           </div>
         </div>

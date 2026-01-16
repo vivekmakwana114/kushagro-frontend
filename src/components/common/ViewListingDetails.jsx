@@ -1,45 +1,115 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Header from "@/components/form-elements/Header";
-import { X } from "lucide-react";
-import ImageZoomModal from "@/components/common/ImageZoomModal";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchProductDetails,
+  clearListingDetails,
+} from "@/state/listing/listingSlice";
+import { fetchCategoryById } from "@/state/categories/categoriesSlice";
+import { Loader2 } from "lucide-react";
 
-const ViewListingDetails = ({ data, onClose }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
+const ViewListingDetails = ({ listingId, onClose, data: propsData }) => {
+  const dispatch = useDispatch();
+  const { listingDetails, detailsLoading, error } = useSelector(
+    (state) => state.listing
+  );
 
-  // Fallback data if no data is provided (or for fields missing in data)
-  const listingData = {
-    name: data?.name || "Jersey Cow",
-    category: data?.category || "Livestock",
-    price: data?.price || "$99",
-    location: data?.location || "Sudan, Africa",
-    breed: data?.breed || "Jersey",
-    age: data?.age || "2Year 2Months",
-    weight: data?.weight || "120Kg",
-    status: data?.status || "active",
-    healthCondition:
-      data?.healthCondition ||
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    description:
-      data?.description ||
-      `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  const [categoryFields, setCategoryFields] = React.useState([]);
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
-    images: data?.images || [
-      "/assets/images/cow1.png",
-      "/assets/images/cow2.png",
-      "/assets/images/cow3.png",
-      "/assets/images/cow4.png",
-    ],
+  useEffect(() => {
+    if (listingId && !propsData) {
+      dispatch(fetchProductDetails(listingId));
+    }
+    return () => {
+      if (!propsData) {
+        dispatch(clearListingDetails());
+      }
+    };
+  }, [listingId, dispatch, propsData]);
+
+  // Use propsData if available, otherwise fall back to Redux state
+  const data = propsData || listingDetails?.data || listingDetails;
+
+  // New Effect: Fetch category fields if not present in data
+  useEffect(() => {
+    if (!data) return;
+
+    const cat = data.category || data.categoryId;
+
+    // If we already have fields in the category object, use them
+    if (cat && cat.fields && Array.isArray(cat.fields)) {
+      setCategoryFields(cat.fields);
+      return;
+    }
+
+    // Otherwise, if we have a category ID, fetch the full category
+    const catId = cat && typeof cat === "object" ? cat._id || cat.id : cat;
+
+    if (catId) {
+      dispatch(fetchCategoryById(catId))
+        .unwrap()
+        .then((res) => {
+          const fullCat = res.data || res;
+          if (fullCat && fullCat.fields) {
+            setCategoryFields(fullCat.fields);
+          }
+        })
+        .catch((err) =>
+          console.error("Failed to fetch category fields for listing:", err)
+        );
+    }
+  }, [data, dispatch]);
+
+  if (detailsLoading && !propsData) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-secondary1" />
+      </div>
+    );
+  }
+
+  if (error && !propsData) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-red-500">
+        Failed to load details.
+      </div>
+    );
+  }
+
+  // Debug logs
+  console.log("ViewListingDetails Data (Rendered):", data);
+  console.log("ViewListingDetails Category Fields:", categoryFields);
+
+  const getCategoryName = (cat) => {
+    if (!cat) return "N/A";
+    if (typeof cat === "string") return cat;
+    if (typeof cat === "object") return cat.name || "N/A";
+    return "N/A";
   };
 
-  const displayImages = data?.media || [
-    "https://picsum.photos/seed/cow1/200/200",
-    "https://picsum.photos/seed/cow2/200/200",
-    "https://picsum.photos/seed/cow3/200/200",
-    "https://picsum.photos/seed/cow4/200/200",
-  ];
+  // Fallback data or mapping
+  const listingData = {
+    name: data?.name || data?.title || "N/A",
+    category: getCategoryName(data?.category || data?.categoryId),
+    price: data?.price ? `$${data.price}` : "N/A",
+    location:
+      (typeof data?.location === "object"
+        ? data?.location?.address
+        : data?.location) || "N/A",
+    status: data?.status || "inactive",
+    healthCondition: data?.healthCondition || "No health condition provided.",
+    description: data?.description || "No description provided.",
+    images:
+      data?.images && data?.images.length > 0
+        ? data.images
+        : ["/assets/icon/image_not_found.svg"],
+  };
+
+  const placeholderImage = "/assets/icon/image_not_found.svg";
+  const displayImages =
+    listingData.images.length > 0 ? listingData.images : [placeholderImage];
 
   return (
     <div className="flex flex-col h-full bg-white w-full">
@@ -73,7 +143,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
               >
                 <Image
                   src={img}
-                  alt={`Listing photo ${index + 1}`}
+                  alt={`Listing photo ${index}`}
                   fill
                   className="object-cover hover:scale-105 transition-transform"
                 />
@@ -105,30 +175,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
           </div>
           <div className="flex justify-between items-center md:block">
             <p className="text-sm text-dull-text mb-0 md:mb-1">Location</p>
-            <p className="text-base font-medium text-black">
+            <p className="text-base font-medium text-black whitespace-pre-wrap">
               {listingData.location}
             </p>
           </div>
 
-          <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-dull-text mb-0 md:mb-1">Breed</p>
-            <p className="text-base font-medium text-black">
-              {listingData.breed}
-            </p>
-          </div>
-          <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-dull-text mb-0 md:mb-1">Age</p>
-            <p className="text-base font-medium text-black">
-              {listingData.age}
-            </p>
-          </div>
-
-          <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-dull-text mb-0 md:mb-1">Weight</p>
-            <p className="text-base font-medium text-black">
-              {listingData.weight}
-            </p>
-          </div>
           <div className="flex justify-between items-center md:block">
             <p className="text-sm text-dull-text mb-0 md:mb-1">Status</p>
             <p
@@ -142,6 +193,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
                 listingData.status.slice(1)}
             </p>
           </div>
+
+          {/* Dynamic Fields */}
+          {categoryFields.map((field) => (
+            <div
+              key={field._id || field.key}
+              className="flex justify-between items-center md:block"
+            >
+              <p className="text-sm text-dull-text mb-0 md:mb-1">
+                {field.label}
+              </p>
+              <p className="text-base font-medium text-black">
+                {data[field.key] || data.extraFields?.[field.key] || "N/A"}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Health and Condition */}

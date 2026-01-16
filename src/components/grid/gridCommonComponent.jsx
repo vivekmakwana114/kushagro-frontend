@@ -264,7 +264,7 @@ const GridCommonComponent = ({
       }
     }
 
-    return value || "-";
+    return value || value === 0 ? value : "-";
   };
 
   // Desktop/Tablet Table View

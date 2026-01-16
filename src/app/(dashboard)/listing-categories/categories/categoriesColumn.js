@@ -30,7 +30,7 @@ export const getCategoriesColumns = ({ onEdit, onDelete, onStatusChange }) => [
     },
   },
   {
-    key: "total_listing",
+    key: "productCount",
     title: "Total Listings",
     sortable: true,
     component: {

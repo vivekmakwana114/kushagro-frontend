@@ -2,7 +2,7 @@
 import ViewListingDetails from "@/components/common/ViewListingDetails";
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const getListingColumns = () => [
+export const getListingColumns = (handleUpdateStatus) => [
   {
     key: "product",
     title: "Product",
@@ -85,19 +85,20 @@ export const getListingColumns = () => [
                   component: <ViewListingDetails data={row} />,
                 },
                 {
-                label: "Mark As Inactive",
-                iconUrl: "/assets/icon/markCompleted.svg",
-                type: "modal_component",
-                component: (
-                  <ActionPopup
-                    heading="Mark As Inactive?"
-                    subHeading="Are you sure you want to mark this listing as inactive? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
-                    confirmText="Confirm Inactivation"
-                    confirmColor="text-secondary1"
-                  />
-                ),
-                onApply: (data) => console.log("Reactivate Buyer:", row, data),
-              },
+                  label: "Mark As Inactive",
+                  iconUrl: "/assets/icon/markCompleted.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Mark As Inactive?"
+                      subHeading="Are you sure you want to mark this listing as inactive? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
+                      confirmText="Confirm Inactivation"
+                      confirmColor="text-secondary1"
+                    />
+                  ),
+                  onApply: () =>
+                    handleUpdateStatus(row.id || row._id, "INACTIVE"),
+                },
               ];
 
             case "inactive":
@@ -113,13 +114,15 @@ export const getListingColumns = () => [
                   iconUrl: "/assets/icon/markCompleted.svg",
                   type: "modal_component",
                   component: (
-                  <ActionPopup
-                    heading="Mark As Active?"
-                    subHeading="Are you sure you want to mark this listing as active? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
-                    confirmText="Confirm Reactivation"
-                    confirmColor="text-secondary1"
-                  />
-                ),
+                    <ActionPopup
+                      heading="Mark As Active?"
+                      subHeading="Are you sure you want to mark this listing as active? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
+                      confirmText="Confirm Reactivation"
+                      confirmColor="text-secondary1"
+                    />
+                  ),
+                  onApply: () =>
+                    handleUpdateStatus(row.id || row._id, "ACTIVE"),
                 },
               ];
 

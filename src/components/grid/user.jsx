@@ -61,6 +61,8 @@ const Standard_Avatar = ({ user, style }) => {
                 alt={name || "User"}
                 className={`w-full h-full object-cover ${imageRadius}`}
                 fill
+                unoptimized
+                onError={(e) => console.error("Image load error:", profile, e)}
               />
             </div>
           )
