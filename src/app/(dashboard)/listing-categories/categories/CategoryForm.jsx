@@ -58,9 +58,12 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
               // Optional: ensure other fields are in sync if API returns more up-to-date info
             }
           })
-          .catch((err) =>
-            console.error("Failed to fetch full category details:", err)
-          )
+          .catch((err) => {
+            console.error(
+              `Failed to fetch full category details for ID ${id}:`,
+              err?.message || err
+            );
+          })
           .finally(() => setLoadingDetails(false));
       }
 
@@ -119,7 +122,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
       status: status.toUpperCase(),
       fields: dynamicFields.map((field, index) => ({
         label: field.name,
-        key: field.name.toLowerCase().replace(/\s+/g, "_"),
+        key: field.name.trim(),
         type: field.type || "TEXT",
         isRequired: false,
         order: index + 1,

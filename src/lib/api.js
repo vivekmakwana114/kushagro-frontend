@@ -30,4 +30,30 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor to handle token expiration (401)
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (typeof window !== "undefined") {
+      // Check if error is 401 (Unauthorized)
+      if (error.response && error.response.status === 401) {
+        try {
+          // Clear auth data
+          localStorage.removeItem("auth");
+          // Force redirect to auth page
+          // Using window.location to ensure full state reset
+          if (!window.location.pathname.includes("/auth")) {
+            window.location.href = "/auth";
+          }
+        } catch (e) {
+          console.error("Error handling 401 redirect:", e);
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
