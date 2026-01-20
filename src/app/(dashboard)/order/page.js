@@ -11,6 +11,7 @@ import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import Pagination from "@/components/ui/pagination";
 import ViewUser from "../buyer/viewUser";
 import ActionPopup from "@/components/common/ActionPopup";
+import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchOrders,
@@ -65,6 +66,8 @@ const OrderPage = () => {
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({});
+  const [refundPopupData, setRefundPopupData] = useState(null);
+  const [isRefundPopupOpen, setIsRefundPopupOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -87,17 +90,14 @@ const OrderPage = () => {
 
   const formattedOrders = (orders || []).map((order) => ({
     ...order,
-    // Map orderId to object to handle flag rendering without row access in simple cases if needed,
-    // but primarily we need to match column expectation.
-    // If we use 'render' in column that takes 'value', passing object is good.
     orderId: { value: order.orderNumber, isFlagged: order.isFlagged },
     product: {
       name: order.product?.name || "N/A",
       category: order.category?.name || "N/A",
       profile: order.product?.images?.[0] || "",
     },
-    buyer: { name: "N/A", email: "", profile: "" }, // Placeholder
-    seller: { name: "N/A", email: "", profile: "" }, // Placeholder
+    buyer: { name: "N/A", email: "", profile: "" }, 
+    seller: { name: "N/A", email: "", profile: "" }, 
     date_time: order.createdAt,
     amount: order.totalAmount,
     payment_status: order.payments?.[0]?.status?.toLowerCase() || "pending",
@@ -111,7 +111,7 @@ const OrderPage = () => {
     await dispatch(
       markOrderFlagged({
         orderIds: [row._id],
-        reason: data.selectedOptions?.join(", "), // Fixed: Join all selected options
+        reason: data.selectedOptions?.join(", "), // will select all the options
         note: data.note,
       }),
     );
@@ -126,13 +126,26 @@ const OrderPage = () => {
   };
 
   const handleCancelOrder = async (row, data) => {
+    // Instead of canceling directly, open the Refund Popup for confirmation
+    setRefundPopupData({ row, ...data });
+    setIsRefundPopupOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!refundPopupData) return;
+
     await dispatch(
       cancelOrderAction({
-        orderId: row._id,
-        cancellationReason: data.selectedOptions?.join(", "), // Fixed: Join all selected options
-        note: data.note,
+        orderId: refundPopupData.row._id,
+        cancellationReason:
+          refundPopupData.selectedOptions?.join(", ") || "Refund Initiated",
+        note: refundPopupData.note,
       }),
     );
+
+    setIsRefundPopupOpen(false);
+    setRefundPopupData(null);
+
     dispatch(
       fetchOrders({
         page: currentPage,
@@ -282,6 +295,13 @@ const OrderPage = () => {
           onPageChange={(page) => setCurrentPage(page)}
         />
       </div>
+      <InitiateRefundPopup
+        isOpen={isRefundPopupOpen}
+        onClose={() => setIsRefundPopupOpen(false)}
+        data={refundPopupData?.row}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => setIsRefundPopupOpen(false)}
+      />
     </div>
   );
 };
