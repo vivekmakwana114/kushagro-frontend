@@ -13,8 +13,6 @@ const InitiateRefundPopup = ({
   onConfirm,
   onCancel,
 }) => {
-  const [refundAmount, setRefundAmount] = useState("$97");
-
   if (!isOpen) return null;
 
   const handleCancel = () => {
@@ -23,7 +21,7 @@ const InitiateRefundPopup = ({
   };
 
   const handleConfirm = () => {
-    if (onConfirm) onConfirm({ refundAmount });
+    if (onConfirm) onConfirm({});
   };
 
   return (
@@ -73,6 +71,12 @@ const InitiateRefundPopup = ({
                 </p>
               </div>
               <div>
+                <p className="text-gray-500 mb-1">Buyer</p>
+                <p className="font-medium">
+                  {data?.buyer?.name || "Aaliyah Johnson"}
+                </p>
+              </div>
+              <div>
                 <p className="text-gray-500 mb-1">Seller</p>
                 <p className="font-medium">
                   {data?.seller?.name || "Aaliyah Johnson"}
@@ -104,19 +108,6 @@ const InitiateRefundPopup = ({
                 <p className="font-medium text-red-500">$100.00</p>
               </div>
             </div>
-          </div>
-
-          {/* Confirm Refund Amount Input */}
-          <div className="mb-8 text-left">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Refund Amount
-            </label>
-            <input
-              type="text"
-              value={refundAmount}
-              onChange={(e) => setRefundAmount(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
-            />
           </div>
 
           {/* Footer Actions */}

@@ -89,7 +89,7 @@ const GridCommonComponent = ({
     setSelectedRows((prev) =>
       prev.includes(rowIndex)
         ? prev.filter((index) => index !== rowIndex)
-        : [...prev, rowIndex]
+        : [...prev, rowIndex],
     );
   };
 
@@ -459,7 +459,7 @@ const GridCommonComponent = ({
                             column.component?.type === "action"
                               ? row
                               : row[column.key],
-                            row
+                            row,
                           )}
                         </div>
                       </td>
@@ -527,7 +527,7 @@ const GridCommonComponent = ({
                     {renderCellContent(
                       primaryColumn,
                       row[primaryColumn.key],
-                      row
+                      row,
                     )}
                   </div>
                 </div>
@@ -583,7 +583,7 @@ const GridCommonComponent = ({
                 <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
                   {columns // skip the nonExpandable columns
                     .filter(
-                      (column) => !column.isPrimary && !column.nonExpandable
+                      (column) => !column.isPrimary && !column.nonExpandable,
                     )
                     .map((column, colIndex) => {
                       // Check for mobileStack property
@@ -624,7 +624,7 @@ const GridCommonComponent = ({
                                 column,
                                 row[column.key],
                                 row,
-                                { isMobile: true } // context
+                                { isMobile: true }, // context
                               )}
                             </div>
                           </div>
@@ -731,7 +731,7 @@ GridCommonComponent.propTypes = {
         options: PropTypes.object,
         style: PropTypes.object,
       }),
-    })
+    }),
   ).isRequired,
   onSort: PropTypes.func,
 
@@ -741,7 +741,7 @@ GridCommonComponent.propTypes = {
       iconUrl: PropTypes.string,
       component: PropTypes.node,
       children: PropTypes.array,
-    })
+    }),
   ),
 };
 
