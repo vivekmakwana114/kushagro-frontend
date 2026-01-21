@@ -27,7 +27,7 @@ export const getOrderColumns = ({
     },
     render: (val) => (
       <div className="flex items-center gap-2">
-        <span>{val?.value || val}</span>
+        <span>{val?.value}</span>
         {val?.isFlagged && (
           <Image
             src="/assets/icon/flag_red.svg"

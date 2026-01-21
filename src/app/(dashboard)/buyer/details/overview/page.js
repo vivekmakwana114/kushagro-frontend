@@ -1,20 +1,35 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PortfolioCard from "@/components/common/PortfolioCard";
 
 import Image from "next/image";
 
-import { useRouter } from "next/navigation";
-// import PopupForm from "@/components/ui/popupform";
-// import { reactivateBuyerConfig } from "./overviewConfig";
+import { useRouter, useSearchParams } from "next/navigation";
 import ActionPopup from "@/components/common/ActionPopup";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./farudReportColumn";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBuyers } from "@/state/buyer/buyerSlice";
 
 const ClientDetails = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const dispatch = useDispatch();
+
+  const { buyers, loading } = useSelector((state) => state.buyer);
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
+
+  // Find the specific buyer from the store
+  const currentBuyer = buyers.find((b) => b._id === id || b.id === id);
+
+  useEffect(() => {
+    // If we don't have buyers loaded (e.g. direct access), fetch them
+    if (!currentBuyer && !loading && buyers.length === 0) {
+      dispatch(fetchBuyers({}));
+    }
+  }, [dispatch, currentBuyer, loading, buyers.length]);
 
   const options = {
     select: false,
@@ -22,23 +37,40 @@ const ClientDetails = () => {
     sortable: false,
   };
 
+  if (loading && !currentBuyer) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  if (!currentBuyer && !loading && buyers.length > 0) {
+    return <div className="p-6">Buyer not found</div>;
+  }
+
+  // Fallback to empty object if loading or not found (though guarded above)
+  const buyerData = currentBuyer || {};
+
   const client = {
-    image: "/CustomerImage.svg",
-    name: "Michael Smith",
-    email: "mike.s@ksa.com",
-    phone: "(+81)000 0000",
-    status: "Suspended",
-    joined: "22 Feb, 2024",
-    suspensionReason: "Spam or fake account",
+    image: buyerData.profile || "/CustomerImage.svg",
+    name: buyerData.name || "N/A",
+    email: buyerData.email || "N/A",
+    phone: buyerData.phone || "N/A",
+    status: buyerData.isSuspended
+      ? "suspended"
+      : buyerData.isActive
+        ? "active"
+        : "inactive",
+    joined: buyerData.createdAt
+      ? new Date(buyerData.createdAt).toLocaleDateString()
+      : "N/A",
+    suspensionReason: buyerData.suspensionReason || "", // Assuming field name
   };
 
   const OverviewData = [
     {
       color: "bg-primary1",
       head: "Product Orders",
-      total: "08",
+      total: buyerData.totalOrders || "0",
       countIcon: "",
-      upCount: "8.06",
+      upCount: "", // No monthly data available in standard list
       MainIcon: (
         <Image
           src="/assets/card/overview_booking.svg"
@@ -47,14 +79,14 @@ const ClientDetails = () => {
           alt="Booking"
         />
       ),
-      description: "01 New Order this month.",
+      description: "Total orders placed",
     },
     {
       color: "bg-secondary1",
       head: "Total Spent",
-      total: "$1189.56",
+      total: `\u20B9${buyerData.totalSpent || 0}`, // Assuming currency symbol
       countIcon: "",
-      upCount: "8.06",
+      upCount: "", // No monthly data available in standard list
       MainIcon: (
         <Image
           src="/assets/card/overview_revenue.svg"
@@ -63,7 +95,7 @@ const ClientDetails = () => {
           alt="Revenue"
         />
       ),
-      description: "$189 Spent this month",
+      description: "Lifetime spent",
     },
   ];
 
@@ -123,7 +155,7 @@ const ClientDetails = () => {
 
           <div>
             <p className="text-[var(--color-dull-text)] mb-1">Status</p>
-            {client.status === "Active" ? (
+            {client.status === "Suspended" ? (
               <span className="bg-red-100 text-red-600 px-3 py-1 rounded-md text-xs font-medium">
                 Suspended
               </span>
@@ -134,7 +166,7 @@ const ClientDetails = () => {
             )}
           </div>
           <div>
-            <p className="text-[var(--color-dull-text)] mb-1">joined locart</p>
+            <p className="text-[var(--color-dull-text)] mb-1">Joined On</p>
             <p className="font-medium">{client.joined}</p>
           </div>
         </div>

@@ -6,6 +6,7 @@ import listingReducer from "../state/listing/listingSlice";
 import sellerListingReducer from "./seller/listing/sellerListingSlice";
 import profileReducer from "./profile/profileSlice";
 import orderReducer from "./order/orderSlice";
+import buyerReducer from "./buyer/buyerSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     sellerListing: sellerListingReducer,
     profile: profileReducer,
     order: orderReducer,
+    buyer: buyerReducer,
   },
 });

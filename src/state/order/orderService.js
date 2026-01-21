@@ -1,8 +1,5 @@
 import { api } from "@/lib/api";
 
-// provided by Gyana
-// Base URL = https://measurelessly-logical-roselyn.ngrok-free.dev
-
 // Get all orders
 export const getAllOrders = (params) => {
   let url = "/v1/order/allorders";
@@ -30,7 +27,7 @@ export const getAllOrders = (params) => {
 
 // Get order by ID
 export const getOrderById = (id) => {
-  return api.get(`https://measurelessly-logical-roselyn.ngrok-free.dev/v1/order/${id}`);
+  return api.get(`/v1/order/${id}`);
 };
 
 // Flag order

@@ -90,22 +90,38 @@ const OrderPage = () => {
   };
 
   const formattedOrders = (orders || []).map((order) => {
-    const paymentStatus =
-      order.payments?.[0]?.status?.toLowerCase() === "payment success"
-        ? "paid"
-        : ["refund initiated", "refunded initiated"].includes(
-              order.payments?.[0]?.status?.toLowerCase(),
-            )
-          ? "processing"
-          : order.payments?.[0]?.status?.toLowerCase() || "pending";
+    const rawPaymentStatus =
+      order.paymentStatus?.toLowerCase() ||
+      order.payments?.[0]?.status?.toLowerCase() ||
+      "";
+    let paymentStatus = "pending";
+
+    if (["payment success", "paid"].includes(rawPaymentStatus)) {
+      paymentStatus = "paid";
+    } else if (
+      ["refund initiated", "refunded initiated", "processing"].includes(
+        rawPaymentStatus,
+      )
+    ) {
+      paymentStatus = "processing";
+    } else {
+      paymentStatus = rawPaymentStatus || "pending";
+    }
+
+    const currentStatus = order.status?.toLowerCase() || "ongoing";
 
     return {
       ...order,
-      orderId: { value: order.orderNumber, isFlagged: order.isFlagged },
+      orderId: {
+        value:  order.orderNumber || order.orderId ,
+        isFlagged: order.isFlagged,
+      },
       product: {
         name: order.product?.name || "N/A",
-        category: order.category?.name || "N/A",
-        profile: order.product?.images?.[0] || "",
+        // API product.category is string, falling back to old structure if needed
+        category: order.product?.category || order.category?.name || "N/A",
+        // API product.image is string, old was product.images array
+        profile: order.product?.image || order.product?.images?.[0] || "",
       },
       buyer: {
         name: order.buyer?.name || "N/A",
@@ -117,15 +133,15 @@ const OrderPage = () => {
         email: order.seller?.email || "",
         profile: order.seller?.profile || "",
       },
-      date_time: order.createdAt,
-      amount: order.totalAmount,
+      date_time: order.date || order.createdAt,
+      amount: order.amount ?? order.totalAmount,
       payment_status: paymentStatus,
       status:
         paymentStatus === "processing"
           ? "cancelled"
-          : order.status === "PENDING"
+          : currentStatus === "pending"
             ? "ongoing"
-            : order.status?.toLowerCase(),
+            : currentStatus,
     };
   });
 
@@ -374,7 +390,7 @@ const OrderPage = () => {
           height={16}
         />
       ),
-      onClick: () => handleDownloadPDF(), 
+      onClick: () => handleDownloadPDF(),
     },
     {
       label: "Download CSV",
@@ -386,7 +402,7 @@ const OrderPage = () => {
           height={16}
         />
       ),
-      onClick: () => handleDownloadCSV(), 
+      onClick: () => handleDownloadCSV(),
     },
   ];
 

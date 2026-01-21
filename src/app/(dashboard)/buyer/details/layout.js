@@ -1,25 +1,31 @@
 "use client";
 import ClientSidebar from "@/components/common/ClientSidebar";
 import { buyerSidebarItems } from "@/components/common/SidebarData";
-import React from "react";
+import React, { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function DetailsPageLayout({ children }) {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
+  const sidebarItems = useMemo(() => {
+    if (!id) return buyerSidebarItems;
+    return buyerSidebarItems.map((item) => ({
+      ...item,
+      url: `${item.url}?id=${id}`,
+    }));
+  }, [id]);
+
   return (
     <div className="flex h-full gap-6 sm:gap-2 relative">
       {/* Desktop: Normal sidebar */}
       <div className="hidden md:block">
-        <ClientSidebar
-          sidebarItems={buyerSidebarItems}
-          sidebarHeader="Buyer"
-        />
+        <ClientSidebar sidebarItems={sidebarItems} sidebarHeader="Buyer" />
       </div>
 
       {/* Mobile: Sliding sidebar (always rendered for proper animation) */}
       <div className="md:hidden">
-        <ClientSidebar
-          sidebarItems={buyerSidebarItems}
-          sidebarHeader="Buyer"
-        />
+        <ClientSidebar sidebarItems={sidebarItems} sidebarHeader="Buyer" />
       </div>
 
       {/* Content area */}

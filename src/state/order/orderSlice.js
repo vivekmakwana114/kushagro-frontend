@@ -14,6 +14,7 @@ export const fetchOrders = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await getAllOrders(params);
+      console.log(response.data, "response.data");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
