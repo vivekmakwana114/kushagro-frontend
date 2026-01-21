@@ -1,14 +1,25 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { fetchOrderById } from "@/state/order/orderSlice"; // Updated import
+import { useDispatch } from "react-redux"; // Added useDispatch
+import { toast } from "sonner";
 import Image from "next/image";
 import Header from "@/components/form-elements/Header";
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
+import OrderInvoicePDF from "@/app/(dashboard)/order/OrderInvoicePDF";
+import { pdf } from "@react-pdf/renderer";
 
-const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
+const ViewOrderDetails = ({
+  orderData,
+  module = "buyer",
+  onClose,
+  orderId,
+}) => {
   const invoiceRef = useRef(null);
+  const dispatch = useDispatch(); 
 
-  // Mock data for demonstration - in real app, this would come from orderData prop
+  // Mock data for demonstration
   const defaultData = {
     orderId: "#KSA23102456145258",
     totalAmount: "$1600",
@@ -45,125 +56,114 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
       paymentStatus: "Refunded",
     },
   };
+  const mapOrderToViewData = (apiData) => {
+    const order = apiData || {};
+    return {
+      orderId: order.orderNumber || "N/A",
+      totalAmount: order.totalAmount ? `$${order.totalAmount}` : "N/A",
+      transactionId: order.payments?.[0]?.transactionId || "N/A",
+      date: order.createdAt
+        ? new Date(order.createdAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A",
+      paymentMethod: order.payments?.[0]?.paymentMethod || "N/A",
+      status: order.status || "N/A",
+      cancellationReason: order.cancelReason || "",
+      product: {
+        name: order.product?.name || "N/A",
+        category: order.category?.name || "N/A",
+        image: order.product?.images?.[0] || "",
+        quantity: order.quantity
+          ? `${order.quantity} ${order.product?.extraFields?.unit || "Unit"}`
+          : "N/A",
+        price: order.price ? `$${order.price}` : "N/A",
+        subtotal: order.subTotal ? `$${order.subTotal}` : "N/A",
+      },
+      buyer: {
+        name: order.buyer?.name || "N/A",
+        email: order.buyer?.email || "N/A",
+        avatar: order.buyer?.profile || "https://picsum.photos/200",
+      },
+      seller: {
+        name: order.seller?.name || "N/A",
+        email: order.seller?.email || "N/A",
+        avatar: order.seller?.profile || "https://picsum.photos/201",
+      },
+      invoice: {
+        invoiceId: order.orderNumber || "N/A",
+        itemTotal: order.subTotal ? `$${order.subTotal}` : "N/A",
+        taxes: order.tax ? `$${order.tax}` : "$0.00",
+        platformFee: order.platformCharges
+          ? `$${order.platformCharges}`
+          : "$0.00",
+        totalPayable: order.paybleAmount
+          ? `$${order.paybleAmount}`
+          : order.totalAmount
+            ? `$${order.totalAmount}`
+            : "N/A",
+        paymentStatus: order.payments?.[0]?.status || "N/A",
+      },
+    };
+  };
 
-  const data = orderData || defaultData;
+  const [fetchedOrder, setFetchedOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handlePrint = () => {
-    if (invoiceRef.current) {
-      const printWindow = window.open("", "", "width=800,height=600");
-      const invoiceContent = invoiceRef.current.innerHTML;
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      if (orderId && !orderData) {
+        setLoading(true);
+        try {
+          const response = await dispatch(fetchOrderById(orderId));
+          console.log("Order details response:", response);
+          if (response.data && response.data.data) {
+            setFetchedOrder(mapOrderToViewData(response.data.data));
+          } else if (response.data) {
+            // Fallback if structure is different
+            setFetchedOrder(mapOrderToViewData(response.data));
+          }
+        } catch (error) {
+          console.error("Failed to fetch order details:", error);
+          toast.error("Failed to fetch order details");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Invoice - ${data.invoice.invoiceId}</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                padding: 20px;
-                color: #000;
-              }
-              .flex {
-                display: flex;
-              }
-              .justify-between {
-                justify-content: space-between;
-              }
-              .items-center {
-                align-items: center;
-              }
-              .mb-4 {
-                margin-bottom: 1rem;
-              }
-              .space-y-4 > * + * {
-                margin-top: 1rem;
-              }
-              .pb-4 {
-                padding-bottom: 1rem;
-              }
-              .pt-1 {
-                padding-top: 0.25rem;
-              }
-              .border {
-                border: 1px solid #e5e7eb;
-              }
-              .border-b {
-                border-bottom-width: 1px;
-                border-bottom-style: solid;
-                border-color: #e5e7eb;
-              }
-              .border-dashed {
-                border-bottom-style: dashed;
-              }
-              .p-5 {
-                padding: 1.25rem;
-              }
-              .rounded-lg {
-                border-radius: 0.5rem;
-              }
-              .text-sm {
-                font-size: 14px;
-              }
-              .text-dull-text {
-                color: #6b7280;
-              }
-              .font-semibold {
-                font-weight: 600;
-              }
-              .font-bold {
-                font-weight: 700;
-              }
-              .text-black {
-                color: #000;
-              }
-              .gap-2 {
-                gap: 0.5rem;
-              }
-              .w-4 {
-                width: 1rem;
-              }
-              .h-4 {
-                height: 1rem;
-              }
-              .bg-green-500 {
-                background-color: #10b981;
-              }
-              .text-red-500 {
-                color: #ef4444;
-              }
-              .bg-red-500 {
-                background-color: #ef4444;
-              }
-              .bg-gray-500 {
-                background-color: #6b7280;
-              }
-              .rounded-full {
-                border-radius: 9999px;
-              }
-              /* SVG Styles for Print */
-              svg {
-                display: block;
-              }
-              @media print {
-                body {
-                  padding: 0;
-                }
-              }
-            </style>
-          </head>
-          <body>
-            ${invoiceContent}
-          </body>
-        </html>
-      `);
+    fetchOrderDetails();
+  }, [orderId, orderData]);
 
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 250);
+  const data = fetchedOrder || orderData || defaultData;
+
+  if (loading) {
+    return (
+      <div className="p-8 flex justify-center text-gray-500">
+        Loading order details...
+      </div>
+    );
+  }
+
+
+  const handleDownloadInvoice = async () => {
+    try {
+      if (!data) return;
+
+      const blob = await pdf(<OrderInvoicePDF order={data} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice_${data.orderId || data.invoice?.invoiceId}_${Date.now()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Invoice downloaded successfully");
+    } catch (error) {
+      console.error("Download failed", error);
+      toast.error("Failed to download invoice");
     }
   };
 
@@ -182,6 +182,25 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
             text="View complete information about this order, including items, delivery, and payment summary."
             css={{ textAlign: "left" }}
           />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-gray-500 gap-2 border-gray-200"
+            onClick={handleDownloadInvoice}
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-gray-500"
+            onClick={onClose}
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
@@ -237,8 +256,8 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                     data.status === "Complete"
                       ? "text-secondary1"
                       : data.status === "Cancelled"
-                      ? "text-red-500"
-                      : "text-black"
+                        ? "text-red-500"
+                        : "text-black"
                   }`}
                 >
                   {data.status}
@@ -399,7 +418,7 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                 Invoice Details
               </h3>
               <button
-                onClick={handlePrint}
+                onClick={handleDownloadInvoice}
                 className="p-2 hover:bg-gray-100 rounded-md transition-colors"
                 title="Download Invoice"
               >
@@ -455,8 +474,8 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                         data.invoice.paymentStatus === "Paid"
                           ? "text-secondary1"
                           : data.invoice.paymentStatus === "Refunded"
-                          ? "text-red-500"
-                          : "text-black"
+                            ? "text-red-500"
+                            : "text-black"
                       }`}
                     >
                       <div
@@ -464,8 +483,8 @@ const ViewOrderDetails = ({ orderData, module = "buyer", onClose }) => {
                           data.invoice.paymentStatus === "Paid"
                             ? "bg-green-500"
                             : data.invoice.paymentStatus === "Refunded"
-                            ? "bg-red-500"
-                            : "bg-gray-500"
+                              ? "bg-red-500"
+                              : "bg-gray-500"
                         }`}
                       >
                         <svg

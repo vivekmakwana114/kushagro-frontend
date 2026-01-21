@@ -648,10 +648,12 @@ const GridCommonComponent = ({
   return (
     <div className="w-full max-w-full h-full flex flex-col">
       {/* Tablet and Desktop view */}
-      <div className="hidden sm:flex h-full flex-col">{renderTableView()}</div>
+      <div className="hidden sm:flex flex-1 min-h-0 flex-col">
+        {renderTableView()}
+      </div>
 
       {/* Mobile view (320px and up) */}
-      <div className="block sm:hidden h-full overflow-y-auto custom-scroll">
+      <div className="block sm:hidden flex-1 min-h-0 overflow-y-auto custom-scroll">
         {/* Mobile Header with Select All */}
         {select && (
           <div className="mb-3 mx-2 p-3 bg-gray-50 rounded-lg">
