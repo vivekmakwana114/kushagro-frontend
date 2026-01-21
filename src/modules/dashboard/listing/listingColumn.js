@@ -32,16 +32,22 @@ export const listingColumns = [
   },
 ];
 
-export const verificationColumns = [
+export const getVerificationColumns = (handleApprove, handleReject) => [
   {
     key: "seller",
     title: "Seller",
+    isPrimary: true,
+    isObject: true,
     sortable: true,
+    structure: {
+      name: "name",
+      email: "email",
+      profile: "profile",
+    },
     component: {
-      type: "phone",
+      type: "standard_avatar",
       style: {
-        color: "var(--color-black)",
-        fontWeight: "500",
+        radius: "rounded-full",
       },
       options: {},
     },
@@ -73,9 +79,7 @@ export const verificationColumns = [
             className:
               "w-8 h-8 flex items-center justify-center rounded bg-[#DCFCE7] text-[#16A34A] hover:bg-[#d1fae5] transition-colors",
             onClick: () => {
-              toast.success(
-                `${row?.seller?.name || "Seller"} verified successfully!`
-              );
+              handleApprove(row);
             },
           },
           {
@@ -121,8 +125,7 @@ export const verificationColumns = [
               />
             ),
             onApply: (data) => {
-              console.log("Rejected", row, data);
-              toast.error(`${row?.seller?.name || "Seller"} rejected.`);
+              handleReject(row, data);
             },
           },
         ],

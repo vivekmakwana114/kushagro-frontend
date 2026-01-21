@@ -6,8 +6,9 @@ export default function OrderSection({
   title = "Recent Orders",
   data = orderData,
   columns = orderColumns,
-  order =  false,
+  order = false,
   link,
+  loading = false,
 }) {
   const options = {
     select: false,
@@ -27,15 +28,25 @@ export default function OrderSection({
         </a>
       </div>
       <div className="pt-4 grow h-full overflow-hidden">
-        <GridCommonComponent
-          data={data}
-          columns={columns}
-          options={options}
-          theme={{
-            border: "border-none",
-            header: { bg: "bg-gray-100" },
-          }}
-        />
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary1"></div>
+          </div>
+        ) : data && data.length > 0 ? (
+          <GridCommonComponent
+            data={data}
+            columns={columns}
+            options={options}
+            theme={{
+              border: "border-none",
+              header: { bg: "bg-gray-100" },
+            }}
+          />
+        ) : (
+          <div className="flex justify-center items-center h-full text-gray-500">
+            No recent orders found.
+          </div>
+        )}
       </div>
     </div>
   );
