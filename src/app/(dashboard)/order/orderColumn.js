@@ -30,6 +30,9 @@ export const getOrderColumns = ({
       const displayValue =
         val !== undefined && val !== null ? String(val) : "N/A";
 
+
+      console.log(row, "row");
+
       return (
         <div className="flex items-center gap-2">
           <span>{displayValue}</span>
