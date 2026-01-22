@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
@@ -9,9 +10,12 @@ import OrderFilterForm from "./OrderFilterForm";
 import Image from "next/image";
 import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import Pagination from "@/components/ui/pagination";
-import ViewUser from "../buyer/viewUser";
 import ActionPopup from "@/components/common/ActionPopup";
 import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
+import Link from "next/link";
+import OrderPDFDocument from "./OrderPDFDocument";
+import OrderInvoicePDF from "./OrderInvoicePDF";
+import { pdf } from "@react-pdf/renderer";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchOrders,
@@ -19,38 +23,8 @@ import {
   cancelOrderAction,
   updateOrderStatusAction,
   initiateRefundAction,
+  fetchOrderById,
 } from "@/state/order/orderSlice";
-
-const downloadActions = [
-  {
-    header: "Download List",
-  },
-  {
-    label: "Download PDF",
-    icon: (
-      <Image
-        src="/assets/icon/downloadpdf.svg"
-        alt="downloadpdf"
-        width={16}
-        height={16}
-      />
-    ),
-    onClick: () => console.log("Download PDF"),
-  },
-  {
-    label: "Download CSV",
-    icon: (
-      <Image
-        src="/assets/icon/downloadcsv.svg"
-        alt="downloadcsv"
-        width={16}
-        height={16}
-      />
-    ),
-
-    onClick: () => console.log("Download CSV"),
-  },
-];
 
 const options = {
   select: true,
@@ -75,36 +49,115 @@ const OrderPage = () => {
         fetchOrders({
           page: currentPage,
           limit: itemsPerPage,
-          search: searchTerm,
           ...filters,
         }),
       );
     }, 500);
     return () => clearTimeout(timer);
-  }, [dispatch, currentPage, itemsPerPage, searchTerm, filters]);
+  }, [dispatch, currentPage, itemsPerPage, filters]);
 
-  const handleApplyFilters = (newFilters) => {
+  const handleApplyFilters = (filterData) => {
+    const newFilters = {};
+
+    // Order Status
+    if (filterData.orderStatus && !filterData.orderStatus.includes("all")) {
+      newFilters.orderStatus = filterData.orderStatus[0];
+    }
+
+    // Payment Status
+    if (filterData.paymentStatus && !filterData.paymentStatus.includes("all")) {
+      newFilters.paymentStatus = filterData.paymentStatus[0];
+    }
+
+    // Date Range
+    if (filterData.dateRange?.from) {
+      newFilters.fromDate = filterData.dateRange.from.toISOString();
+    }
+    if (filterData.dateRange?.to) {
+      newFilters.toDate = filterData.dateRange.to.toISOString();
+    }
+
+    // Amount Range
+    if (filterData.amountRange?.from) {
+      newFilters.amountFrom = filterData.amountRange.from;
+    }
+    if (filterData.amountRange?.to) {
+      newFilters.amountTo = filterData.amountRange.to;
+    }
+
     setFilters(newFilters);
     setCurrentPage(1);
   };
 
-  const formattedOrders = (orders || []).map((order) => ({
-    ...order,
-    orderId: { value: order.orderNumber, isFlagged: order.isFlagged },
-    product: {
-      name: order.product?.name || "N/A",
-      category: order.category?.name || "N/A",
-      profile: order.product?.images?.[0] || "",
-    },
-    buyer: { name: "N/A", email: "", profile: "" }, 
-    seller: { name: "N/A", email: "", profile: "" }, 
-    date_time: order.createdAt,
-    amount: order.totalAmount,
-    payment_status: order.payments?.[0]?.status?.toLowerCase() || "pending",
-    // Map API status to UI status (ongoing = PENDING/active usually)
-    status:
-      order.status === "PENDING" ? "ongoing" : order.status?.toLowerCase(),
-  }));
+  const formattedOrders = (orders || []).map((order) => {
+    const paymentStatus =
+      order.payments?.[0]?.status?.toLowerCase() === "payment success"
+        ? "paid"
+        : ["refund initiated", "refunded initiated"].includes(
+              order.payments?.[0]?.status?.toLowerCase(),
+            )
+          ? "processing"
+          : order.payments?.[0]?.status?.toLowerCase() || "pending";
+
+    return {
+      ...order,
+      orderId: { value: order.orderNumber, isFlagged: order.isFlagged },
+      product: {
+        name: order.product?.name || "N/A",
+        category: order.category?.name || "N/A",
+        profile: order.product?.images?.[0] || "",
+      },
+      buyer: {
+        name: order.buyer?.name || "N/A",
+        email: order.buyer?.email || "",
+        profile: order.buyer?.profile || "",
+      },
+      seller: {
+        name: order.seller?.name || "N/A",
+        email: order.seller?.email || "",
+        profile: order.seller?.profile || "",
+      },
+      date_time: order.createdAt,
+      amount: order.totalAmount,
+      payment_status: paymentStatus,
+      status:
+        paymentStatus === "processing"
+          ? "cancelled"
+          : order.status === "PENDING"
+            ? "ongoing"
+            : order.status?.toLowerCase(),
+    };
+  });
+
+  // Client-Side Filtering
+  const filteredOrders = formattedOrders.filter((order) => {
+    if (!searchTerm) return true;
+    const lowerSearch = searchTerm.toLowerCase();
+
+    // Check relevant fields
+    const orderIdMatch = order.orderNumber
+      ?.toString()
+      ?.toLowerCase()
+      .includes(lowerSearch);
+    const productNameMatch = order.product?.name
+      ?.toLowerCase()
+      .includes(lowerSearch);
+    const buyerNameMatch = order.buyer?.name
+      ?.toLowerCase()
+      .includes(lowerSearch);
+    const sellerNameMatch = order.seller?.name
+      ?.toLowerCase()
+      .includes(lowerSearch);
+    const statusMatch = order.status?.toLowerCase().includes(lowerSearch);
+
+    return (
+      orderIdMatch ||
+      productNameMatch ||
+      buyerNameMatch ||
+      sellerNameMatch ||
+      statusMatch
+    );
+  });
 
   // Action Handlers
   const handleFlagOrder = async (row, data) => {
@@ -119,7 +172,6 @@ const OrderPage = () => {
       fetchOrders({
         page: currentPage,
         limit: itemsPerPage,
-        search: searchTerm,
         ...filters,
       }),
     );
@@ -150,7 +202,6 @@ const OrderPage = () => {
       fetchOrders({
         page: currentPage,
         limit: itemsPerPage,
-        search: searchTerm,
         ...filters,
       }),
     );
@@ -167,16 +218,281 @@ const OrderPage = () => {
       fetchOrders({
         page: currentPage,
         limit: itemsPerPage,
-        search: searchTerm,
         ...filters,
       }),
     );
+  };
+
+  const handleMarkComplete = async (row) => {
+    try {
+      await dispatch(
+        updateOrderStatusAction({
+          orderIds: [row._id],
+        }),
+      ).unwrap();
+      toast.success("Order marked as complete");
+      dispatch(
+        fetchOrders({
+          page: currentPage,
+          limit: itemsPerPage,
+          ...filters,
+        }),
+      );
+    } catch (error) {
+      console.error("Failed to mark complete:", error);
+      toast.error(error || "Failed to mark order as complete");
+    }
+  };
+
+  const handleBulkFlagOrder = async (data, rows) => {
+    await dispatch(
+      markOrderFlagged({
+        orderIds: rows.map((r) => r._id),
+        reason: data.selectedOptions?.join(", "),
+        note: data.note,
+      }),
+    );
+    dispatch(
+      fetchOrders({
+        page: currentPage,
+        limit: itemsPerPage,
+        ...filters,
+      }),
+    );
+  };
+
+  const handleBulkMarkComplete = async (rows) => {
+    const validRows = rows.filter(
+      (r) => r.payment_status?.toLowerCase() === "paid",
+    );
+
+    if (validRows.length === 0) {
+      toast.error("Payment is pending. Cannot mark as complete.");
+      return;
+    }
+
+    try {
+      await dispatch(
+        updateOrderStatusAction({
+          orderIds: validRows.map((r) => r._id),
+        }),
+      ).unwrap();
+
+      const skippedCount = rows.length - validRows.length;
+      if (skippedCount > 0) {
+        toast.success(
+          `Marked ${validRows.length} orders as complete. ${skippedCount} unpaid orders skipped.`,
+        );
+      } else {
+        toast.success("Orders marked as complete");
+      }
+
+      dispatch(
+        fetchOrders({
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          ...filters,
+        }),
+      );
+    } catch (error) {
+      console.error("Bulk update failed:", error);
+      toast.error("Failed to mark orders as complete");
+    }
+  };
+
+  // Download Handlers
+  const handleDownloadPDF = async (rows) => {
+    const dataToExport =
+      Array.isArray(rows) && rows.length > 0 ? rows : filteredOrders;
+
+    const blob = await pdf(<OrderPDFDocument orders={dataToExport} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `orders_${new Date().toISOString().split("T")[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadCSV = (rows) => {
+    const dataToExport =
+      Array.isArray(rows) && rows.length > 0 ? rows : filteredOrders;
+
+    const headers = [
+      "Order ID",
+      "Product",
+      "Category",
+      "Buyer",
+      "Seller",
+      "Date",
+      "Amount",
+      "Payment Status",
+      "Status",
+    ];
+
+    const rowsData = dataToExport.map((order) => [
+      order.orderId?.value || order.orderNumber,
+      order.product?.name,
+      order.product?.category,
+      order.buyer?.name,
+      order.seller?.name,
+      order.date_time ? new Date(order.date_time).toLocaleDateString() : "",
+      order.amount || order.totalAmount,
+      order.payment_status,
+      order.status,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rowsData.map((e) => e.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `orders_${new Date().toISOString().split("T")[0]}.csv`,
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadActions = [
+    {
+      header: "Download List",
+    },
+    {
+      label: "Download PDF",
+      icon: (
+        <Image
+          src="/assets/icon/downloadpdf.svg"
+          alt="downloadpdf"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: () => handleDownloadPDF(), 
+    },
+    {
+      label: "Download CSV",
+      icon: (
+        <Image
+          src="/assets/icon/downloadcsv.svg"
+          alt="downloadcsv"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: () => handleDownloadCSV(), 
+    },
+  ];
+
+  // Helper for invoice data mapping
+  const mapOrderToInvoiceData = (apiData) => {
+    const order = apiData || {};
+    return {
+      orderId: order.orderNumber || "N/A",
+      totalAmount: order.totalAmount ? `$${order.totalAmount}` : "N/A",
+      transactionId: order.payments?.[0]?.transactionId || "N/A",
+      date: order.createdAt
+        ? new Date(order.createdAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A",
+      paymentMethod: order.payments?.[0]?.paymentMethod || "N/A",
+      status: order.status || "N/A",
+      cancellationReason: order.cancelReason || "", // Added missing field
+      product: {
+        name: order.product?.name || "N/A",
+        category: order.category?.name || "N/A",
+        image: order.product?.images?.[0] || "",
+        quantity: order.quantity
+          ? `${order.quantity} ${order.product?.extraFields?.unit || "Unit"}`
+          : "N/A",
+        price: order.price ? `$${order.price}` : "N/A",
+        subtotal: order.subTotal ? `$${order.subTotal}` : "N/A",
+      },
+      buyer: {
+        name: order.buyer?.name || "N/A",
+        email: order.buyer?.email || "N/A",
+        avatar: order.buyer?.profile || "https://picsum.photos/200",
+      },
+      seller: {
+        name: order.seller?.name || "N/A",
+        email: order.seller?.email || "N/A",
+        avatar: order.seller?.profile || "https://picsum.photos/201",
+      },
+      invoice: {
+        invoiceId: order.orderNumber || "N/A",
+        itemTotal: order.subTotal ? `$${order.subTotal}` : "N/A",
+        taxes: order.tax ? `$${order.tax}` : "$0.00",
+        platformFee: order.platformCharges
+          ? `$${order.platformCharges}`
+          : "$0.00",
+        totalPayable: order.paybleAmount
+          ? `$${order.paybleAmount}`
+          : order.totalAmount
+            ? `$${order.totalAmount}`
+            : "N/A",
+        paymentStatus: order.payments?.[0]?.status || "N/A",
+      },
+    };
+  };
+
+  const handleDownloadInvoice = async (row) => {
+    try {
+      const orderId = row._id || row.id;
+      if (!orderId) {
+        toast.error("Order ID not found");
+        return;
+      }
+
+      const resultAction = await dispatch(fetchOrderById(orderId));
+      const response = resultAction.payload;
+
+      let fullOrderData = null;
+      if (fetchOrderById.fulfilled.match(resultAction)) {
+        // Success case
+        fullOrderData = response.data || response;
+      } else {
+        // Error case
+        toast.error(response?.message || "Failed to fetch order details");
+        return;
+      }
+
+      if (!fullOrderData) {
+        toast.error("Failed to fetch order details for invoice");
+        return;
+      }
+
+      const invoiceData = mapOrderToInvoiceData(fullOrderData);
+
+      const blob = await pdf(<OrderInvoicePDF order={invoiceData} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice_${invoiceData.orderId || "order"}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Invoice downloaded successfully");
+    } catch (error) {
+      console.error("Invoice download error:", error);
+      toast.error("Failed to download invoice");
+    }
   };
 
   const orderColumns = getOrderColumns({
     onFlag: handleFlagOrder,
     onCancel: handleCancelOrder,
     onRefund: handleRefundOrder,
+    onMarkComplete: handleMarkComplete,
+    onDownloadInvoice: handleDownloadInvoice,
   });
 
   return (
@@ -212,9 +528,9 @@ const OrderPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0 no-scrollbar">
+      <div className="flex-1 overflow-hidden min-h-0 no-scrollbar">
         <GridCommonComponent
-          data={formattedOrders}
+          data={filteredOrders}
           options={options}
           columns={orderColumns}
           theme={{
@@ -227,8 +543,7 @@ const OrderPage = () => {
             {
               label: "Mark As Complete",
               iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
+              onClick: (rows) => handleBulkMarkComplete(rows),
             },
             {
               label: "Flag Order",
@@ -263,7 +578,7 @@ const OrderPage = () => {
                   textareaPlaceholder="Add a Note"
                 />
               ),
-              onApply: (data) => console.log("Flag Order:", row, data),
+              onApply: (data, rows) => handleBulkFlagOrder(data, rows),
             },
             {
               label: "Export Selection",
@@ -273,14 +588,14 @@ const OrderPage = () => {
                 {
                   label: "Download PDF",
                   icon: <BsFilePdf className="w-4 h-4 text-[#7B7B7B]" />,
-                  onClick: (rows) => console.log(rows, "Download PDF"),
+                  onClick: handleDownloadPDF,
                 },
                 {
                   label: "Download CSV",
                   icon: (
                     <BsFileSpreadsheet className="w-4 h-4 text-[#7B7B7B]" />
                   ),
-                  onClick: (rows) => console.log(rows, "Download CSV"),
+                  onClick: handleDownloadCSV,
                 },
               ],
             },

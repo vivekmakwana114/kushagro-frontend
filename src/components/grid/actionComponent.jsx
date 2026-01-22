@@ -185,7 +185,7 @@ const ActionComponent = ({
                               </span>
                             </div>
                           </button>
-                        )
+                        ),
                       )}
                     </div>
                   )}
@@ -323,7 +323,7 @@ const ActionComponent = ({
           onCancel: closeAll,
           onApply: (data) => {
             if (currentAction?.onApply) {
-              currentAction.onApply(data);
+              currentAction.onApply(data, selectedRows);
             } else if (content.props.onApply) {
               // specific fallback if action doesn't have it but component does
               content.props.onApply(data);
@@ -333,7 +333,7 @@ const ActionComponent = ({
           onConfirm: (data) => {
             // Backward compatibility if onConfirm is used
             if (currentAction?.onApply) {
-              currentAction.onApply(data);
+              currentAction.onApply(data, selectedRows);
             }
             closeAll();
           },
