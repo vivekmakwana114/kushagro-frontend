@@ -25,19 +25,26 @@ export const getOrderColumns = ({
         text: "text-secondary1 font-semibold text-xs sm:text-sm",
       },
     },
-    render: (val) => (
-      <div className="flex items-center gap-2">
-        <span>{val?.value || val}</span>
-        {val?.isFlagged && (
-          <Image
-            src="/assets/icon/flag_red.svg"
-            alt="Flagged"
-            width={16}
-            height={16}
-          />
-        )}
-      </div>
-    ),
+    render: (val) => {
+      const displayValue =
+        val?.value !== undefined && val?.value !== null
+          ? String(val.value)
+          : "N/A";
+
+      return (
+        <div className="flex items-center gap-2">
+          <span>{displayValue}</span>
+          {val?.isFlagged && (
+            <Image
+              src="/assets/icon/flag_red.svg"
+              alt="Flagged"
+              width={16}
+              height={16}
+            />
+          )}
+        </div>
+      );
+    },
   },
   {
     key: "product",

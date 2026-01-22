@@ -32,6 +32,27 @@ const options = {
   sortable: true,
 };
 
+const normalizePaymentStatus = (order) => {
+  const raw = (
+    order.paymentStatus ||
+    order.payments?.[0]?.status ||
+    ""
+  ).toString().toLowerCase();
+
+  if (["payment success", "paid", "success"].includes(raw)) return "paid";
+  if (["refund initiated", "refunded initiated", "refunded"].includes(raw))
+    return "refunded";
+  if (["processing"].includes(raw)) return "processing";
+  return "pending";
+};
+
+const normalizeStatus = (status) => {
+  const raw = (status || "").toString().toLowerCase();
+  if (["complete", "completed", "done"].includes(raw)) return "complete";
+  if (["cancelled", "canceled"].includes(raw)) return "cancelled";
+  return "ongoing";
+};
+
 const OrderPage = () => {
   const dispatch = useDispatch();
   const { orders, totalPages, loading } = useSelector((state) => state.order);
@@ -90,22 +111,35 @@ const OrderPage = () => {
   };
 
   const formattedOrders = (orders || []).map((order) => {
-    const paymentStatus =
-      order.payments?.[0]?.status?.toLowerCase() === "payment success"
-        ? "paid"
-        : ["refund initiated", "refunded initiated"].includes(
-              order.payments?.[0]?.status?.toLowerCase(),
-            )
-          ? "processing"
-          : order.payments?.[0]?.status?.toLowerCase() || "pending";
+    const paymentStatus = normalizePaymentStatus(order);
+    const status = normalizeStatus(order.status);
+    const orderIdValue = order.orderNumber ?? order.orderId ?? order._id;
+    const isFlagged =
+      order.isFlagged ??
+      order.flagged ??
+      order.flag ??
+      order.is_flagged ??
+      false;
 
     return {
       ...order,
-      orderId: { value: order.orderNumber, isFlagged: order.isFlagged },
+      orderId: {
+        // ensure primitive value to avoid rendering raw objects in grid
+        value:
+          orderIdValue !== undefined && orderIdValue !== null
+            ? String(orderIdValue)
+            : "N/A",
+        isFlagged: Boolean(isFlagged),
+      },
       product: {
         name: order.product?.name || "N/A",
-        category: order.category?.name || "N/A",
-        profile: order.product?.images?.[0] || "",
+        category:
+          order.category?.name || order.product?.category || order.category || "N/A",
+        profile:
+          order.product?.image ||
+          order.product?.images?.[0] ||
+          order.product?.profile ||
+          "",
       },
       buyer: {
         name: order.buyer?.name || "N/A",
@@ -117,15 +151,10 @@ const OrderPage = () => {
         email: order.seller?.email || "",
         profile: order.seller?.profile || "",
       },
-      date_time: order.createdAt,
-      amount: order.totalAmount,
+      date_time: order.createdAt || order.date,
+      amount: order.totalAmount ?? order.amount ?? 0,
       payment_status: paymentStatus,
-      status:
-        paymentStatus === "processing"
-          ? "cancelled"
-          : order.status === "PENDING"
-            ? "ongoing"
-            : order.status?.toLowerCase(),
+      status: status,
     };
   });
 
@@ -133,9 +162,15 @@ const OrderPage = () => {
   const filteredOrders = formattedOrders.filter((order) => {
     if (!searchTerm) return true;
     const lowerSearch = searchTerm.toLowerCase();
+    const orderIdValue =
+      order.orderId?.value ||
+      order.orderNumber ||
+      order.orderId ||
+      order._id ||
+      "";
 
     // Check relevant fields
-    const orderIdMatch = order.orderNumber
+    const orderIdMatch = orderIdValue
       ?.toString()
       ?.toLowerCase()
       .includes(lowerSearch);
@@ -148,7 +183,7 @@ const OrderPage = () => {
     const sellerNameMatch = order.seller?.name
       ?.toLowerCase()
       .includes(lowerSearch);
-    const statusMatch = order.status?.toLowerCase().includes(lowerSearch);
+    const statusMatch = order.status?.toString().toLowerCase().includes(lowerSearch);
 
     return (
       orderIdMatch ||
