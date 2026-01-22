@@ -12,7 +12,6 @@ import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import Pagination from "@/components/ui/pagination";
 import ActionPopup from "@/components/common/ActionPopup";
 import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
-import Link from "next/link";
 import OrderPDFDocument from "./OrderPDFDocument";
 import OrderInvoicePDF from "./OrderInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
@@ -110,9 +109,16 @@ const OrderPage = () => {
 
   const extractValue = (val) => {
     if (val === null || val === undefined) return "";
-    if (typeof val === "object" && val !== null && "value" in val) {
-      return val.value; // Return the inner value if it's an object with a 'value' key
+
+    // Recursive extraction for nested objects
+    if (typeof val === "object") {
+      // Check if it's the specific wrapper object
+      if ("value" in val) {
+        return extractValue(val.value);
+      }
+      return val;
     }
+
     return val;
   };
 
@@ -160,8 +166,9 @@ const OrderPage = () => {
         email: extractValue(order.seller?.email) || "",
         profile: extractValue(order.seller?.profile) || "",
       },
-      date_time: order.createdAt || order.date,
-      amount: order.totalAmount ?? order.amount ?? 0,
+      date_time: extractValue(order.createdAt) || extractValue(order.date),
+      amount:
+        extractValue(order.totalAmount) ?? extractValue(order.amount) ?? 0,
       payment_status: paymentStatus,
       status: status,
     };
