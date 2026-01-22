@@ -123,14 +123,13 @@ const OrderPage = () => {
 
     return {
       ...order,
-      orderId: {
-        // ensure primitive value to avoid rendering raw objects in grid
-        value:
-          orderIdValue !== undefined && orderIdValue !== null
-            ? String(orderIdValue)
-            : "N/A",
-        isFlagged: Boolean(isFlagged),
-      },
+      // keep orderId as a primitive value for the grid
+      orderId:
+        orderIdValue !== undefined && orderIdValue !== null
+          ? String(orderIdValue)
+          : "N/A",
+      // expose flag state at row level
+      isFlagged: Boolean(isFlagged),
       product: {
         name: order.product?.name || "N/A",
         category:
@@ -368,7 +367,7 @@ const OrderPage = () => {
     ];
 
     const rowsData = dataToExport.map((order) => [
-      order.orderId?.value || order.orderNumber,
+      order.orderId || order.orderNumber,
       order.product?.name,
       order.product?.category,
       order.buyer?.name,

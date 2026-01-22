@@ -111,7 +111,8 @@ const GridCommonComponent = ({
 
   const renderCellContent = (column, value, row, context = {}) => {
     if (column?.render) {
-      return column?.render(value);
+      // Pass value, full row and context so custom renderers have more control
+      return column.render(value, row, context);
     }
 
     // Recent activity Component using grid
