@@ -4,6 +4,23 @@ const Standard_Avatar = ({ user, style }) => {
   const { name, email, category, profile, image, image1, image2, quantity } =
     user || {};
 
+  // Helper to safely render values that might be objects
+  const safeRender = (val) => {
+    if (typeof val === "object" && val !== null) {
+      // If it's the known wrapper, try to extract value
+      if ("value" in val) return String(val.value);
+      if ("name" in val) return String(val.name); // fallback for nested objects
+      return JSON.stringify(val); // Last resort debugging
+    }
+    return val;
+  };
+
+  const safeName = safeRender(name);
+  const safeEmail = safeRender(email);
+  const safeCategory = safeRender(category);
+  const safeProfile =
+    typeof profile === "string" ? profile : profile?.value || ""; // Profile must be string for Image
+
   const profileImages = [];
   if (image) profileImages.push(image);
   if (image1) profileImages.push(image1);
@@ -48,7 +65,7 @@ const Standard_Avatar = ({ user, style }) => {
             )}
           </div>
         ) : (
-          profile && (
+          safeProfile && (
             <div
               className={`w-12 h-12 overflow-hidden shadow-md ${imageRadius}`}
               style={{
@@ -57,44 +74,46 @@ const Standard_Avatar = ({ user, style }) => {
               }}
             >
               <Image
-                src={profile}
-                alt={name || "User"}
+                src={safeProfile}
+                alt={safeName || "User"}
                 className={`w-full h-full object-cover ${imageRadius}`}
                 fill
                 unoptimized
-                onError={(e) => console.error("Image load error:", profile, e)}
+                onError={(e) =>
+                  console.error("Image load error:", safeProfile, e)
+                }
               />
             </div>
           )
         )}
       </div>
 
-      {(name || email || category) && (
+      {(safeName || safeEmail || safeCategory) && (
         <div className="flex-1 min-w-0">
-          {name && (
+          {safeName && (
             <div className="font-medium text-gray-900 truncate">
-              {name}
+              {safeName}
               {hasMultipleImages && quantity && (
                 <span className="text-[#00A78E] ml-1">+{quantity} more</span>
               )}
             </div>
           )}
-          {email && (
+          {safeEmail && (
             <div
               className={`text-gray-500 text-sm ${
-                !name ? "font-medium text-gray-900" : ""
+                !safeName ? "font-medium text-gray-900" : ""
               } truncate`}
             >
-              {email}
+              {safeEmail}
             </div>
           )}
-          {category && (
+          {safeCategory && (
             <div
               className={`text-gray-500 text-sm ${
-                !name ? "font-medium text-gray-900" : ""
+                !safeName ? "font-medium text-gray-900" : ""
               } truncate`}
             >
-              {category}
+              {safeCategory}
             </div>
           )}
         </div>

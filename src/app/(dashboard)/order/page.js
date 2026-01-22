@@ -122,59 +122,95 @@ const OrderPage = () => {
     return val;
   };
 
-  const formattedOrders = (orders || []).map((order) => {
-    Object.entries(order).forEach(([k, v]) => {
-      if (typeof v === "object" && v !== null && !Array.isArray(v)) {
-        console.log("OBJECT FIELD:", k, v);
-      }
-    });
+  // const formattedOrders = (orders || []).map((order) => {
+  //   Object.entries(order).forEach(([k, v]) => {
+  //     if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+  //       console.log("OBJECT FIELD:", k, v);
+  //     }
+  //   });
 
+  //   const paymentStatus = normalizePaymentStatus(order);
+  //   const status = normalizeStatus(order.status);
+  //   const orderIdValue = order.orderId || order.orderNumber || order._id || "";
+  //   const isFlagged = order.isFlagged || false;
+
+  //   return {
+  //     ...order,
+  //     // keep orderId as a primitive value for the grid
+  //     orderId:
+  //       orderIdValue !== undefined && orderIdValue !== null
+  //         ? String(extractValue(orderIdValue))
+  //         : "N/A",
+  //     // expose flag state at row level
+  //     isFlagged: Boolean(isFlagged),
+  //     product: {
+  //       name: extractValue(order.product?.name) || "N/A",
+  //       category:
+  //         extractValue(order.category?.name) ||
+  //         extractValue(order.product?.category) ||
+  //         extractValue(order.category) ||
+  //         "N/A",
+  //       profile:
+  //         extractValue(order.product?.image) ||
+  //         extractValue(order.product?.images?.[0]) ||
+  //         extractValue(order.product?.profile) ||
+  //         "",
+  //     },
+  //     buyer: {
+  //       name: extractValue(order.buyer?.name) || "N/A",
+  //       email: extractValue(order.buyer?.email) || "",
+  //       profile: extractValue(order.buyer?.profile) || "",
+  //     },
+  //     seller: {
+  //       name: extractValue(order.seller?.name) || "N/A",
+  //       email: extractValue(order.seller?.email) || "",
+  //       profile: extractValue(order.seller?.profile) || "",
+  //     },
+  //     date_time: extractValue(order.createdAt) || extractValue(order.date),
+  //     amount:
+  //       extractValue(order.totalAmount) ?? extractValue(order.amount) ?? 0,
+  //     payment_status: paymentStatus,
+  //     status: status,
+  //   };
+  // });
+
+  // Client-Side Filtering
+
+  const formattedOrders = (orders || []).map((order) => {
     const paymentStatus = normalizePaymentStatus(order);
     const status = normalizeStatus(order.status);
-    const orderIdValue = order.orderId || order.orderNumber || order._id || "";
-    const isFlagged = order.isFlagged || false;
 
     return {
-      ...order,
-      // keep orderId as a primitive value for the grid
-      orderId:
-        orderIdValue !== undefined && orderIdValue !== null
-          ? String(extractValue(orderIdValue))
-          : "N/A",
-      // expose flag state at row level
-      isFlagged: Boolean(isFlagged),
+      _id: order._id,
+
+      orderId: String(order.orderId || order.orderNumber || order._id || "N/A"),
+      isFlagged: Boolean(order.isFlagged),
+
       product: {
-        name: extractValue(order.product?.name) || "N/A",
-        category:
-          extractValue(order.category?.name) ||
-          extractValue(order.product?.category) ||
-          extractValue(order.category) ||
-          "N/A",
-        profile:
-          extractValue(order.product?.image) ||
-          extractValue(order.product?.images?.[0]) ||
-          extractValue(order.product?.profile) ||
-          "",
+        name: order.product?.name || "N/A",
+        category: order.product?.category || "N/A",
+        profile: order.product?.image || order.product?.images?.[0] || "",
       },
+
       buyer: {
-        name: extractValue(order.buyer?.name) || "N/A",
-        email: extractValue(order.buyer?.email) || "",
-        profile: extractValue(order.buyer?.profile) || "",
+        name: order.buyer?.name || "N/A",
+        email: order.buyer?.email || "",
+        profile: order.buyer?.profile || "",
       },
+
       seller: {
-        name: extractValue(order.seller?.name) || "N/A",
-        email: extractValue(order.seller?.email) || "",
-        profile: extractValue(order.seller?.profile) || "",
+        name: order.seller?.name || "N/A",
+        email: order.seller?.email || "",
+        profile: order.seller?.profile || "",
       },
-      date_time: extractValue(order.createdAt) || extractValue(order.date),
-      amount:
-        extractValue(order.totalAmount) ?? extractValue(order.amount) ?? 0,
+
+      date_time: order.createdAt || order.date,
+      amount: order.totalAmount ?? order.amount ?? 0,
       payment_status: paymentStatus,
-      status: status,
+      status,
     };
   });
 
-  // Client-Side Filtering
   const filteredOrders = formattedOrders.filter((order) => {
     Object.entries(order).forEach(([k, v]) => {
       if (typeof v === "object" && v !== null && !Array.isArray(v)) {
