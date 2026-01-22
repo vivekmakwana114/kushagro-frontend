@@ -1,16 +1,20 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import PortfolioCard from "@/components/common/PortfolioCard";
-
 import Image from "next/image";
-
 import { useRouter, useSearchParams } from "next/navigation";
 import ActionPopup from "@/components/common/ActionPopup";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./farudReportColumn";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBuyers } from "@/state/buyer/buyerSlice";
+import {
+  fetchBuyers,
+  reactivateBuyer,
+  sendResetPasswordLink,
+  fetchFraudReports
+} from "@/state/buyer/buyerSlice";
+import { toast } from "sonner";
 
 const ClientDetails = () => {
   const router = useRouter();
@@ -18,18 +22,25 @@ const ClientDetails = () => {
   const id = searchParams.get("id");
   const dispatch = useDispatch();
 
-  const { buyers, loading } = useSelector((state) => state.buyer);
+  const { buyers, fraudReports, loading } = useSelector((state) => state.buyer);
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
 
   // Find the specific buyer from the store
   const currentBuyer = buyers.find((b) => b._id === id || b.id === id);
 
   useEffect(() => {
-    // If we don't have buyers loaded (e.g. direct access), fetch them
+    // If we don't have buyers list then fetch them
     if (!currentBuyer && !loading && buyers.length === 0) {
       dispatch(fetchBuyers({}));
     }
   }, [dispatch, currentBuyer, loading, buyers.length]);
+
+  useEffect(() => {
+  if (id) {
+    dispatch(fetchFraudReports(id));
+  }
+}, [dispatch, id]);
+
 
   const options = {
     select: false,
@@ -45,7 +56,7 @@ const ClientDetails = () => {
     return <div className="p-6">Buyer not found</div>;
   }
 
-  // Fallback to empty object if loading or not found (though guarded above)
+  // Fallback to empty object if loading or not found
   const buyerData = currentBuyer || {};
 
   const client = {
@@ -54,14 +65,14 @@ const ClientDetails = () => {
     email: buyerData.email || "N/A",
     phone: buyerData.phone || "N/A",
     status: buyerData.isSuspended
-      ? "suspended"
+      ? "Suspended"
       : buyerData.isActive
-        ? "active"
-        : "inactive",
+        ? "Active"
+        : "Inactive",
     joined: buyerData.createdAt
       ? new Date(buyerData.createdAt).toLocaleDateString()
       : "N/A",
-    suspensionReason: buyerData.suspensionReason || "", // Assuming field name
+    suspensionReason: buyerData.suspensionReason || "",
   };
 
   const OverviewData = [
@@ -70,7 +81,7 @@ const ClientDetails = () => {
       head: "Product Orders",
       total: buyerData.totalOrders || "0",
       countIcon: "",
-      upCount: "", // No monthly data available in standard list
+      upCount: "",
       MainIcon: (
         <Image
           src="/assets/card/overview_booking.svg"
@@ -84,9 +95,9 @@ const ClientDetails = () => {
     {
       color: "bg-secondary1",
       head: "Total Spent",
-      total: `\u20B9${buyerData.totalSpent || 0}`, // Assuming currency symbol
+      total: `$${buyerData.totalSpent || 0}`,
       countIcon: "",
-      upCount: "", // No monthly data available in standard list
+      upCount: "",
       MainIcon: (
         <Image
           src="/assets/card/overview_revenue.svg"
@@ -99,7 +110,53 @@ const ClientDetails = () => {
     },
   ];
 
+  const formattedFraudReports = (fraudReports).map((item) => ({
+  id: item._id,
+  reportId: item.reportId,
+  reason: item.reason,
+  reportOn: item.createdAt,
+  status: item.status,
+  reportBy: {
+    name: item.reportedBy?.name,
+    email: item.reportedBy?.email,
+    profile: item.reportedBy?.profile,
+  },
+  targetUser: {
+    id: item.userId,
+    type: "BUYER",
+  },
+}));
+
+
+
   const handleBack = () => router.back();
+
+  const handleReactivate = async () => {
+    const reason = "Reactivated by admin from overview";
+    try {
+      await dispatch(
+        reactivateBuyer({
+          id: buyerData._id || buyerData.id,
+          data: { reason },
+        }),
+      ).unwrap();
+      toast.success("Buyer reactivated successfully");
+      setIsReactivateOpen(false);
+    } catch (error) {
+      toast.error(error.message || "Failed to reactivate buyer");
+    }
+  };
+
+  const handleResetLink = async () => {
+    try {
+      await dispatch(
+        sendResetPasswordLink(buyerData._id || buyerData.id),
+      ).unwrap();
+      toast.success("Reset link sent successfully");
+    } catch (error) {
+      toast.error(error.message || "Failed to send reset link");
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -177,7 +234,7 @@ const ClientDetails = () => {
         <h2 className="text-lg font-semibold mb-4">Fraud Report</h2>
         <div className="mt-6 mb-6">
           <GridCommonComponent
-            data={fraudReportData}
+            data={formattedFraudReports}
             options={options}
             columns={getFraudReportColumns().map((col) => {
               if (col.key === "actions") {
@@ -218,31 +275,35 @@ const ClientDetails = () => {
 
       {/* Reactivate & share password reset link buttons */}
       <div className="flex gap-2 justify-end mt-2">
-        <button
-          className="flex items-center gap-2 p-2 border border-[var(--border-admin)] rounded-md bg-white hover:bg-gray-100 text-[var(--color-dull-text)]"
-          onClick={() => setIsReactivateOpen(true)}
-        >
-          <Image
-            src="/assets/icon/reactivateCustomer.svg"
-            alt="Reactivate Customer"
-            width={14}
-            height={14}
-          />
-          <span className="hidden sm:inline">Reactivate Buyer</span>
-        </button>
+        {client.status === "Suspended" && (
+          <button
+            className="flex items-center gap-2 p-2 border border-[var(--border-admin)] rounded-md bg-white hover:bg-gray-100 text-[var(--color-dull-text)]"
+            onClick={() => setIsReactivateOpen(true)}
+          >
+            <Image
+              src="/assets/icon/reactivateCustomer.svg"
+              alt="Reactivate Customer"
+              width={14}
+              height={14}
+            />
+            <span className="hidden sm:inline">Reactivate Buyer</span>
+          </button>
+        )}
 
-        <button
-          className="flex items-center gap-2 p-2 border border-[var(--border-admin)] rounded-md bg-white hover:bg-gray-100 text-[var(--color-dull-text)]"
-          onClick={() => console.log("Reset Password for:", client.name)}
-        >
-          <Image
-            src="/assets/icon/lock.svg"
-            alt="Reset Password"
-            width={14}
-            height={14}
-          />
-          <span className="hidden sm:inline">Share Reset Password Link</span>
-        </button>
+        {client.status !== "Suspended" && (
+          <button
+            className="flex items-center gap-2 p-2 border border-[var(--border-admin)] rounded-md bg-white hover:bg-gray-100 text-[var(--color-dull-text)]"
+            onClick={handleResetLink}
+          >
+            <Image
+              src="/assets/icon/lock.svg"
+              alt="Reset Password"
+              width={14}
+              height={14}
+            />
+            <span className="hidden sm:inline">Share Reset Password Link</span>
+          </button>
+        )}
 
         {isReactivateOpen && (
           <ActionPopup
@@ -256,10 +317,8 @@ const ClientDetails = () => {
               "including Booking appointments and making purchases.",
             ]}
             confirmText="Confirm Reactivation"
-            onApply={(data) => {
-              console.log("Reactivated:", data);
-              setIsReactivateOpen(false);
-            }}
+            confirmColor="text-secondary1"
+            onApply={handleReactivate}
           />
         )}
       </div>

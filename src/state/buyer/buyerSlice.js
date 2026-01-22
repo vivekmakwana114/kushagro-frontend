@@ -1,10 +1,24 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllBuyers,
-  getBuyerById,
   suspendCustomer,
   reactivateBuyer as reactivateBuyerService,
+  sendResetLink,
+  fetchFraudReportsByBuyer,
 } from "./buyerService";
+
+// Fetch all buyers
+export const fetchBuyers = createAsyncThunk(
+  "buyer/fetchAll",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await getAllBuyers(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
 
 // Suspend Buyer
 export const suspendBuyer = createAsyncThunk(
@@ -32,12 +46,12 @@ export const reactivateBuyer = createAsyncThunk(
   },
 );
 
-// Fetch all buyers
-export const fetchBuyers = createAsyncThunk(
-  "buyer/fetchAll",
-  async (params, { rejectWithValue }) => {
+// Send Reset Password Link
+export const sendResetPasswordLink = createAsyncThunk(
+  "buyer/sendResetLink",
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await getAllBuyers(params);
+      const response = await sendResetLink(id);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -45,12 +59,12 @@ export const fetchBuyers = createAsyncThunk(
   },
 );
 
-// Fetch single buyer by ID
-export const fetchBuyerById = createAsyncThunk(
-  "buyer/fetchById",
-  async (id, { rejectWithValue }) => {
+// Fetch Fraud Reports
+export const fetchFraudReports = createAsyncThunk(
+  "buyer/fetchFraudReports",
+  async (buyerId, { rejectWithValue }) => {
     try {
-      const response = await getBuyerById(id);
+      const response = await fetchFraudReportsByBuyer(buyerId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -60,6 +74,7 @@ export const fetchBuyerById = createAsyncThunk(
 
 const initialState = {
   buyers: [],
+  fraudReports: [],
   currentBuyer: null,
   totalPages: 1,
   totalResults: 0,
@@ -104,19 +119,6 @@ const buyerSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Fetch Buyer By ID
-      // .addCase(fetchBuyerById.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(fetchBuyerById.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.currentBuyer = action.payload.data || action.payload; // Adjust based on API structure
-      // })
-      // .addCase(fetchBuyerById.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload;
-      // })
       // Suspend Buyer
       .addCase(suspendBuyer.fulfilled, (state, action) => {
         const suspendedId = action.meta.arg.id;
@@ -149,6 +151,19 @@ const buyerSlice = createSlice({
           state.currentBuyer.isSuspended = false;
           state.currentBuyer.status = "active";
         }
+      })
+      // fetch fraud report by buyer
+      .addCase(fetchFraudReports.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFraudReports.fulfilled, (state, action) => {
+        state.loading = false;
+        state.fraudReports = action.payload.data || action.payload;
+      })
+      .addCase(fetchFraudReports.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

@@ -41,7 +41,12 @@ export const reactivateBuyer = (id, data) => {
   return api.post(`/v1/users/${id}/reactivate`, data);
 };
 
-export const getBuyerById = (id) => {
-  // Assuming a similar structure if needed later
-  return api.get(`/v1/users/${id}`);
+// Send Reset Password Link
+export const sendResetLink = (id) => {
+  return api.get(`/v1/users/${id}/reset/link`);
+};
+
+
+export const fetchFraudReportsByBuyer = (id) => {
+  return api.get(`/v1/users/${id}/reports`);
 };

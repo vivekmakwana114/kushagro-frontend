@@ -14,10 +14,11 @@ import {
   fetchBuyers,
   suspendBuyer,
   reactivateBuyer,
+  sendResetPasswordLink,
 } from "@/state/buyer/buyerSlice";
 import BuyerPDFDocument from "./BuyerPDFDocument";
 import { pdf } from "@react-pdf/renderer";
-import { toast } from "sonner"; // Assuming sonner is used, or generic toast
+import { toast } from "sonner";
 
 const options = {
   select: true,
@@ -44,6 +45,12 @@ const Page = () => {
   };
 
   const handleSuspend = async (row, data) => {
+    // Check if buyer is already suspended
+    if (row.isSuspended || row.status === "suspended") {
+      toast.error("Buyer is already suspended");
+      return;
+    }
+
     const reason = constructReason(data);
     if (!reason) {
       toast.error("Please provide a reason for suspension");
@@ -62,21 +69,6 @@ const Page = () => {
   };
 
   const handleReactivate = async (row, data) => {
-    // For reactivation, standard popup might not have options, check data structure
-    // If using ActionPopup for reactivate without dropdowns, data might just be note or confirmation
-    // But buyerColumn reactivate uses ActionPopup with just confirmText, no inputs by default?
-    // Wait, buyerColumn.js for reactivate has no dropdowns, just subHeading.
-    // But `ActionPopup` passes {selectedOptions, note}.
-
-    // If confirmation only, reason might be hardcoded or extracted if we add input.
-    // The user request example json has `{"reason": "user verfied sucess}`.
-    // The current `reactivate` popup in `buyerColumn` (lines 116-126) is simple confirmation.
-    // I should probably add a text area or reasoning if backend requires it.
-    // Assuming for now generic reason or updated popup.
-    // Wait, user provided payload example. It implies reason is sent.
-    // If UI doesn't collect it, I can send a default or update UI.
-    // I will use `data.note` if available, or "Reactivated by admin".
-
     const reason = data.note || "Reactivated by admin";
 
     try {
@@ -89,7 +81,20 @@ const Page = () => {
     }
   };
 
-  const buyerColumns = getBuyerColumns(handleSuspend, handleReactivate);
+  const handleResetLink = async (row) => {
+    try {
+      await dispatch(sendResetPasswordLink(row._id || row.id)).unwrap();
+      toast.success("Reset link sent successfully");
+    } catch (error) {
+      toast.error(error.message || "Failed to send reset link");
+    }
+  };
+
+  const buyerColumns = getBuyerColumns(
+    handleSuspend,
+    handleReactivate,
+    handleResetLink,
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -142,17 +147,17 @@ const Page = () => {
   const formattedData = buyers.map((buyer) => ({
     ...buyer,
     buyer: {
-      name: buyer.name || "N/A",
-      email: buyer.email || "N/A",
-      profile: buyer.profile || "",
+      name: buyer?.name || "N/A",
+      email: buyer?.email || "N/A",
+      profile: buyer?.profile || "",
     },
-    phone: buyer.phone || "N/A",
-    joined_on: buyer.createdAt || buyer.joinedAt, // Adjust based on actual API field
-    today_order: buyer.totalOrders || 0, // Adjust based on actual API field
-    total_spent: buyer.totalSpent || 0, // Adjust based on actual API field
-    status: buyer.isSuspended
+    phone: buyer?.phone || "N/A",
+    joined_on: buyer?.createdAt || buyer?.joinedAt,
+    total_order: buyer?.totalOrders || 0,
+    total_spent: buyer?.totalSpent || 0,
+    status: buyer?.isSuspended
       ? "suspended"
-      : buyer.isActive
+      : buyer?.isActive
         ? "active"
         : "inactive",
   }));
@@ -199,11 +204,20 @@ const Page = () => {
       "Status",
     ];
 
+    const escapeCsvValue = (value) => {
+      if (value === null || value === undefined) return "";
+      const stringValue = String(value);
+      const escaped = stringValue.replace(/"/g, '""');
+      return `"${escaped}"`;
+    };
+
     const rowsData = dataToExport.map((buyer) => [
       buyer.buyer?.name || "N/A",
       buyer.buyer?.email || "N/A",
-      buyer.phone || "N/A",
-      buyer.joined_on ? new Date(buyer.joined_on).toLocaleDateString() : "N/A",
+      `\t${buyer.phone || "N/A"}`,
+      buyer.joined_on
+        ? `\t${new Date(buyer.joined_on).toISOString().split("T")[0]}`
+        : "N/A",
       buyer.total_order || 0,
       buyer.total_spent || 0,
       buyer.status || "N/A",
@@ -211,7 +225,10 @@ const Page = () => {
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rowsData.map((e) => e.join(","))].join("\n");
+      [
+        headers.map(escapeCsvValue).join(","),
+        ...rowsData.map((row) => row.map(escapeCsvValue).join(",")),
+      ].join("\n");
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -264,17 +281,33 @@ const Page = () => {
       return;
     }
 
+    // Filter out already suspended buyers
+    const buyersToSuspend = rows.filter(
+      (row) => !row.isSuspended && row.status !== "suspended",
+    );
+
+    if (buyersToSuspend.length === 0) {
+      toast.error("Selected buyers are already suspended");
+      return;
+    }
+
+    if (buyersToSuspend.length < rows.length) {
+      toast.warning(
+        `${rows.length - buyersToSuspend.length} buyer(s) already suspended and will be skipped.`,
+      );
+    }
+
     try {
-      // Process suspension for all selected rows
-      const promises = rows.map((row) =>
+      // Process suspension for all valid rows
+      const promises = buyersToSuspend.map((row) =>
         dispatch(
           suspendBuyer({ id: row._id || row.id, data: { reason } }),
         ).unwrap(),
       );
 
       await Promise.all(promises);
-      toast.success("Selected buyers suspended successfully");
-      // Ideally clear selection here if component exposes it, or trigger refresh
+      toast.success("Selected active buyers suspended successfully");
+      // when sucess then trigger refresh
       dispatch(
         fetchBuyers({ page: currentPage, limit: itemsPerPage, ...filters }),
       );

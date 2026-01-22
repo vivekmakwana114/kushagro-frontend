@@ -42,7 +42,7 @@ export const getFraudReportColumns = () => [
     },
   },
   {
-    key: "report_on",
+    key: "reportOn",
     title: "Report On",
     component: {
       type: "date",

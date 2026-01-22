@@ -1,6 +1,10 @@
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const getBuyerColumns = (handleSuspend, handleReactivate) => [
+export const getBuyerColumns = (
+  handleSuspend,
+  handleReactivate,
+  handleResetLink,
+) => [
   {
     key: "buyer",
     title: "Buyers",
@@ -177,11 +181,13 @@ export const getBuyerColumns = (handleSuspend, handleReactivate) => [
                 if (handleSuspend) handleSuspend(row, data);
               },
             },
-
             {
               label: "Share Reset Password Link",
               iconUrl: "/assets/icon/lock.svg",
-              onClick: (data) => console.log("password Reset link send", data),
+              onClick: () => {
+                if (handleResetLink) handleResetLink(row);
+                console.log("password Reset link send", row);
+              },
             },
           ];
         },
