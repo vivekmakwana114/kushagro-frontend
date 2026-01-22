@@ -113,7 +113,7 @@ const OrderPage = () => {
   const formattedOrders = (orders || []).map((order) => {
     const paymentStatus = normalizePaymentStatus(order);
     const status = normalizeStatus(order.status);
-    const orderIdValue = order.orderNumber ?? order.orderId ?? order._id;
+    const orderIdValue = order.orderId || order.orderNumber || order._id ||  "";
     const isFlagged =
       order.isFlagged ??
       order.flagged ??
