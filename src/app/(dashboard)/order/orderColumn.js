@@ -25,16 +25,15 @@ export const getOrderColumns = ({
         text: "text-secondary1 font-semibold text-xs sm:text-sm",
       },
     },
-    render: (val) => {
+    // val is the primitive order id, row gives us isFlagged boolean
+    render: (val, row) => {
       const displayValue =
-        val?.value !== undefined && val?.value !== null
-          ? String(val.value)
-          : "N/A";
+        val !== undefined && val !== null ? String(val) : "N/A";
 
       return (
         <div className="flex items-center gap-2">
           <span>{displayValue}</span>
-          {val?.isFlagged && (
+          {row?.isFlagged && (
             <Image
               src="/assets/icon/flag_red.svg"
               alt="Flagged"
