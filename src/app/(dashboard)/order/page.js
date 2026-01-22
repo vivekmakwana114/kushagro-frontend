@@ -33,11 +33,9 @@ const options = {
 };
 
 const normalizePaymentStatus = (order) => {
-  const raw = (
-    order.paymentStatus ||
-    order.payments?.[0]?.status ||
-    ""
-  ).toString().toLowerCase();
+  const raw = (order.paymentStatus || order.payments?.[0]?.status || "")
+    .toString()
+    .toLowerCase();
 
   if (["payment success", "paid", "success"].includes(raw)) return "paid";
   if (["refund initiated", "refunded initiated", "refunded"].includes(raw))
@@ -110,45 +108,57 @@ const OrderPage = () => {
     setCurrentPage(1);
   };
 
+  const extractValue = (val) => {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object" && val !== null && "value" in val) {
+      return val.value; // Return the inner value if it's an object with a 'value' key
+    }
+    return val;
+  };
+
   const formattedOrders = (orders || []).map((order) => {
+    Object.entries(order).forEach(([k, v]) => {
+      if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+        console.log("OBJECT FIELD:", k, v);
+      }
+    });
+
     const paymentStatus = normalizePaymentStatus(order);
     const status = normalizeStatus(order.status);
-    const orderIdValue = order.orderId || order.orderNumber || order._id ||  "";
-    const isFlagged =
-      order.isFlagged ??
-      order.flagged ??
-      order.flag ??
-      order.is_flagged ??
-      false;
+    const orderIdValue = order.orderId || order.orderNumber || order._id || "";
+    const isFlagged = order.isFlagged || false;
 
     return {
       ...order,
       // keep orderId as a primitive value for the grid
       orderId:
         orderIdValue !== undefined && orderIdValue !== null
-          ? String(orderIdValue)
+          ? String(extractValue(orderIdValue))
           : "N/A",
       // expose flag state at row level
       isFlagged: Boolean(isFlagged),
       product: {
-        name: order.product?.name || "N/A",
+        name: extractValue(order.product?.name) || "N/A",
         category:
-          order.category?.name || order.product?.category || order.category || "N/A",
+          extractValue(order.category?.name) ||
+          extractValue(order.product?.category) ||
+          extractValue(order.category) ||
+          "N/A",
         profile:
-          order.product?.image ||
-          order.product?.images?.[0] ||
-          order.product?.profile ||
+          extractValue(order.product?.image) ||
+          extractValue(order.product?.images?.[0]) ||
+          extractValue(order.product?.profile) ||
           "",
       },
       buyer: {
-        name: order.buyer?.name || "N/A",
-        email: order.buyer?.email || "",
-        profile: order.buyer?.profile || "",
+        name: extractValue(order.buyer?.name) || "N/A",
+        email: extractValue(order.buyer?.email) || "",
+        profile: extractValue(order.buyer?.profile) || "",
       },
       seller: {
-        name: order.seller?.name || "N/A",
-        email: order.seller?.email || "",
-        profile: order.seller?.profile || "",
+        name: extractValue(order.seller?.name) || "N/A",
+        email: extractValue(order.seller?.email) || "",
+        profile: extractValue(order.seller?.profile) || "",
       },
       date_time: order.createdAt || order.date,
       amount: order.totalAmount ?? order.amount ?? 0,
@@ -159,6 +169,12 @@ const OrderPage = () => {
 
   // Client-Side Filtering
   const filteredOrders = formattedOrders.filter((order) => {
+    Object.entries(order).forEach(([k, v]) => {
+      if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+        console.log("OBJECT FIELD:", k, v);
+      }
+    });
+
     if (!searchTerm) return true;
     const lowerSearch = searchTerm.toLowerCase();
     const orderIdValue =
@@ -182,7 +198,10 @@ const OrderPage = () => {
     const sellerNameMatch = order.seller?.name
       ?.toLowerCase()
       .includes(lowerSearch);
-    const statusMatch = order.status?.toString().toLowerCase().includes(lowerSearch);
+    const statusMatch = order.status
+      ?.toString()
+      .toLowerCase()
+      .includes(lowerSearch);
 
     return (
       orderIdMatch ||
@@ -408,7 +427,7 @@ const OrderPage = () => {
           height={16}
         />
       ),
-      onClick: () => handleDownloadPDF(), 
+      onClick: () => handleDownloadPDF(),
     },
     {
       label: "Download CSV",
@@ -420,7 +439,7 @@ const OrderPage = () => {
           height={16}
         />
       ),
-      onClick: () => handleDownloadCSV(), 
+      onClick: () => handleDownloadCSV(),
     },
   ];
 
