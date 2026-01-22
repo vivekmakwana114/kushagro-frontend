@@ -4,7 +4,6 @@ import {
   suspendCustomer,
   reactivateBuyer as reactivateBuyerService,
   sendResetLink,
-  fetchFraudReportsByBuyer,
 } from "./buyerService";
 
 // Fetch all buyers
@@ -59,22 +58,8 @@ export const sendResetPasswordLink = createAsyncThunk(
   },
 );
 
-// Fetch Fraud Reports
-export const fetchFraudReports = createAsyncThunk(
-  "buyer/fetchFraudReports",
-  async (buyerId, { rejectWithValue }) => {
-    try {
-      const response = await fetchFraudReportsByBuyer(buyerId);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  },
-);
-
 const initialState = {
   buyers: [],
-  fraudReports: [],
   currentBuyer: null,
   totalPages: 1,
   totalResults: 0,
@@ -136,6 +121,7 @@ const buyerSlice = createSlice({
           state.currentBuyer.status = "suspended";
         }
       })
+
       // Reactivate Buyer
       .addCase(reactivateBuyer.fulfilled, (state, action) => {
         const reactivatedId = action.meta.arg.id;
@@ -151,19 +137,6 @@ const buyerSlice = createSlice({
           state.currentBuyer.isSuspended = false;
           state.currentBuyer.status = "active";
         }
-      })
-      // fetch fraud report by buyer
-      .addCase(fetchFraudReports.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchFraudReports.fulfilled, (state, action) => {
-        state.loading = false;
-        state.fraudReports = action.payload.data || action.payload;
-      })
-      .addCase(fetchFraudReports.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       });
   },
 });

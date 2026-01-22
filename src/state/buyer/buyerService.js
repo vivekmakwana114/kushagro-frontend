@@ -45,8 +45,3 @@ export const reactivateBuyer = (id, data) => {
 export const sendResetLink = (id) => {
   return api.get(`/v1/users/${id}/reset/link`);
 };
-
-
-export const fetchFraudReportsByBuyer = (id) => {
-  return api.get(`/v1/report/user/${id}`);
-};

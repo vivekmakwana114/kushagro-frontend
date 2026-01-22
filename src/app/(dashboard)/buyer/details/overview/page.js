@@ -12,8 +12,12 @@ import {
   fetchBuyers,
   reactivateBuyer,
   sendResetPasswordLink,
-  fetchFraudReports,
+  suspendBuyer,
 } from "@/state/buyer/buyerSlice";
+import {
+  fetchFraudReportsByUser,
+  deleteFraudReport,
+} from "@/state/fraudReport/fraudReportSlice";
 import { toast } from "sonner";
 
 const ClientDetails = () => {
@@ -22,7 +26,11 @@ const ClientDetails = () => {
   const id = searchParams.get("id");
   const dispatch = useDispatch();
 
-  const { buyers, fraudReports, loading } = useSelector((state) => state.buyer);
+  const { buyers, loading: buyerLoading } = useSelector((state) => state.buyer);
+  const { reports, loading: reportLoading } = useSelector(
+    (state) => state.fraudReport,
+  );
+
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
 
   // Find the specific buyer from the store
@@ -30,14 +38,14 @@ const ClientDetails = () => {
 
   useEffect(() => {
     // If we don't have buyers list then fetch them
-    if (!currentBuyer && !loading && buyers.length === 0) {
+    if (!currentBuyer && !buyerLoading && buyers.length === 0) {
       dispatch(fetchBuyers({}));
     }
-  }, [dispatch, currentBuyer, loading, buyers.length]);
+  }, [dispatch, currentBuyer, buyerLoading, buyers.length]);
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchFraudReports(id));
+      dispatch(fetchFraudReportsByUser(id));
     }
   }, [dispatch, id]);
 
@@ -46,6 +54,8 @@ const ClientDetails = () => {
     order: false,
     sortable: false,
   };
+
+  const loading = buyerLoading || reportLoading;
 
   if (loading && !currentBuyer) {
     return <div className="p-6">Loading...</div>;
@@ -109,14 +119,15 @@ const ClientDetails = () => {
     },
   ];
 
-  const formattedFraudReports = fraudReports.map((item) => ({
+  const formattedFraudReports = (reports || []).map((item) => ({
     id: item._id || item.id,
-    reportId: item.id || "N/A",
+    reportId: item.reportId || item.id || "N/A",
     reason: Array.isArray(item.reason)
       ? item.reason.join(", ")
       : item.reason || "N/A",
     reportOn: item.createdAt,
     status: item.status,
+    evidence: item.image,
     reportBy: {
       name: item.reporterId?.name || "N/A",
       email: item.reporterId?.email || "N/A",
@@ -126,6 +137,7 @@ const ClientDetails = () => {
       id: item.reportedId?.id || item.userId,
       type: "BUYER",
     },
+    // fullReport: item, // Keep full object for view modal if needed
   }));
 
   const handleBack = () => router.back();
@@ -154,6 +166,15 @@ const ClientDetails = () => {
       toast.success("Reset link sent successfully");
     } catch (error) {
       toast.error(error.message || "Failed to send reset link");
+    }
+  };
+
+  const handleDeleteReport = async (reportId) => {
+    try {
+      await dispatch(deleteFraudReport(reportId)).unwrap();
+      toast.success("Report deleted successfully");
+    } catch (error) {
+      toast.error(error.message || "Failed to delete report");
     }
   };
 
@@ -235,20 +256,8 @@ const ClientDetails = () => {
           <GridCommonComponent
             data={formattedFraudReports}
             options={options}
-            columns={getFraudReportColumns().map((col) => {
-              if (col.key === "actions") {
-                return {
-                  ...col,
-                  component: {
-                    ...col.component,
-                    options: {
-                      ...col.component.options,
-                      actions: (row) => col.component.options.actions(row),
-                    },
-                  },
-                };
-              }
-              return col;
+            columns={getFraudReportColumns({
+              onDelete: handleDeleteReport,
             })}
             theme={{
               border: "border-none",

@@ -1,37 +1,67 @@
-"use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "@/components/form-elements/Header";
 import TextArea from "@/components/form-elements/TextArea";
 import { Button } from "@/components/ui/button";
 import ImageZoomModal from "@/components/common/ImageZoomModal";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFraudReportById } from "@/state/fraudReport/fraudReportSlice";
+import { suspendBuyer } from "@/state/buyer/buyerSlice";
+import { toast } from "sonner";
 
 const ViewFraudReport = ({
   reportData,
   onClose,
   onSuspend,
   userType = "buyer",
-  onCancel, 
+  onCancel,
   onApply,
+  id, // From grid row
+  reportId, // From grid row
+  ...props
 }) => {
+  const dispatch = useDispatch();
+  const { currentReport, loading } = useSelector((state) => state.fraudReport);
   const [selectedImage, setSelectedImage] = useState(null);
   const [adminNotes, setAdminNotes] = useState("");
 
-  // mock data for demonstration
-  const defaultData = {
-    reportId: "#SPAM2146515",
-    date: "15 Jul, 2025",
-    reportedBy: {
-      name: "Will Jack",
-      email: "willjack@gmail.com",
-      avatar: "https://picsum.photos/200",
-    },
-    notes:
-      "Order items that decline to accept delivery when product reach on address.",
-    evidence: "/assets/images/testimage.png",
-  };
+  const effectiveReportId =
+    reportId || id || (reportData && reportData.reportId);
 
-  const data = reportData || defaultData;
+  useEffect(() => {
+    if (effectiveReportId && !reportData) {
+      dispatch(fetchFraudReportById(effectiveReportId));
+    }
+  }, [dispatch, effectiveReportId, reportData]);
+
+  // Determine data source
+  let data = null;
+
+  if (reportData) {
+    data = reportData;
+  } else if (currentReport) {
+    data = {
+      reportId: currentReport.id || currentReport.reportId || "N/A",
+      date: currentReport.createdAt
+        ? new Date(currentReport.createdAt).toLocaleDateString()
+        : "N/A",
+      reportedBy: {
+        name: currentReport.reporterId?.name || "N/A",
+        email: currentReport.reporterId?.email || "N/A",
+        avatar:
+          currentReport.reporterId?.profile || "/assets/images/placeholder.png",
+      },
+      notes: Array.isArray(currentReport.reason)
+        ? currentReport.reason.join(", ")
+        : currentReport.reason || "N/A",
+      evidence: currentReport.image || "/assets/images/placeholder.png",
+      fullReport: currentReport,
+    };
+  }
+
+  if (!data) {
+    return <div className="p-4 text-center">Loading report details...</div>;
+  }
 
   const handleImageClick = () => {
     setSelectedImage(data.evidence);
@@ -41,20 +71,6 @@ const ViewFraudReport = ({
     setSelectedImage(null);
   };
 
-  const handleSuspend = () => {
-    const payload = {
-      reportId: data.reportId,
-      adminNotes,
-    };
-
-    console.log("Form Submitted - Full Data:", payload);
-
-    if (onSuspend) {
-      onSuspend(payload);
-    } else if (onApply) {
-      onApply(payload);
-    }
-  };
 
   const handleCancel = () => {
     if (onClose) {
@@ -181,7 +197,6 @@ const ViewFraudReport = ({
           </Button>
           <Button
             type="button"
-            onClick={handleSuspend}
             className="flex-1 bg-red text-white hover:bg-red/90"
           >
             Suspend {userTypeCapitalized}
