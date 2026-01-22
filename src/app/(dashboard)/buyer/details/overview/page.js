@@ -12,7 +12,7 @@ import {
   fetchBuyers,
   reactivateBuyer,
   sendResetPasswordLink,
-  fetchFraudReports
+  fetchFraudReports,
 } from "@/state/buyer/buyerSlice";
 import { toast } from "sonner";
 
@@ -36,11 +36,10 @@ const ClientDetails = () => {
   }, [dispatch, currentBuyer, loading, buyers.length]);
 
   useEffect(() => {
-  if (id) {
-    dispatch(fetchFraudReports(id));
-  }
-}, [dispatch, id]);
-
+    if (id) {
+      dispatch(fetchFraudReports(id));
+    }
+  }, [dispatch, id]);
 
   const options = {
     select: false,
@@ -110,24 +109,24 @@ const ClientDetails = () => {
     },
   ];
 
-  const formattedFraudReports = (fraudReports).map((item) => ({
-  id: item._id,
-  reportId: item.reportId,
-  reason: item.reason,
-  reportOn: item.createdAt,
-  status: item.status,
-  reportBy: {
-    name: item.reportedBy?.name,
-    email: item.reportedBy?.email,
-    profile: item.reportedBy?.profile,
-  },
-  targetUser: {
-    id: item.userId,
-    type: "BUYER",
-  },
-}));
-
-
+  const formattedFraudReports = fraudReports.map((item) => ({
+    id: item._id || item.id,
+    reportId: item.id || "N/A",
+    reason: Array.isArray(item.reason)
+      ? item.reason.join(", ")
+      : item.reason || "N/A",
+    reportOn: item.createdAt,
+    status: item.status,
+    reportBy: {
+      name: item.reporterId?.name || "N/A",
+      email: item.reporterId?.email || "N/A",
+      profile: item.reporterId?.profile,
+    },
+    targetUser: {
+      id: item.reportedId?.id || item.userId,
+      type: "BUYER",
+    },
+  }));
 
   const handleBack = () => router.back();
 

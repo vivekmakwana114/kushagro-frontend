@@ -48,5 +48,5 @@ export const sendResetLink = (id) => {
 
 
 export const fetchFraudReportsByBuyer = (id) => {
-  return api.get(`/v1/users/${id}/reports`);
+  return api.get(`/v1/report/user/${id}`);
 };
