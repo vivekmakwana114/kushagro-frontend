@@ -42,14 +42,7 @@ export const leftSidebarItems = [
     },
   },
 
-  {
-    title: "Payment & Payouts",
-    url: "/payment-and-payouts/all-transaction",
-    icon: {
-      active: "/assets/icon/payments.svg",
-      inactive: "/assets/icon/payments_inactive.svg",
-    },
-  },
+  
 
   {
     title: "Settings",
@@ -131,14 +124,14 @@ export const listingSidebarItems = [
 
 // Settings Sidebar - settting
 export const settingSidebarItems = [
-  {
-    title: "General",
-    url: "/settings",
-    icon: {
-      active: "/assets/icon/sett.svg",
-      inactive: "/assets/icon/sett_inactive.svg",
-    },
-  },
+  // {
+  //   title: "General",
+  //   url: "/settings",
+  //   icon: {
+  //     active: "/assets/icon/sett.svg",
+  //     inactive: "/assets/icon/sett_inactive.svg",
+  //   },
+  // },
   {
     title: "Tax Commission",
     url: "/settings/tax-commission",
@@ -171,28 +164,28 @@ export const settingSidebarItems = [
       inactive: "/assets/icon/fraud_inactive.svg",
     },
   },
-  {
-    title: "Policies",
-    url: "/settings/policies",
-    icon: {
-      active: "/assets/icon/policies.svg",
-      inactive: "/assets/icon/policies_inactive.svg",
-    },
-  },
-  {
-    title: "Email & SMS",
-    url: "/settings/email",
-    icon: {
-      active: "/assets/icon/email.svg",
-      inactive: "/assets/icon/email_inactive.svg",
-    },
-  },
-  {
-    title: "Payments",
-    url: "/settings/payments",
-    icon: {
-      active: "/assets/icon/pay.svg",
-      inactive: "/assets/icon/pay_inactive.svg",
-    },
-  },
+  // {
+  //   title: "Policies",
+  //   url: "/settings/policies",
+  //   icon: {
+  //     active: "/assets/icon/policies.svg",
+  //     inactive: "/assets/icon/policies_inactive.svg",
+  //   },
+  // },
+  // {
+  //   title: "Email & SMS",
+  //   url: "/settings/email",
+  //   icon: {
+  //     active: "/assets/icon/email.svg",
+  //     inactive: "/assets/icon/email_inactive.svg",
+  //   },
+  // },
+  // {
+  //   title: "Payments",
+  //   url: "/settings/payments",
+  //   icon: {
+  //     active: "/assets/icon/pay.svg",
+  //     inactive: "/assets/icon/pay_inactive.svg",
+  //   },
+  // },
 ];

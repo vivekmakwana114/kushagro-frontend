@@ -1,36 +1,34 @@
 import React, { useState } from "react";
 import { X, Maximize2 } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import ImageZoomModal from "@/components/common/ImageZoomModal";
+import { useDispatch } from "react-redux";
+import { updateTicketStatus } from "@/state/setting/support-ticket/supportTicketSlice";
+import { toast } from "sonner";
 
 const ViewSupportTicket = ({ data, onCancel }) => {
   const [status, setStatus] = useState(data?.status || "open");
   const [selectedImage, setSelectedImage] = useState(null);
+  const dispatch = useDispatch();
 
   // Mock data to match the design if real data is missing certain fields
   const displayData = {
     subject: data?.subject || "Not Getting Log Out",
     status: status,
     description:
-      data?.description ||
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    images: data?.images || [
-      "/assets/images/support_ticket_image.svg",
-      "/assets/images/support_ticket_image.svg",
-      "/assets/images/support_ticket_image.svg",
-    ],
+      data?.description || data?.message || "No description provided.",
+    images: data?.images || [],
     customer: {
-      name: data?.user?.name || "Jimmy Fraz",
-      email: data?.user?.email || "jimmyf@gmail.com",
-      phone: data?.user?.phone || "(+81)000 0000",
-      raisedOn: data?.date_time
-        ? new Date(data.date_time).toLocaleDateString("en-GB", {
+      name: data?.user?.name || "N/A",
+      email: data?.user?.email || "N/A",
+      phone: data?.user?.phone || "N/A",
+      raisedOn: data?.createdAt
+        ? new Date(data.createdAt).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "short",
             year: "numeric",
           })
-        : "22 Feb, 2024",
+        : "N/A",
       profile: data?.user?.profile || "/assets/images/profile-placeholder.png",
     },
   };
@@ -38,9 +36,21 @@ const ViewSupportTicket = ({ data, onCancel }) => {
   const statusOptions = [
     { value: "open", label: "Open" },
     { value: "inprocess", label: "In Process" },
-    { value: "resolved", label: "Resolved" },
     { value: "done", label: "Done" },
   ];
+
+  const handleUpdate = async () => {
+    try {
+      await dispatch(
+        updateTicketStatus({ id: data?._id || data?.id, data: { status } }),
+      ).unwrap();
+      toast.success("Ticket status updated successfully");
+      onCancel && onCancel();
+    } catch (error) {
+      toast.error("Failed to update ticket status");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-white w-full max-w-[600px] mx-auto relative">
@@ -108,30 +118,33 @@ const ViewSupportTicket = ({ data, onCancel }) => {
         </div>
 
         {/* Images */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {displayData.images.map((img, idx) => (
-            <div
-              key={idx}
-              className="relative group aspect-square rounded-lg overflow-hidden border border-gray-100"
-            >
-              <img
-                src={img}
-                alt={`Evidence ${idx + 1}`}
-                className="w-full h-full object-cover cursor-pointer"
-                onClick={() => setSelectedImage(img)}
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/150";
-                }}
-              />
-              <button
-                className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => setSelectedImage(img)}
+        {displayData.images.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {displayData.images.map((img, idx) => (
+              <div
+                key={idx}
+                className="relative group aspect-square rounded-lg overflow-hidden border border-gray-100"
               >
-                <Maximize2 className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
+                <Image
+                  src={img}
+                  unoptimized
+                  alt={`Evidence ${idx + 1}`}
+                  className="w-full h-full object-cover cursor-pointer"
+                  onClick={() => setSelectedImage(img)}
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/150";
+                  }}
+                />
+                <button
+                  className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => setSelectedImage(img)}
+                >
+                  <Maximize2 className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Customer Details */}
         <div className="">
@@ -190,10 +203,7 @@ const ViewSupportTicket = ({ data, onCancel }) => {
           Close
         </Button>
         <Button
-          onClick={() => {
-            console.log("Update Ticket", { id: data?.ticket_id, status });
-            onCancel && onCancel();
-          }}
+          onClick={handleUpdate}
           className="w-full py-2.5 px-4 bg-secondary1 text-white rounded-lg font-medium hover:bg-secondary1/90 transition-colors"
         >
           Update Ticket

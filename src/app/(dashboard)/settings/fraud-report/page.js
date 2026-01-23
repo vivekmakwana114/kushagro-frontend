@@ -1,12 +1,17 @@
 "use client";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import React, { useState } from "react";
-import { fraudData } from "./fraudData";
-import { fraudReportColumns } from "./fraudReportColumns";
-import {  Search } from "lucide-react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { getFraudReportColumns } from "./fraudReportColumns";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Pagination from "@/components/ui/pagination";
 import ActionPopup from "@/components/common/ActionPopup";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchFraudReports,
+  deleteReport,
+} from "@/state/setting/fraud-ticket/fraudTicketSlice";
+import { toast } from "sonner";
 
 const options = {
   select: true,
@@ -15,11 +20,57 @@ const options = {
 };
 const FraudReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const dispatch = useDispatch();
+  const { fraudReports, isLoading } = useSelector((state) => state.fraudTicket);
+
+  useEffect(() => {
+    dispatch(fetchFraudReports());
+  }, [dispatch]);
+
+  const handleDelete = useCallback(
+    async (id) => {
+      try {
+        await dispatch(deleteReport(id)).unwrap();
+        toast.success("Fraud report deleted successfully");
+      } catch (error) {
+        toast.error("Failed to delete fraud report");
+      }
+    },
+    [dispatch],
+  );
+
+  const columns = useMemo(
+    () => getFraudReportColumns({ onDelete: handleDelete }),
+    [handleDelete],
+  );
+
   const itemsPerPage = 10;
   const indexofLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexofLastItem - itemsPerPage;
-  const currentData = fraudData.slice(indexOfFirstItem, indexofLastItem);
-  const totalPages = Math.ceil(fraudData.length / itemsPerPage);
+
+  const currentData = (Array.isArray(fraudReports) ? fraudReports : [])
+    .map((report) => ({
+      ...report,
+      report_id: report._id || report.id || "N/A",
+      reported_user: report.reportedId || {
+        name: "N/A",
+        email: "N/A",
+        profile: "",
+      },
+      reported_by: report.reporterId || {
+        name: "N/A",
+        email: "N/A",
+        profile: "",
+      },
+      reason: Array.isArray(report.reason)
+        ? report.reason[0]
+        : report.reason || "N/A",
+      reported_on: report.createdAt,
+    }))
+    .slice(indexOfFirstItem, indexofLastItem);
+
+  const totalPages = Math.ceil((fraudReports?.length || 0) / itemsPerPage);
+
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
       <div className="flex items-center justify-between gap-2 mb-4 w-full flex-none">
@@ -35,7 +86,8 @@ const FraudReportPage = () => {
         <GridCommonComponent
           data={currentData}
           options={options}
-          columns={fraudReportColumns}
+          columns={columns}
+          loading={isLoading}
           theme={{
             border: "border-gray-300",
             header: {
@@ -44,19 +96,19 @@ const FraudReportPage = () => {
           }}
           bulkActionsConfig={[
             {
-                  label: "Delete Ticket",
-                  iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  type: "modal_component",
-                  component: (
-                    <ActionPopup
-                      heading="Delete Fraud Ticket?"
-                      subHeading="Are you sure you want to delete this fraud ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
-                      confirmText="Confirm Delete"
-                      confirmColor="red"
-                    />
-                  ),
-                  onApply: (data) => console.log("Delete:", row, data),
-                },
+              label: "Delete Ticket",
+              iconUrl: "/assets/icon/deleteBarbershop.svg",
+              type: "modal_component",
+              component: (
+                <ActionPopup
+                  heading="Delete Fraud Ticket?"
+                  subHeading="Are you sure you want to delete this fraud ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                  confirmText="Confirm Delete"
+                  confirmColor="red"
+                />
+              ),
+              onApply: (data) => console.log("Delete:", data),
+            },
           ]}
         />
       </div>

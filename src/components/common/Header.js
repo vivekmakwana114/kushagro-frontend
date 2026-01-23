@@ -106,7 +106,8 @@ const Header = () => {
     if (pathname === "/settings") {
       breadcrumbs.push({
         href: "/settings",
-        label: "General Settings",
+        // label: "General Settings",
+        label: "Tax Commission",
       });
     }
     if (pathname === "/listing-categories") {
