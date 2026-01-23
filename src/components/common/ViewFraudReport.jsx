@@ -13,11 +13,11 @@ const ViewFraudReport = ({
   reportData,
   onClose,
   onSuspend,
-  userType = "buyer",
+  userType,
   onCancel,
   onApply,
-  id, // From grid row
-  reportId, // From grid row
+  id,
+  reportId,
   ...props
 }) => {
   const dispatch = useDispatch();
@@ -71,7 +71,6 @@ const ViewFraudReport = ({
     setSelectedImage(null);
   };
 
-
   const handleCancel = () => {
     if (onClose) {
       onClose();
@@ -83,6 +82,36 @@ const ViewFraudReport = ({
   // Capitalize first letter for display
   const userTypeCapitalized =
     userType.charAt(0).toUpperCase() + userType.slice(1);
+
+  const handleSuspend = async () => {
+    // Determine the user ID to suspend
+    // Try to get it from the full report object first
+    const targetUserId =
+      data.fullReport?.reportedId?._id ||
+      data.fullReport?.reportedId?.id ||
+      data.fullReport?.userId ||
+      data.fullReport?.reportedId; // Fallback if it's just an ID string
+
+    if (!targetUserId) {
+      toast.error("Could not identify the user to suspend.");
+      return;
+    }
+
+    try {
+      await dispatch(
+        suspendBuyer({
+          id: targetUserId,
+          data: { reason: adminNotes || "Suspended from fraud report view" },
+        }),
+      ).unwrap();
+
+      toast.success(`${userTypeCapitalized} suspended successfully`);
+      if (onSuspend) onSuspend();
+      handleCancel(); 
+    } catch (error) {
+      toast.error(error.message || `Failed to suspend ${userType}`);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto overflow-x-hidden p-2 xl:p-0 no-scrollbar">
@@ -129,6 +158,7 @@ const ViewFraudReport = ({
                   src={data.reportedBy.avatar}
                   alt={data.reportedBy.name}
                   fill
+                  unoptimized
                   sizes="40px"
                   className="object-cover"
                 />
@@ -197,6 +227,7 @@ const ViewFraudReport = ({
           </Button>
           <Button
             type="button"
+            onClick={handleSuspend}
             className="flex-1 bg-red text-white hover:bg-red/90"
           >
             Suspend {userTypeCapitalized}

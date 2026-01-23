@@ -214,6 +214,7 @@ const ClientDetails = () => {
               alt={client.name}
               width={200}
               height={250}
+              unoptimized
               className="object-cover  rounded"
             />
           </div>
