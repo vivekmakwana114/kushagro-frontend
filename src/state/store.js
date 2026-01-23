@@ -5,6 +5,8 @@ import listingReducer from "../state/listing/listingSlice";
 import sellerListingReducer from "./seller/listing/sellerListingSlice";
 import profileReducer from "./profile/profileSlice";
 import orderReducer from "./order/orderSlice";
+import supportTicketReducer from "./setting/support-ticket/supportTicketSlice";
+import fraudTicketReducer from "./setting/fraud-ticket/fraudTicketSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +16,7 @@ export const store = configureStore({
     sellerListing: sellerListingReducer,
     profile: profileReducer,
     order: orderReducer,
+    supportTicket: supportTicketReducer,
+    fraudTicket: fraudTicketReducer,
   },
 });

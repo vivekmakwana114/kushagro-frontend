@@ -67,6 +67,7 @@ const ActionPopup = ({
       selectedOptions,
       note,
     };
+
     if (onApply) onApply(data);
     else if (onConfirm) onConfirm(data);
 

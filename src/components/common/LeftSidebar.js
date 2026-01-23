@@ -111,12 +111,12 @@ const LeftSidebar = ({ onOpenChange }) => {
             <hr className="w-8 h-[0.5px] border border-[var(--border-admin)] my-1" />
 
             {leftSidebarItems
-              .slice(3, 6)
+              .slice(3, 5)
               .map((item, index) => renderMenuItem(item, index + 4))}
 
             <hr className="w-8 h-[0.5px] border border-[var(--border-admin)] my-1" />
 
-            {renderMenuItem(leftSidebarItems[6], 6)}
+            {renderMenuItem(leftSidebarItems[5], 5)}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
