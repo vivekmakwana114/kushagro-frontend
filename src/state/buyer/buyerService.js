@@ -45,3 +45,28 @@ export const reactivateBuyer = (id, data) => {
 export const sendResetLink = (id) => {
   return api.get(`/v1/users/${id}/reset/link`);
 };
+
+// Get Buyer Orders
+export const getBuyerOrders = (params) => {
+  let url = "/v1/order/allorders";
+  const searchParams = new URLSearchParams();
+
+  if (params) {
+    Object.keys(params).forEach((key) => {
+      if (
+        params[key] !== undefined &&
+        params[key] !== null &&
+        params[key] !== ""
+      ) {
+        searchParams.append(key, params[key]);
+      }
+    });
+  }
+
+  const queryString = searchParams.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+
+  return api.get(url);
+};

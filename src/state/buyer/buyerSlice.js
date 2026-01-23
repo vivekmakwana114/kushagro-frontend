@@ -58,6 +58,20 @@ export const sendResetPasswordLink = createAsyncThunk(
   },
 );
 
+// Fetch Buyer Orders
+export const fetchBuyerOrders = createAsyncThunk(
+  "buyer/fetchOrders",
+  async (params, { rejectWithValue }) => {
+    try {
+      const { getBuyerOrders } = await import("./buyerService");
+      const response = await getBuyerOrders(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
 const initialState = {
   buyers: [],
   currentBuyer: null,
@@ -66,6 +80,12 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  // Buyer Orders State
+  buyerOrders: [],
+  buyerOrdersTotalResults: 0,
+  buyerOrdersTotalPages: 1,
+  buyerOrdersLoading: false,
+  buyerOrdersError: null,
 };
 
 const buyerSlice = createSlice({
@@ -75,6 +95,7 @@ const buyerSlice = createSlice({
     clearBuyerErrors: (state) => {
       state.error = null;
       state.success = false;
+      state.buyerOrdersError = null;
     },
     clearCurrentBuyer: (state) => {
       state.currentBuyer = null;
@@ -137,6 +158,28 @@ const buyerSlice = createSlice({
           state.currentBuyer.isSuspended = false;
           state.currentBuyer.status = "active";
         }
+      })
+      // Fetch Buyer Orders
+      .addCase(fetchBuyerOrders.pending, (state) => {
+        state.buyerOrdersLoading = true;
+        state.buyerOrdersError = null;
+      })
+      .addCase(fetchBuyerOrders.fulfilled, (state, action) => {
+        state.buyerOrdersLoading = false;
+        const responseData = action.payload.data || action.payload;
+
+        if (Array.isArray(responseData)) {
+          state.buyerOrders = responseData;
+          state.buyerOrdersTotalResults = responseData.length;
+        } else {
+          state.buyerOrders = responseData.results || responseData.orders || [];
+          state.buyerOrdersTotalPages = responseData.totalPages || 1;
+          state.buyerOrdersTotalResults = responseData.totalResults || 0;
+        }
+      })
+      .addCase(fetchBuyerOrders.rejected, (state, action) => {
+        state.buyerOrdersLoading = false;
+        state.buyerOrdersError = action.payload;
       });
   },
 });
