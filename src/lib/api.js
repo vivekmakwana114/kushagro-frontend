@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const RAW_BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://api-kushagro-dev.onrender.com";
+  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/g, "");
 
 export const api = axios.create({

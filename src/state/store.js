@@ -3,6 +3,7 @@ import authReducer from "../state/auth/authSlice";
 import dashboardReducer from "../state/dashboard/dashboardSlice";
 import categoriesReducer from "../state/categories/categoriesSlice";
 import listingReducer from "../state/listing/listingSlice";
+import sellerReducer from "./seller/sellerSlice";
 import sellerListingReducer from "./seller/listing/sellerListingSlice";
 import profileReducer from "./profile/profileSlice";
 import orderReducer from "./order/orderSlice";
@@ -16,6 +17,7 @@ export const store = configureStore({
     categories: categoriesReducer,
     listing: listingReducer,
     sellerListing: sellerListingReducer,
+    seller: sellerReducer,
     profile: profileReducer,
     order: orderReducer,
     buyer: buyerReducer,
