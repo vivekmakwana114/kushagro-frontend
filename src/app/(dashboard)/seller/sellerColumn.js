@@ -1,10 +1,12 @@
 "use client";
-
-import PopupForm from "@/components/ui/popupform";
-import ViewUser from "../buyer/viewUser";
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const getSellerColumns = (handleSuspendSeller) => [
+export const getSellerColumns = ({
+  onSuspend,
+  onReset,
+  onVerify,
+  onReactivate,
+}) => [
   {
     key: "seller",
     title: "Sellers",
@@ -144,7 +146,7 @@ export const getSellerColumns = (handleSuspendSeller) => [
                   label: "View Seller",
                   iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
                 {
                   label: "Suspend Seller",
@@ -186,26 +188,23 @@ export const getSellerColumns = (handleSuspendSeller) => [
                       textareaPlaceholder="Add a Note"
                     />
                   ),
-                  onApply: (data) => handleSuspendSeller(row, data),
+                  onApply: (data) => onSuspend(row, data),
                 },
                 {
-                  label: "Mark as Verfied ID",
+                  label: "Mark as Verified ID",
                   iconUrl: "/assets/icon/markCompleted.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
+                  onClick: () => onVerify(row, "APPROVED"),
                 },
                 {
                   label: "Mark as Rejected ID",
                   iconUrl: "/assets/icon/markInactive.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
+                  onClick: () => onVerify(row, "REJECTED"),
                 },
 
                 {
                   label: "Share Reset Password Link",
                   iconUrl: "/assets/icon/lock.svg",
-                  onClick: (data) =>
-                    console.log("password Reset link send", data),
+                  onClick: (data) => onReset(row),
                 },
               ];
 
@@ -215,31 +214,17 @@ export const getSellerColumns = (handleSuspendSeller) => [
                   label: "View Seller",
                   iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
                 {
                   label: "Mark as Active",
                   iconUrl: "/assets/icon/reactivateCustomer.svg",
-                  component: (
-                    <PopupForm
-                      config={markAsActiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Activated:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  onClick: () => onVerify(row, "APPROVED"),
                 },
                 {
                   label: "Delete Seller",
                   iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={deleteSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  onClick: () => onDelete(row),
                 },
               ];
 
@@ -249,7 +234,7 @@ export const getSellerColumns = (handleSuspendSeller) => [
                   label: "View Seller",
                   iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
 
                 {
@@ -264,8 +249,7 @@ export const getSellerColumns = (handleSuspendSeller) => [
                       confirmColor="text-secondary1"
                     />
                   ),
-                  onApply: (data) =>
-                    console.log("Reactivate Seller:", row, data),
+                  onApply: (data) => onReactivate(row),
                 },
               ];
 
@@ -275,7 +259,7 @@ export const getSellerColumns = (handleSuspendSeller) => [
                   label: "View Seller",
                   iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
               ];
           }

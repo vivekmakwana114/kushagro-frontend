@@ -7,11 +7,19 @@ import ActionComponent from "@/components/grid/actionComponent";
 import Pagination from "@/components/ui/pagination";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSellers, suspendSellerAction } from "@/state/seller/sellerSlice";
+import {
+  fetchSellers,
+  suspendSellerAction,
+  resetPasswordLinkAction,
+  verifySellerAction,
+  reactivateSellerAction,
+} from "@/state/seller/sellerSlice";
+import { toast } from "sonner";
 
 import { getSellerColumns } from "./sellerColumn";
 import SellerFilterForm from "./SellerFilterForm";
 import ActionPopup from "@/components/common/ActionPopup";
+import { downloadCSV, downloadPDF } from "@/lib/downloadUtils";
 
 const options = {
   select: true,
@@ -59,7 +67,65 @@ const SellerPage = () => {
       });
   };
 
-  const sellerColumns = getSellerColumns(handleSuspendSeller);
+  const handleResetPassword = (row) => {
+    dispatch(resetPasswordLinkAction(row._id))
+      .unwrap()
+      .then(() => {
+        toast.success("Reset password link sent successfully");
+      })
+      .catch((err) => {
+        toast.error(typeof err === "string" ? err : "Failed to send link");
+      });
+  };
+
+  const handleVerifySeller = (row, status, data) => {
+    const payload = { status };
+
+    dispatch(verifySellerAction({ id: row._id, data: payload }))
+      .unwrap()
+      .then(() => {
+        toast.success(
+          `Seller ${status === "APPROVED" ? "Verified" : "Rejected"} Successfully`,
+        );
+        // Refresh data
+        dispatch(
+          fetchSellers({
+            page: currentPage,
+            limit: itemsPerPage,
+            ...filterParams,
+          }),
+        );
+      })
+      .catch((err) => {
+        toast.error(typeof err === "string" ? err : "Action failed");
+      });
+  };
+
+  const handleReactivateSeller = (row) => {
+    dispatch(reactivateSellerAction(row._id))
+      .unwrap()
+      .then(() => {
+        toast.success("Seller Reactivated Successfully");
+        // Refresh data
+        dispatch(
+          fetchSellers({
+            page: currentPage,
+            limit: itemsPerPage,
+            ...filterParams,
+          }),
+        );
+      })
+      .catch((err) => {
+        toast.error(typeof err === "string" ? err : "Reactivation failed");
+      });
+  };
+
+  const sellerColumns = getSellerColumns({
+    onSuspend: handleSuspendSeller,
+    onReset: handleResetPassword,
+    onVerify: handleVerifySeller,
+    onReactivate: handleReactivateSeller,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [filterParams, setFilterParams] = useState({});
 
@@ -125,6 +191,39 @@ const SellerPage = () => {
     );
   }, [dispatch, currentPage, filterParams]);
 
+  // Export columns definition
+  const exportColumns = [
+    { title: "Name", key: "sellerName" },
+    { title: "Email", key: "sellerEmail" },
+    { title: "Phone", key: "phone" },
+    { title: "Joined Date", key: "createdAt" },
+    { title: "Status", key: "status" },
+    { title: "Verification", key: "idStatus" },
+    { title: "Total Orders", key: "totalOrders" },
+    { title: "Earnings", key: "earnings" },
+  ];
+
+  const prepareExportData = (data) => {
+    return data.map((item) => ({
+      ...item,
+      sellerName: item.seller?.name || "N/A",
+      sellerEmail: item.seller?.email || "N/A",
+      createdAt: item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString()
+        : "N/A",
+      earnings: `$${item.earnings || 0}`,
+    }));
+  };
+
+  const handleDownload = (type, data = filteredSellers) => {
+    const exportData = prepareExportData(data);
+    if (type === "csv") {
+      downloadCSV(exportData, exportColumns, "Sellers_List");
+    } else {
+      downloadPDF(exportData, exportColumns, "Sellers_List");
+    }
+  };
+
   const downloadActions = [
     {
       header: "Download List",
@@ -139,7 +238,7 @@ const SellerPage = () => {
           height={16}
         />
       ),
-      onClick: () => console.log("Download PDF"),
+      onClick: () => handleDownload("pdf"),
     },
     {
       label: "Download CSV",
@@ -151,7 +250,7 @@ const SellerPage = () => {
           height={16}
         />
       ),
-      onClick: () => console.log("Download CSV"),
+      onClick: () => handleDownload("csv"),
     },
   ];
 
@@ -226,7 +325,7 @@ const SellerPage = () => {
                 component: (
                   <ActionPopup
                     heading="Suspend Selected Sellers?"
-                    subHeading="You are about to suspend 12 Sellers. They will lose access to all app features until reactivated. Please select a common reason for suspension."
+                    subHeading="You are about to suspend selected Sellers. They will lose access to all app features until reactivated."
                     confirmText="Confirm Suspend All"
                     confirmColor="red"
                     dropdownOptions={[
@@ -307,7 +406,7 @@ const SellerPage = () => {
                         height={16}
                       />
                     ),
-                    onClick: () => console.log("Download PDF"),
+                    onClick: (rows) => handleDownload("pdf", rows),
                   },
                   {
                     label: "Download CSV",
@@ -319,8 +418,7 @@ const SellerPage = () => {
                         height={16}
                       />
                     ),
-
-                    onClick: () => console.log("Download CSV"),
+                    onClick: (rows) => handleDownload("csv", rows),
                   },
                 ],
               },

@@ -32,3 +32,43 @@ export const getAllSellers = (params) => {
 export const suspendSeller = (id, data) => {
   return api.post(`/v1/users/${id}/suspend`, data);
 };
+
+// Get Seller Details
+export const getSellerDetails = (id) => {
+  return api.get(`/v1/users/sellerdata/${id}`);
+};
+
+// Share Reset Password Link
+export const resetPasswordLink = (id) => {
+  return api.get(`/v1/users/${id}/reset/link`);
+};
+
+// Verify/Reject Seller ID
+export const verifySeller = (id, data) => {
+  return api.patch(`/v1/dashboard/seller/verify/${id}`, data);
+};
+
+// Reactivate Seller
+export const reactivateSeller = (id) => {
+  return api.post(`/v1/users/${id}/reactivate`);
+};
+
+// Get Fraud Reports by User ID
+export const getFraudReportsByUser = (id) => {
+  return api.get(`/v1/report/user/${id}`);
+};
+
+// Get Single Fraud Report Details
+export const getFraudReportDetails = (id) => {
+  return api.get(`/v1/report/${id}`);
+};
+
+// Delete Fraud Report
+export const deleteFraudReport = (id) => {
+  return api.delete(`/v1/report/${id}`);
+};
+
+// Get Seller Reviews
+export const getSellerReviews = (id) => {
+  return api.get(`/v1/rating/seller/${id}`);
+};

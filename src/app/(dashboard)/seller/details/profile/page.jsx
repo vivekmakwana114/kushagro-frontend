@@ -1,13 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "next/navigation";
+import {
+  getSellerDetailsAction,
+  reactivateSellerAction,
+  verifySellerAction,
+  resetPasswordLinkAction,
+  fetchSellerReports,
+  deleteReportAction,
+  fetchSellerReviews,
+} from "@/state/seller/sellerSlice";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import PortfolioCards from "@/components/common/PortfolioCard";
 import { useRouter } from "next/navigation";
 import { fraudReportData } from "./fraudReportData";
-import { getFraudReportColumns } from "./farudReportColumn";
-// import PopupForm from "@/components/ui/popupform";
-// import { reactivateBuyerConfig } from "./profileConfig";
+import { getFraudReportColumns } from "./fraudReportColumn";
 import ActionPopup from "@/components/common/ActionPopup";
 import { toast } from "sonner";
 import ReviewsDrawer from "@/components/common/reviews/ReviewsDrawer";
@@ -104,11 +113,191 @@ const sellerCard = [
 
 const SellerProfilePage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const dispatch = useDispatch();
+  const { sellerDetails, sellerReports, sellerReviews, sellerReviewsStats, loading } = useSelector(
+    (state) => state.seller,
+  );
+
   const handleBack = () => router.back();
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getSellerDetailsAction(id));
+      dispatch(fetchSellerReports(id));
+      dispatch(fetchSellerReviews(id));
+    }
+  }, [dispatch, id]);
+
+  const handleReactivate = () => {
+    dispatch(reactivateSellerAction(id))
+      .unwrap()
+      .then(() => {
+        toast.success("Seller Reactivated Successfully");
+        setIsReactivateOpen(false);
+        dispatch(getSellerDetailsAction(id));
+      })
+      .catch((err) => toast.error(err || "Failed to reactivate"));
+  };
+
+  const handleVerify = () => {
+    dispatch(verifySellerAction({ id, data: { status: "APPROVED" } }))
+      .unwrap()
+      .then(() => {
+        toast.success("Seller Verified Successfully");
+        dispatch(getSellerDetailsAction(id));
+      })
+      .catch((err) => toast.error(err || "Failed to verify"));
+  };
+
+  const handleReject = (data) => {
+    // const reason = data.selectedOptions?.[0] || "Other";
+    dispatch(
+      verifySellerAction({
+        id,
+        data: { status: "REJECTED", reasons: ["Other"] },
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        toast.success("Seller Rejected Successfully");
+        setIsRejectOpen(false);
+        dispatch(getSellerDetailsAction(id));
+      })
+      .catch((err) => toast.error(err || "Failed to reject"));
+  };
+
+  const handleResetPassword = () => {
+    dispatch(resetPasswordLinkAction(id))
+      .unwrap()
+      .then(() => toast.success("Reset password link sent"))
+      .catch((err) => toast.error(err || "Failed to send link"));
+  };
+
+  const sellerData = sellerDetails?.seller || {};
+  const stats = sellerDetails?.stats || {};
+
+  // Normalize data fields
+  const displaySeller = {
+    ...sellerData,
+    image: sellerData.profile || "/CustomerImage.svg",
+    joined: sellerData.joinedAt
+      ? new Date(sellerData.joinedAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "N/A",
+    phone: sellerData.phone || sellerData.phoneNumber || "N/A",
+    status: sellerData.status || "Active",
+    verificationStatus: sellerData.verificationStatus || "Pending",
+    rating: sellerData.rating || 0,
+    reviews: sellerData.reviews || 0,
+    about: sellerData.bio || "No description provided.",
+    location: sellerData.address || "N/A",
+    idImage: sellerData.governmentId || "/assets/images/testimage.png",
+    suspensionReason: sellerData.suspensionReason || null,
+  };
+
+  const sellerCard = [
+    {
+      color: "bg-primary1",
+      head: "Total Orders",
+      total: stats.totalOrders || "0",
+      countIcon: "",
+      upCount: "8.06",
+      MainIcon: (
+        <Image
+          src="/assets/card/overview_booking.svg"
+          width={20}
+          height={20}
+          alt="Barber Shop"
+        />
+      ),
+      description: "+10 New Orders this month",
+    },
+    {
+      color: "bg-tertiary1",
+      head: "Total Products",
+      total: stats.totalProducts || "0",
+      countIcon: "8.06%",
+      upCount: "8.06",
+      MainIcon: (
+        <Image
+          src="/assets/card/overview_order.svg"
+          width={20}
+          height={20}
+          alt="Barber Shop"
+        />
+      ),
+      description: "+02 Completed Orders this month",
+    },
+    {
+      color: "bg-quaternary1",
+      head: "Total Listing",
+      total: stats.totalListings || "0",
+      countIcon: "",
+      upCount: "8.06",
+      MainIcon: (
+        <Image
+          src="/assets/card/overview_listing.svg"
+          width={20}
+          height={20}
+          alt="Barber Shop"
+        />
+      ),
+      description: "5 New Listing this month.",
+    },
+    {
+      color: "bg-quinary1",
+      head: "Total Earnings",
+      total: `$${stats.totalEarnings || 0}`,
+      countIcon: "",
+      upCount: "8.06",
+      MainIcon: (
+        <Image
+          src="/assets/card/overview_revenue.svg"
+          width={20}
+          height={20}
+          alt="Barber Shop"
+        />
+      ),
+      description: "+$189 Earn this month",
+    },
+  ];
+
+  // Map reports for grid
+  const formattedReports = (sellerReports || []).map((report) => ({
+    _id: report._id || report.id,
+    reportId: report.reportId || report._id, // Adjust based on API response
+    reportBy: {
+      name: report.reporterId?.name || "Unknown",
+      email: report.reporterId?.email || "N/A",
+      profile: report.reporterId?.profile || "/assets/icon/no_profile_icon.svg",
+    },
+    reason: report.reason
+      ? Array.isArray(report.reason)
+        ? report.reason.join(", ")
+        : report.reason
+      : "N/A",
+    report_on: report.createdAt,
+  }));
+
+  const handleDeleteReport = (reportId) => {
+    dispatch(deleteReportAction(reportId))
+      .unwrap()
+      .then(() => toast.success("Report deleted successfully"))
+      .catch((err) => toast.error(err || "Failed to delete report"));
+  };
+
+  if (loading && !sellerDetails) {
+    return <div className="p-8 text-center">Loading seller details...</div>;
+  }
 
   return (
     <div className="w-full px-4 text-sm">
@@ -137,7 +326,7 @@ const SellerProfilePage = () => {
         {/* header */}
         <div className="flex justify-between items-center border-b pb-4 mb-6">
           <h2 className="text-lg font-semibold text-[#111111]">
-            Sellers Details
+            Seller Details
           </h2>
         </div>
 
@@ -147,18 +336,20 @@ const SellerProfilePage = () => {
             <div className="flex flex-col items-center text-center">
               <div className="rounded-md overflow-hidden mb-4 p-1">
                 <Image
-                  src={seller.image}
-                  alt={seller.name}
+                  src={displaySeller.image}
+                  // alt={displaySeller.name}
+                  alt="seller photo"
                   width={180}
                   height={180}
+                  unoptimized
                   className="object-cover rounded-md"
                 />
               </div>
               <h3 className="text-xl font-bold text-[#111111] mb-1">
-                {seller.name}
+                {displaySeller.name}
               </h3>
               <p className="text-[var(--color-dull-text)] font-medium">
-                {seller.email}
+                {displaySeller.email}
               </p>
             </div>
 
@@ -169,7 +360,9 @@ const SellerProfilePage = () => {
                 <p className="text-[var(--color-dull-text)] mb-2 font-medium">
                   Phone
                 </p>
-                <p className="font-semibold text-[#111111]">{seller.phone}</p>
+                <p className="font-semibold text-[#111111]">
+                  {displaySeller.phone}
+                </p>
               </div>
 
               <div>
@@ -177,7 +370,7 @@ const SellerProfilePage = () => {
                   Status
                 </p>
                 <div className="flex justify-center">
-                  {seller.status === "Suspended" ? (
+                  {displaySeller.status === "Suspended" ? (
                     <span className="bg-[#FFF0F0] text-[#BC0D10] px-3 py-1.5 rounded text-xs font-semibold">
                       Suspended
                     </span>
@@ -193,7 +386,9 @@ const SellerProfilePage = () => {
                 <p className="text-[var(--color-dull-text)] mb-2 font-medium">
                   Joined date
                 </p>
-                <p className="font-semibold text-[#111111]">{seller.joined}</p>
+                <p className="font-semibold text-[#111111]">
+                  {displaySeller.joined}
+                </p>
               </div>
             </div>
           </div>
@@ -205,7 +400,7 @@ const SellerProfilePage = () => {
                 About Seller
               </p>
               <p className="font-semibold text-[#111111] leading-relaxed">
-                {seller.about}
+                {displaySeller.about}
               </p>
             </div>
 
@@ -213,7 +408,9 @@ const SellerProfilePage = () => {
               <p className="text-[var(--color-dull-text)] mb-2 font-medium">
                 Seller Location
               </p>
-              <p className="font-semibold text-[#111111]">{seller.location}</p>
+              <p className="font-semibold text-[#111111]">
+                {displaySeller.location}
+              </p>
             </div>
 
             <div>
@@ -226,10 +423,11 @@ const SellerProfilePage = () => {
                   onClick={() => setIsImageExpanded(true)}
                 >
                   <Image
-                    src="/assets/images/testimage.png"
+                    src={displaySeller.idImage}
                     width={200}
                     height={100}
                     alt="Seller ID"
+                    unoptimized
                     className="object-cover rounded-lg"
                   />
                 </div>
@@ -242,13 +440,13 @@ const SellerProfilePage = () => {
               </p>
               <div className="flex items-center justify-between gap-4">
                 <span className="bg-[#FFF8DD] text-primary1 px-3 py-1.5 rounded text-xs font-semibold">
-                  {seller.verificationStatus}
+                  {displaySeller.verificationStatus}
                 </span>
                 <div className="flex gap-2">
                   <button
                     className="w-8 h-8 flex items-center justify-center bg-secondary1/10 rounded hover:bg-green-100 transition-colors"
                     onClick={() => {
-                      toast.success(`${seller.name} verified successfully!`);
+                      handleVerify();
                     }}
                   >
                     <Image
@@ -260,7 +458,7 @@ const SellerProfilePage = () => {
                   </button>
                   <button
                     className="w-8 h-8 flex items-center justify-center bg-red/10 rounded hover:bg-red-100 transition-colors"
-                    onClick={() => setIsRejectOpen(true)}
+                    onClick={() => handleReject()}
                   >
                     <Image
                       src="/assets/icon/cross.svg"
@@ -281,9 +479,11 @@ const SellerProfilePage = () => {
         <h2 className="text-lg font-semibold mb-4">Fraud Report</h2>
         <div className="mt-6 mb-6">
           <GridCommonComponent
-            data={fraudReportData}
+            data={formattedReports}
             options={options}
-            columns={getFraudReportColumns().map((col) => {
+            columns={getFraudReportColumns({
+              onDelete: handleDeleteReport,
+            }).map((col) => {
               if (col.key === "actions") {
                 return {
                   ...col,
@@ -313,14 +513,14 @@ const SellerProfilePage = () => {
         <h2 className="text-dull-text mb-4">Ratings and Reviews</h2>
         <div className="flex items-center gap-4">
           <span className="text-5xl font-bold text-[#111111] w-[140px]">
-            {seller.rating}/5
+            {sellerReviewsStats?.averageRating || 0}/5
           </span>
           <div className="flex flex-col gap-1">
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => {
                 const fillPercentage = Math.min(
                   100,
-                  Math.max(0, (seller.rating - (star - 1)) * 100)
+                  Math.max(0, ((sellerReviewsStats?.averageRating || 0) - (star - 1)) * 100),
                 );
 
                 return (
@@ -330,6 +530,7 @@ const SellerProfilePage = () => {
                       width={24}
                       height={24}
                       alt="star"
+                      unoptimized
                       // empty grayscale star
                       className="absolute inset-0 grayscale opacity-30"
                     />
@@ -342,6 +543,7 @@ const SellerProfilePage = () => {
                         width={24}
                         height={24}
                         alt="star"
+                        unoptimized
                         className="min-w-[24px]"
                       />
                     </div>
@@ -355,7 +557,7 @@ const SellerProfilePage = () => {
                 className="text-secondary1 font-semibold hover:underline"
                 onClick={() => setIsReviewsOpen(true)}
               >
-                {seller.reviews} reviews
+                {sellerReviewsStats?.totalReviews || 0} reviews
               </button>
             </span>
           </div>
@@ -363,19 +565,33 @@ const SellerProfilePage = () => {
       </div>
 
       {/* Suspension Reason */}
-      {seller.suspensionReason && (
-        <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
-          <div className="rounded-md bg-gray-50 text-sm">
-            <p className="text-[var(--color-dull-text)] mb-1">
-              Suspension Reason:
-            </p>
-            <p className="font-medium">{seller.suspensionReason}</p>
+      {displaySeller.status === "Suspended" &&
+        displaySeller.suspensionReason && (
+          <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
+            <div className="rounded-md bg-gray-50 text-sm">
+              <p className="text-[var(--color-dull-text)] mb-1">
+                Suspension Reason:
+              </p>
+              <p className="font-medium">{displaySeller.suspensionReason}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Reactivate & share password reset link buttons */}
       <div className="flex gap-2 justify-end mt-2">
+        <button
+          className="flex items-center gap-2 p-2 border border-[var(--border-admin)] rounded-md bg-white hover:bg-gray-100 text-[var(--color-dull-text)]"
+          onClick={handleResetPassword}
+        >
+          <Image
+            src="/assets/icon/lock.svg"
+            alt="Reset Password"
+            width={14}
+            height={14}
+          />
+          <span className="hidden sm:inline">Share Reset Password Link</span>
+        </button>
+
         <button
           className="flex items-center gap-2 p-2 border border-[var(--border-admin)] rounded-md bg-white hover:bg-gray-100 text-[var(--color-dull-text)]"
           onClick={() => setIsReactivateOpen(true)}
@@ -401,56 +617,7 @@ const SellerProfilePage = () => {
               "including Booking appointments and making purchases.",
             ]}
             confirmText="Confirm Reactivation"
-            onApply={(data) => {
-              console.log("Reactivated:", data);
-              setIsReactivateOpen(false);
-            }}
-          />
-        )}
-
-        {isRejectOpen && (
-          <ActionPopup
-            isOpen={isRejectOpen}
-            onClose={() => setIsRejectOpen(false)}
-            onCancel={() => setIsRejectOpen(false)}
-            heading="Reject Seller Verification?"
-            subHeading="The ID document submitted by this seller will be rejected. Please select a reason so the seller is informed and can upload the correct document. The seller will be notified and asked to upload a valid ID again."
-            confirmText="Reject ID"
-            confirmColor="red"
-            dropdownLabel="Select Rejection Reason"
-            dropdownPlaceholder="Select Reason"
-            dropdownOptions={[
-              {
-                label: "Blurry or unclear ID photo",
-                value: "Blurry or unclear ID photo",
-              },
-              {
-                label: "ID does not match seller’s name",
-                value: "ID does not match seller’s name",
-              },
-              {
-                label: "Expired ID document",
-                value: "Expired ID document",
-              },
-              {
-                label: "Wrong document type uploaded",
-                value: "Wrong document type uploaded",
-              },
-              {
-                label: "Incomplete ID (front/back missing)",
-                value: "Incomplete ID (front/back missing)",
-              },
-              {
-                label: "Suspected tampering or invalid ID",
-                value: "Suspected tampering or invalid ID",
-              },
-              { label: "Other", value: "Other" },
-            ]}
-            onApply={(data) => {
-              console.log("Rejected:", data);
-              toast.error(`${seller.name} rejected.`);
-              setIsRejectOpen(false);
-            }}
+            onApply={(data) => handleReactivate()}
           />
         )}
 
@@ -469,10 +636,10 @@ const SellerProfilePage = () => {
                 className="absolute -top-10 right-0 text-white hover:text-gray-300"
               ></button>
               <Image
-                src="/assets/images/testimage.png"
+                src={displaySeller.idImage}
                 width={800}
                 height={600}
-                alt="Seller ID Full"
+                alt="Seller ID Image"
                 className="object-contain max-h-[90vh] rounded-lg"
               />
             </div>
@@ -483,7 +650,7 @@ const SellerProfilePage = () => {
         <ReviewsDrawer
           isOpen={isReviewsOpen}
           onClose={() => setIsReviewsOpen(false)}
-          reviews={reviewsData}
+          reviews={sellerReviews}
         />
       </div>
     </div>
