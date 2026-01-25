@@ -24,8 +24,6 @@ const ViewFraudReport = ({
   const { currentReport, loading } = useSelector((state) => state.fraudReport);
   const [selectedImage, setSelectedImage] = useState(null);
   const [adminNotes, setAdminNotes] = useState("");
-  const dispatch = useDispatch();
-  const { currentReport } = useSelector((state) => state.fraudTicket);
 
   const effectiveReportId =
     reportId || id || (reportData && reportData.reportId);
