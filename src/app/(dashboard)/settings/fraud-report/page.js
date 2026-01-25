@@ -21,7 +21,7 @@ const options = {
 const FraudReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
-  const { fraudReports, isLoading } = useSelector((state) => state.fraudTicket);
+  const { fraudReports, isLoading } = useSelector((state) => state.fraudReport);
 
   useEffect(() => {
     dispatch(fetchFraudReports());

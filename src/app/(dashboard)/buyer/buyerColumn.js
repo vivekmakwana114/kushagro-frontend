@@ -91,7 +91,6 @@ export const getBuyerColumns = (
       options: {
         value: {
           active: "#097416",
-          // inactive: "#9CA3AF",
           suspended: "#BC0D10",
         },
       },
