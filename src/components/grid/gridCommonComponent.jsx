@@ -63,13 +63,13 @@ const GridCommonComponent = ({
       if (isAlphaNumeric || typeof valA === "string") {
         return direction === "asc"
           ? valA.localeCompare(valB, undefined, {
-              numeric: true,
-              sensitivity: "base",
-            })
+            numeric: true,
+            sensitivity: "base",
+          })
           : valB.localeCompare(valA, undefined, {
-              numeric: true,
-              sensitivity: "base",
-            });
+            numeric: true,
+            sensitivity: "base",
+          });
       }
 
       return 0;
@@ -111,7 +111,8 @@ const GridCommonComponent = ({
 
   const renderCellContent = (column, value, row, context = {}) => {
     if (column?.render) {
-      return column?.render(value);
+      // Pass value, full row and context so custom renderers have more control
+      return column.render(value, row, context);
     }
 
     // Recent activity Component using grid
@@ -122,9 +123,8 @@ const GridCommonComponent = ({
           <img
             src={profile}
             alt="User"
-            className={`${column.component.style.radius || "rounded-full"} ${
-              column.component.style.size || "w-10 h-10"
-            } ${column.component.style.border || ""}`}
+            className={`${column.component.style.radius || "rounded-full"} ${column.component.style.size || "w-10 h-10"
+              } ${column.component.style.border || ""}`}
           />
           <div className="flex flex-col">
             <span className="text-black text-sm font-medium whitespace-normal line-clamp-2 md:line-clamp-3 lg:line-clamp-4">
@@ -264,7 +264,11 @@ const GridCommonComponent = ({
       }
     }
 
-    return value || value === 0 ? value : "-";
+    if (typeof value === "object") {
+      return JSON.stringify(value);
+    }
+
+    return value ?? "-";
   };
 
   // Desktop/Tablet Table View
@@ -272,11 +276,10 @@ const GridCommonComponent = ({
     <div className="w-full h-full flex flex-col">
       {/* Container with proper z-index management */}
       <div
-        className={`w-full h-full flex flex-col rounded-lg ${
-          theme?.border === "border-none"
+        className={`w-full h-full flex flex-col rounded-lg ${theme?.border === "border-none"
             ? "border-none"
             : `${theme?.border || "border-[var(--border-admin)]"} border`
-        } bg-white overflow-hidden`}
+          } bg-white overflow-hidden`}
         style={{ position: "relative" }}
       >
         {/* Fixed header container */}
@@ -331,14 +334,12 @@ const GridCommonComponent = ({
                     <th
                       key={index}
                       scope="col"
-                      className={`px-2 py-3 whitespace-nowrap text-xs sm:text-sm font-medium sticky top-0 z-20 ${
-                        theme?.header?.bg || "bg-gray-100"
-                      } ${
-                        column.sortable === true ||
-                        (sortable && column.sortable !== false)
+                      className={`px-2 py-3 whitespace-nowrap text-xs sm:text-sm font-medium sticky top-0 z-20 ${theme?.header?.bg || "bg-gray-100"
+                        } ${column.sortable === true ||
+                          (sortable && column.sortable !== false)
                           ? "cursor-pointer hover:bg-gray-200"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => {
                         const isColumnSortable =
                           column.sortable === true ||
@@ -350,12 +351,11 @@ const GridCommonComponent = ({
                         <span className="truncate">{column.title}</span>
                       </div> */}
                       <div
-                        className={`flex items-center justify-between w-full gap-1 ${
-                          column.sortable === true ||
-                          (sortable && column.sortable !== false)
+                        className={`flex items-center justify-between w-full gap-1 ${column.sortable === true ||
+                            (sortable && column.sortable !== false)
                             ? "cursor-pointer select-none"
                             : ""
-                        }`}
+                          }`}
                         onClick={() => {
                           const isColumnSortable =
                             column.sortable === true ||
@@ -367,21 +367,20 @@ const GridCommonComponent = ({
 
                         {(column.sortable === true ||
                           (sortable && column.sortable !== false)) && (
-                          <div className="flex flex-col justify-end ml-1">
-                            <Image
-                              src="/assets/icon/grid_sort_icon.svg"
-                              alt="sorting icon"
-                              width={18}
-                              height={20}
-                              className={`${
-                                sortConfig.key === column.key &&
-                                sortConfig.direction === "asc"
-                                  ? "text-secondary1"
-                                  : "text-gray-400"
-                              }`}
-                            />
-                          </div>
-                        )}
+                            <div className="flex flex-col justify-end ml-1">
+                              <Image
+                                src="/assets/icon/grid_sort_icon.svg"
+                                alt="sorting icon"
+                                width={18}
+                                height={20}
+                                className={`${sortConfig.key === column.key &&
+                                    sortConfig.direction === "asc"
+                                    ? "text-secondary1"
+                                    : "text-gray-400"
+                                  }`}
+                              />
+                            </div>
+                          )}
                       </div>
                     </th>
                   ))}
@@ -403,13 +402,11 @@ const GridCommonComponent = ({
                 {sortedData.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}
-                    className={`${
-                      theme?.border === "border-none" ? "" : "border-b"
-                    } hover:bg-gray-50 transition-colors h-16 ${
-                      selectedRows.includes(rowIndex)
+                    className={`${theme?.border === "border-none" ? "" : "border-b"
+                      } hover:bg-gray-50 transition-colors h-16 ${selectedRows.includes(rowIndex)
                         ? "bg-gray-100"
                         : "bg-white"
-                    }`}
+                      }`}
                   >
                     {select && (
                       <td
@@ -485,13 +482,11 @@ const GridCommonComponent = ({
         return (
           <div
             key={rowIndex}
-            className={`bg-white rounded-lg border ${
-              theme?.border || "border-gray-200"
-            }  shadow-sm ${
-              selectedRows.includes(rowIndex)
+            className={`bg-white rounded-lg border ${theme?.border || "border-gray-200"
+              }  shadow-sm ${selectedRows.includes(rowIndex)
                 ? "ring-2 ring-indigo-500 ring-opacity-50"
                 : ""
-            }`}
+              }`}
           >
             {/* Card Header */}
             <div className="p-3 sm:p-4 flex items-center justify-between">
@@ -542,7 +537,7 @@ const GridCommonComponent = ({
                     .length === 0
                     ? "hidden"
                     : ""
-                }`}
+                  }`}
                 aria-label={isExpanded ? "Collapse" : "Expand"}
               >
                 {isExpanded ? (
@@ -592,33 +587,29 @@ const GridCommonComponent = ({
                       return (
                         <div
                           key={colIndex}
-                          className={`${
-                            isStacked
+                          className={`${isStacked
                               ? "flex flex-col items-start py-2" // Stacked layout
                               : "flex justify-between items-center py-1 sm:py-2" // Default layout
-                          } border-b border-gray-200 last:border-b-0 min-h-[2rem]
+                            } border-b border-gray-200 last:border-b-0 min-h-[2rem]
                         ${column.component?.style?.text}`}
                         >
                           <span
-                            className={`text-xs sm:text-sm font-medium text-gray-600 flex-shrink-0 ${
-                              isStacked ? "mb-1 w-full" : "w-24 sm:w-32"
-                            }`}
+                            className={`text-xs sm:text-sm font-medium text-gray-600 flex-shrink-0 ${isStacked ? "mb-1 w-full" : "w-24 sm:w-32"
+                              }`}
                           >
                             {column.title}
                           </span>
                           <div
-                            className={`text-xs sm:text-sm text-gray-900 ${
-                              isStacked
+                            className={`text-xs sm:text-sm text-gray-900 ${isStacked
                                 ? "w-full text-left"
                                 : "text-right flex-1 min-w-0 ml-2"
-                            }`}
+                              }`}
                           >
                             <div
-                              className={`flex ${
-                                isStacked
+                              className={`flex ${isStacked
                                   ? "items-start w-full"
                                   : "items-center justify-end w-full"
-                              }`}
+                                }`}
                             >
                               {renderCellContent(
                                 column,

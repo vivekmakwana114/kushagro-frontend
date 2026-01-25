@@ -12,7 +12,6 @@ import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import Pagination from "@/components/ui/pagination";
 import ActionPopup from "@/components/common/ActionPopup";
 import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
-import Link from "next/link";
 import OrderPDFDocument from "./OrderPDFDocument";
 import OrderInvoicePDF from "./OrderInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
@@ -30,6 +29,25 @@ const options = {
   select: true,
   order: false,
   sortable: true,
+};
+
+const normalizePaymentStatus = (order) => {
+  const raw = (order.paymentStatus || order.payments?.[0]?.status || "")
+    .toString()
+    .toLowerCase();
+
+  if (["payment success", "paid", "success"].includes(raw)) return "paid";
+  if (["refund initiated", "refunded initiated", "refunded"].includes(raw))
+    return "refunded";
+  if (["processing"].includes(raw)) return "processing";
+  return "pending";
+};
+
+const normalizeStatus = (status) => {
+  const raw = (status || "").toString().toLowerCase();
+  if (["complete", "completed", "done"].includes(raw)) return "complete";
+  if (["cancelled", "canceled"].includes(raw)) return "cancelled";
+  return "ongoing";
 };
 
 const OrderPage = () => {
@@ -89,69 +107,92 @@ const OrderPage = () => {
     setCurrentPage(1);
   };
 
-  const formattedOrders = (orders || []).map((order) => {
-    const rawPaymentStatus =
-      order.paymentStatus?.toLowerCase() ||
-      order.payments?.[0]?.status?.toLowerCase() ||
-      "";
-    let paymentStatus = "pending";
+  const extractValue = (val) => {
+    if (val === null || val === undefined) return "";
 
-    if (["payment success", "paid"].includes(rawPaymentStatus)) {
-      paymentStatus = "paid";
-    } else if (
-      ["refund initiated", "refunded initiated", "processing"].includes(
-        rawPaymentStatus,
-      )
-    ) {
-      paymentStatus = "processing";
-    } else {
-      paymentStatus = rawPaymentStatus || "pending";
+    // Recursive extraction for nested objects
+    if (typeof val === "object") {
+      // Check if it's the specific wrapper object
+      if ("value" in val) {
+        return extractValue(val.value);
+      }
+      return val;
     }
 
-    const currentStatus = order.status?.toLowerCase() || "ongoing";
+    return val;
+  };
+
+  const formattedOrders = (orders || []).map((order) => {
+    Object.entries(order).forEach(([k, v]) => {
+      if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+        console.log("OBJECT FIELD:", k, v);
+      }
+    });
+
+    const paymentStatus = normalizePaymentStatus(order);
+    const status = normalizeStatus(order.status);
+    const orderIdValue = order.orderId || order.orderNumber || order._id || "";
+    const isFlagged = order.isFlagged || false;
 
     return {
       ...order,
-      orderId: {
-        value:  order.orderNumber || order.orderId ,
-        isFlagged: order.isFlagged,
-      },
+      // keep orderId as a primitive value for the grid
+      orderId:
+        orderIdValue !== undefined && orderIdValue !== null
+          ? String(extractValue(orderIdValue))
+          : "N/A",
+      // expose flag state at row level
+      isFlagged: Boolean(isFlagged),
       product: {
-        name: order.product?.name || "N/A",
-        // API product.category is string, falling back to old structure if needed
-        category: order.product?.category || order.category?.name || "N/A",
-        // API product.image is string, old was product.images array
-        profile: order.product?.image || order.product?.images?.[0] || "",
+        name: extractValue(order.product?.name) || "N/A",
+        category:
+          extractValue(order.category?.name) ||
+          extractValue(order.product?.category) ||
+          extractValue(order.category) ||
+          "N/A",
+        profile:
+          extractValue(order.product?.image) ||
+          extractValue(order.product?.images?.[0]) ||
+          extractValue(order.product?.profile) ||
+          "",
       },
       buyer: {
-        name: order.buyer?.name || "N/A",
-        email: order.buyer?.email || "",
-        profile: order.buyer?.profile || "",
+        name: extractValue(order.buyer?.name) || "N/A",
+        email: extractValue(order.buyer?.email) || "",
+        profile: extractValue(order.buyer?.profile) || "",
       },
       seller: {
-        name: order.seller?.name || "N/A",
-        email: order.seller?.email || "",
-        profile: order.seller?.profile || "",
+        name: extractValue(order.seller?.name) || "N/A",
+        email: extractValue(order.seller?.email) || "",
+        profile: extractValue(order.seller?.profile) || "",
       },
-      date_time: order.date || order.createdAt,
-      amount: order.amount ?? order.totalAmount,
+      date_time: extractValue(order.createdAt) || extractValue(order.date),
+      amount:
+        extractValue(order.totalAmount) ?? extractValue(order.amount) ?? 0,
       payment_status: paymentStatus,
-      status:
-        paymentStatus === "processing"
-          ? "cancelled"
-          : currentStatus === "pending"
-            ? "ongoing"
-            : currentStatus,
+      status: status,
     };
   });
 
   // Client-Side Filtering
   const filteredOrders = formattedOrders.filter((order) => {
+    Object.entries(order).forEach(([k, v]) => {
+      if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+        console.log("OBJECT FIELD:", k, v);
+      }
+    });
+
     if (!searchTerm) return true;
     const lowerSearch = searchTerm.toLowerCase();
+    const orderIdValue =
+      order.orderId?.value ||
+      order.orderNumber ||
+      order.orderId ||
+      order._id ||
+      "";
 
     // Check relevant fields
-    const orderIdMatch = order.orderNumber
+    const orderIdMatch = orderIdValue
       ?.toString()
       ?.toLowerCase()
       .includes(lowerSearch);
@@ -164,7 +205,10 @@ const OrderPage = () => {
     const sellerNameMatch = order.seller?.name
       ?.toLowerCase()
       .includes(lowerSearch);
-    const statusMatch = order.status?.toLowerCase().includes(lowerSearch);
+    const statusMatch = order.status
+      ?.toString()
+      .toLowerCase()
+      .includes(lowerSearch);
 
     return (
       orderIdMatch ||
@@ -349,7 +393,7 @@ const OrderPage = () => {
     ];
 
     const rowsData = dataToExport.map((order) => [
-      order.orderId?.value || order.orderNumber,
+      order.orderId || order.orderNumber,
       order.product?.name,
       order.product?.category,
       order.buyer?.name,
