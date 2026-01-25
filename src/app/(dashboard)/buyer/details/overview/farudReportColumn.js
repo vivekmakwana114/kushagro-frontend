@@ -1,7 +1,8 @@
 "use client";
 import ViewFraudReport from "@/components/common/ViewFraudReport";
+import ActionPopup from "@/components/common/ActionPopup";
 
-export const getFraudReportColumns = () => [
+export const getFraudReportColumns = ({ onDelete } = {}) => [
   {
     key: "reportId",
     title: "Report ID",
@@ -42,7 +43,7 @@ export const getFraudReportColumns = () => [
     },
   },
   {
-    key: "report_on",
+    key: "reportOn",
     title: "Report On",
     component: {
       type: "date",
@@ -62,18 +63,23 @@ export const getFraudReportColumns = () => [
       type: "action",
       style: {},
       options: {
-        actions: () => {
+        actions: (row) => {
           return [
             {
               label: "View Report",
               iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
-              component: <ViewFraudReport userType="buyer" />,
+              component: (
+                <ViewFraudReport
+                  userType="buyer"
+                  reportId={row.id || row.reportId}
+                />
+              ),
             },
             {
               label: "Delete Report",
               iconUrl: "/assets/icon/deleteBarbershop.svg",
-              // component:
+              onClick: () => onDelete && onDelete(row.id || row.reportId),
             },
           ];
         },

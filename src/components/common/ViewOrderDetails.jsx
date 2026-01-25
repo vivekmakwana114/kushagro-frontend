@@ -10,14 +10,9 @@ import { Download, X } from "lucide-react";
 import OrderInvoicePDF from "@/app/(dashboard)/order/OrderInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
 
-const ViewOrderDetails = ({
-  orderData,
-  module = "buyer",
-  onClose,
-  orderId,
-}) => {
+const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
   const invoiceRef = useRef(null);
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
 
   // Mock data for demonstration
   const defaultData = {
@@ -59,7 +54,7 @@ const ViewOrderDetails = ({
   const mapOrderToViewData = (apiData) => {
     const order = apiData || {};
     return {
-      orderId: order.orderNumber || "N/A",
+      orderId: order.orderNumber || order.orderId || "N/A",
       totalAmount: order.totalAmount ? `$${order.totalAmount}` : "N/A",
       transactionId: order.payments?.[0]?.transactionId || "N/A",
       date: order.createdAt
@@ -74,10 +69,10 @@ const ViewOrderDetails = ({
       cancellationReason: order.cancelReason || "",
       product: {
         name: order.product?.name || "N/A",
-        category: order.category?.name || "N/A",
-        image: order.product?.images?.[0] || "",
+        category: order.category?.name || order.category || "N/A",
+        image: order.product?.images?.[0] || order.product?.image || "",
         quantity: order.quantity
-          ? `${order.quantity} ${order.product?.extraFields?.unit || "Unit"}`
+          ? `${order.quantity} ${order.unit || order.product?.extraFields?.unit || "Unit"}`
           : "N/A",
         price: order.price ? `$${order.price}` : "N/A",
         subtotal: order.subTotal ? `$${order.subTotal}` : "N/A",
@@ -104,7 +99,8 @@ const ViewOrderDetails = ({
           : order.totalAmount
             ? `$${order.totalAmount}`
             : "N/A",
-        paymentStatus: order.payments?.[0]?.status || "N/A",
+        paymentStatus:
+          order.paymentStatus || order.payments?.[0]?.status || "N/A",
       },
     };
   };
@@ -117,13 +113,14 @@ const ViewOrderDetails = ({
       if (orderId && !orderData) {
         setLoading(true);
         try {
-          const response = await dispatch(fetchOrderById(orderId));
+          // Use .unwrap() to get the actual payload from the action
+          const response = await dispatch(fetchOrderById(orderId)).unwrap();
           console.log("Order details response:", response);
-          if (response.data && response.data.data) {
-            setFetchedOrder(mapOrderToViewData(response.data.data));
-          } else if (response.data) {
-            // Fallback if structure is different
+          if (response.data) {
             setFetchedOrder(mapOrderToViewData(response.data));
+          } else {
+            // Fallback if data is at root
+            setFetchedOrder(mapOrderToViewData(response));
           }
         } catch (error) {
           console.error("Failed to fetch order details:", error);
@@ -146,7 +143,6 @@ const ViewOrderDetails = ({
       </div>
     );
   }
-
 
   const handleDownloadInvoice = async () => {
     try {

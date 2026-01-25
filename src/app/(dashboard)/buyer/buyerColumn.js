@@ -1,8 +1,10 @@
-"use client";
-
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const getBuyerColumns = () => [
+export const getBuyerColumns = (
+  handleSuspend,
+  handleReactivate,
+  handleResetLink,
+) => [
   {
     key: "buyer",
     title: "Buyers",
@@ -110,7 +112,7 @@ export const getBuyerColumns = () => [
                 label: "View Buyer",
                 iconUrl: "/assets/icon/View.svg",
                 type: "navigate",
-                url: "/buyer/details/overview/",
+                url: `/buyer/details/overview/?id=${row._id || row.id}`,
               },
               {
                 label: "Reactivate Buyer",
@@ -124,7 +126,9 @@ export const getBuyerColumns = () => [
                     confirmColor="text-secondary1"
                   />
                 ),
-                onApply: (data) => console.log("Reactivate Buyer:", row, data),
+                onApply: (data) => {
+                  if (handleReactivate) handleReactivate(row, data);
+                },
               },
             ];
           }
@@ -134,7 +138,7 @@ export const getBuyerColumns = () => [
               label: "View Buyer",
               iconUrl: "/assets/icon/View.svg",
               type: "navigate",
-              url: "/buyer/details/overview/",
+              url: `/buyer/details/overview?id=${row._id || row.id}`,
             },
             {
               label: "Suspend Buyer",
@@ -173,13 +177,17 @@ export const getBuyerColumns = () => [
                   textareaPlaceholder="Add a Note"
                 />
               ),
-              onApply: (data) => console.log("Suspend Buyer:", row, data),
+              onApply: (data) => {
+                if (handleSuspend) handleSuspend(row, data);
+              },
             },
-
             {
               label: "Share Reset Password Link",
               iconUrl: "/assets/icon/lock.svg",
-              onClick: (data) => console.log("password Reset link send", data),
+              onClick: () => {
+                if (handleResetLink) handleResetLink(row);
+                console.log("password Reset link send", row);
+              },
             },
           ];
         },

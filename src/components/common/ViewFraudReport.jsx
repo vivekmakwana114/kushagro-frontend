@@ -1,13 +1,13 @@
-"use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "@/components/form-elements/Header";
 import TextArea from "@/components/form-elements/TextArea";
 import { Button } from "@/components/ui/button";
 import ImageZoomModal from "@/components/common/ImageZoomModal";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFraudReportById } from "@/state/setting/fraud-ticket/fraudTicketSlice";
-import { useEffect } from "react";
+import { fetchFraudReportById } from "@/state/fraudReport/fraudReportSlice";
+import { suspendBuyer } from "@/state/buyer/buyerSlice";
+import { toast } from "sonner";
 
 const ViewFraudReport = ({
   reportData,
@@ -16,43 +16,54 @@ const ViewFraudReport = ({
   userType,
   onCancel,
   onApply,
+  id,
+  reportId,
+  ...props
 }) => {
+  const dispatch = useDispatch();
+  const { currentReport, loading } = useSelector((state) => state.fraudReport);
   const [selectedImage, setSelectedImage] = useState(null);
   const [adminNotes, setAdminNotes] = useState("");
   const dispatch = useDispatch();
   const { currentReport } = useSelector((state) => state.fraudTicket);
 
+  const effectiveReportId =
+    reportId || id || (reportData && reportData.reportId);
+
   useEffect(() => {
-    if (reportData?.reportId) {
-      dispatch(fetchFraudReportById(reportData.reportId));
+    if (effectiveReportId && !reportData) {
+      dispatch(fetchFraudReportById(effectiveReportId));
     }
-  }, [dispatch, reportData?.reportId]);
+  }, [dispatch, effectiveReportId, reportData]);
 
-  // Merge passed data with fetched data, preferring fetched data
-  const fetchedData = currentReport
-    ? {
-        ...currentReport,
-        reportId: currentReport._id || currentReport.id,
-        date: currentReport.createdAt,
-        reportedBy: currentReport.reporterId,
-        notes:
-          currentReport.reason && Array.isArray(currentReport.reason)
-            ? currentReport.reason[0]
-            : currentReport.reason,
-        evidence: currentReport.image || currentReport.evidence,
-      }
-    : null;
+  // Determine data source
+  let data = null;
 
-  const data = fetchedData || reportData || {};
+  if (reportData) {
+    data = reportData;
+  } else if (currentReport) {
+    data = {
+      reportId: currentReport.id || currentReport.reportId || "N/A",
+      date: currentReport.createdAt
+        ? new Date(currentReport.createdAt).toLocaleDateString()
+        : "N/A",
+      reportedBy: {
+        name: currentReport.reporterId?.name || "N/A",
+        email: currentReport.reporterId?.email || "N/A",
+        avatar:
+          currentReport.reporterId?.profile || "/assets/images/placeholder.png",
+      },
+      notes: Array.isArray(currentReport.reason)
+        ? currentReport.reason.join(", ")
+        : currentReport.reason || "N/A",
+      evidence: currentReport.image || "/assets/images/placeholder.png",
+      fullReport: currentReport,
+    };
+  }
 
-  // For display, use date formatting
-  const displayDate = data.date
-    ? new Date(data.date).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "N/A";
+  if (!data) {
+    return <div className="p-4 text-center">Loading report details...</div>;
+  }
 
   const handleImageClick = () => {
     if (data.evidence) {
@@ -62,21 +73,6 @@ const ViewFraudReport = ({
 
   const handleCloseModal = () => {
     setSelectedImage(null);
-  };
-
-  const handleSuspend = () => {
-    const payload = {
-      reportId: data.reportId,
-      adminNotes,
-    };
-
-    console.log("Form Submitted - Full Data:", payload);
-
-    if (onSuspend) {
-      onSuspend(payload);
-    } else if (onApply) {
-      onApply(payload);
-    }
   };
 
   const handleCancel = () => {
@@ -91,6 +87,36 @@ const ViewFraudReport = ({
   const userTypeCapitalized = userType
     ? userType.charAt(0).toUpperCase() + userType.slice(1)
     : "";
+
+  const handleSuspend = async () => {
+    // Determine the user ID to suspend
+    // Try to get it from the full report object first
+    const targetUserId =
+      data.fullReport?.reportedId?._id ||
+      data.fullReport?.reportedId?.id ||
+      data.fullReport?.userId ||
+      data.fullReport?.reportedId; // Fallback if it's just an ID string
+
+    if (!targetUserId) {
+      toast.error("Could not identify the user to suspend.");
+      return;
+    }
+
+    try {
+      await dispatch(
+        suspendBuyer({
+          id: targetUserId,
+          data: { reason: adminNotes || "Suspended from fraud report view" },
+        }),
+      ).unwrap();
+
+      toast.success(`${userTypeCapitalized} suspended successfully`);
+      if (onSuspend) onSuspend();
+      handleCancel(); 
+    } catch (error) {
+      toast.error(error.message || `Failed to suspend ${userType}`);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto overflow-x-hidden p-2 xl:p-0 no-scrollbar">
@@ -140,6 +166,7 @@ const ViewFraudReport = ({
                   }
                   alt={data.reportedBy?.name || "User"}
                   fill
+                  unoptimized
                   sizes="40px"
                   className="object-cover"
                 />
