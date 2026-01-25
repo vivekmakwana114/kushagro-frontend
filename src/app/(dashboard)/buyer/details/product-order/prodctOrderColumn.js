@@ -1,11 +1,15 @@
 "use client";
-
-import ViewUser from "../../viewUser";
 import ViewOrderDetails from "@/components/common/ViewOrderDetails";
 import ActionPopup from "@/components/common/ActionPopup";
 import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
 
-export const getProductOrderColumns = (handleCancelBooking) => [
+export const getProductOrderColumns = (
+  handleCancelBooking,
+  handleFlagOrder,
+  handleInvoiceDownload,
+  handleRefund,
+  handleMarkAsComplete,
+) => [
   {
     key: "product_order_id",
     title: "Order ID",
@@ -95,7 +99,6 @@ export const getProductOrderColumns = (handleCancelBooking) => [
         value: {
           complete: "#2E5B20", // Green
           cancelled: "#EF4444", // Red
-          // upcoming: "#6C63FF", // indigo
           ongoing: "#7D7D7D", //Gray
         },
       },
@@ -115,13 +118,15 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails />,
+                  component: (
+                    <ViewOrderDetails module="buyer" orderId={row._id} />
+                  ),
                 },
                 {
                   label: "Mark As Complete",
                   iconUrl: "/assets/icon/markCompleted.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
+                  onClick: () =>
+                    handleMarkAsComplete && handleMarkAsComplete(row),
                 },
                 {
                   label: "Flag Order",
@@ -156,12 +161,14 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                       textareaPlaceholder="Add a Note"
                     />
                   ),
-                  onApply: (data) => console.log("Flag Order:", row, data),
+                  onApply: (data) =>
+                    handleFlagOrder && handleFlagOrder(row, data),
                 },
                 {
                   label: "Download Invoice",
                   iconUrl: "/assets/icon/downloadGray.svg",
-                  onClick: (data) => console.log("Download invoice:", data),
+                  onClick: () =>
+                    handleInvoiceDownload && handleInvoiceDownload(row),
                 },
                 {
                   label: "Cancel Order",
@@ -188,7 +195,8 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                       textareaPlaceholder="Add a Note"
                     />
                   ),
-                  onApply: (data) => console.log("Cancel Order:", row, data),
+                  onApply: (data) =>
+                    handleCancelBooking && handleCancelBooking(row, data),
                 },
               ];
 
@@ -198,12 +206,15 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails module="buyer" />,
+                  component: (
+                    <ViewOrderDetails module="buyer" orderId={row._id} />
+                  ),
                 },
                 {
                   label: "Download Invoice",
                   iconUrl: "/assets/icon/downloadGray.svg",
-                  onClick: (data) => console.log("Download invoice:", data),
+                  onClick: () =>
+                    handleInvoiceDownload && handleInvoiceDownload(row),
                 },
               ];
 
@@ -213,12 +224,15 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails module="buyer" />,
+                  component: (
+                    <ViewOrderDetails module="buyer" orderId={row._id} />
+                  ),
                 },
                 {
                   label: "Download Invoice",
                   iconUrl: "/assets/icon/downloadGray.svg",
-                  onClick: (data) => console.log("Download invoice:", data),
+                  onClick: () =>
+                    handleInvoiceDownload && handleInvoiceDownload(row),
                 },
                 {
                   label: "Initiate Refund",
@@ -228,8 +242,7 @@ export const getProductOrderColumns = (handleCancelBooking) => [
                     color: "#BC0D10",
                   },
                   component: <InitiateRefundPopup />,
-                  onApply: (data) =>
-                    console.log("Refund Initiated:", row, data),
+                  onApply: (data) => handleRefund && handleRefund(row, data),
                 },
               ];
 

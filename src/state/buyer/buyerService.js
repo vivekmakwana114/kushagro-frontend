@@ -47,26 +47,26 @@ export const sendResetLink = (id) => {
 };
 
 // Get Buyer Orders
-export const getBuyerOrders = (params) => {
-  let url = "/v1/order/allorders";
-  const searchParams = new URLSearchParams();
+export const getBuyerOrders = (id) => {
+  return api.get(`/v1/order/buyer/${id}`);
+};
 
-  if (params) {
-    Object.keys(params).forEach((key) => {
-      if (
-        params[key] !== undefined &&
-        params[key] !== null &&
-        params[key] !== ""
-      ) {
-        searchParams.append(key, params[key]);
-      }
-    });
-  }
+// Flag order
+export const flagOrder = (data) => {
+  return api.patch("/v1/order/markflag", data);
+};
 
-  const queryString = searchParams.toString();
-  if (queryString) {
-    url += `?${queryString}`;
-  }
+// Cancel order
+export const cancelOrder = (data) => {
+  return api.patch("/v1/order/cancel", data);
+};
 
-  return api.get(url);
+// Update order status
+export const updateOrderStatus = (data) => {
+  return api.patch("/v1/order/update", data);
+};
+
+// Initiate refund
+export const initiateRefund = (data) => {
+  return api.post("/v1/payment/refund/buyer", data);
 };
