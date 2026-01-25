@@ -3,7 +3,7 @@
 import ViewFraudReport from "@/components/common/ViewFraudReport";
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const fraudReportColumns = [
+export const getFraudReportColumns = ({ onDelete }) => [
   {
     key: "report_id",
     title: "Report ID",
@@ -93,7 +93,17 @@ export const fraudReportColumns = [
               label: "View Report",
               iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
-              component: <ViewFraudReport userType="seller" />,
+              component: (
+                <ViewFraudReport
+                  userType="seller"
+                  reportData={{
+                    ...row,
+                    reportedBy: row.reported_by,
+                    date: row.reported_on,
+                    reportId: row.report_id,
+                  }}
+                />
+              ),
             },
             {
               label: "Delete Report",
@@ -107,7 +117,7 @@ export const fraudReportColumns = [
                   confirmColor="red"
                 />
               ),
-              onApply: (data) => console.log("Delete:", row, data),
+              onApply: () => onDelete(row._id || row.id),
             },
           ];
         },

@@ -5,7 +5,7 @@ import ViewUser from "../../buyer/viewUser";
 
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const supportTicketColumns = [
+export const getSupportTicketColumns = ({ onDelete, onStatusUpdate }) => [
   {
     key: "ticket_id",
     title: "Ticket ID",
@@ -92,19 +92,23 @@ export const supportTicketColumns = [
       options: {
         actions: (row) => {
           // row.status determines which actions to show
+          const commonActions = [
+            {
+              label: "View Details",
+              iconUrl: "/assets/icon/View.svg",
+              type: "sidebar",
+              component: <ViewSupportTicket />, // ViewSupportTicket handles its own updates now
+            },
+          ];
+
           if (row.status === "open") {
             return [
-              {
-                label: "View Details",
-                iconUrl: "/assets/icon/View.svg",
-                type: "sidebar",
-                component: <ViewSupportTicket />,
-              },
+              ...commonActions,
               {
                 label: "Mark as In Process",
                 iconUrl: "/assets/icon/markCompleted.svg",
-                type: "popUp",
-                component: <ViewUser />,
+               
+                onClick: () => onStatusUpdate(row._id || row.id, "inprocess"),
               },
               {
                 label: "Delete Ticket",
@@ -118,24 +122,19 @@ export const supportTicketColumns = [
                     confirmColor="red"
                   />
                 ),
-                onApply: (data) => console.log("Delete:", row, data),
+                onApply: () => onDelete(row._id || row.id),
               },
             ];
           }
 
           if (row.status === "inprocess") {
             return [
+              ...commonActions,
               {
-                label: "View Details",
-                iconUrl: "/assets/icon/View.svg",
-                type: "sidebar",
-                component: <ViewSupportTicket />,
-              },
-              {
-                label: "Mark as In Done",
+                label: "Mark as Done",
                 iconUrl: "/assets/icon/markCompleted.svg",
-                type: "popUp",
-                component: <ViewUser />,
+                
+                onClick: () => onStatusUpdate(row._id || row.id, "done"),
               },
               {
                 label: "Delete Ticket",
@@ -149,45 +148,28 @@ export const supportTicketColumns = [
                     confirmColor="red"
                   />
                 ),
-                onApply: (data) => console.log("Delete:", row, data),
+                onApply: () => onDelete(row._id || row.id),
               },
             ];
           }
 
-          // default actions for other statuses
+          // default actions for other statuses (e.g. closed)
           return [
+            ...commonActions,
             {
-              label: "View Details",
-              iconUrl: "/assets/icon/View.svg",
-              type: "sidebar",
-              component: <ViewSupportTicket />,
+              label: "Delete Ticket",
+              iconUrl: "/assets/icon/deleteBarbershop.svg",
+              type: "modal_component",
+              component: (
+                <ActionPopup
+                  heading="Delete Support Ticket?"
+                  subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                  confirmText="Delete Ticket"
+                  confirmColor="red"
+                />
+              ),
+              onApply: () => onDelete(row._id || row.id),
             },
-            {
-              label: "Mark as In Process",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
-            {
-              label: "Mark as Done",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
-            {
-                label: "Delete Ticket",
-                iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "modal_component",
-                component: (
-                  <ActionPopup
-                    heading="Delete Support Ticket?"
-                    subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
-                    confirmText="Delete Ticket"
-                    confirmColor="red"
-                  />
-                ),
-                onApply: (data) => console.log("Delete:", row, data),
-              },
           ];
         },
       },
