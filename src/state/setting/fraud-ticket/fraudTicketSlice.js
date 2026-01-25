@@ -32,7 +32,7 @@ export const fetchFraudReportById = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const response = await getFraudReportById(id);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
