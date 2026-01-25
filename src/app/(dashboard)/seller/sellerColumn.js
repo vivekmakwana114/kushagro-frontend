@@ -4,7 +4,7 @@ import PopupForm from "@/components/ui/popupform";
 import ViewUser from "../buyer/viewUser";
 import ActionPopup from "@/components/common/ActionPopup";
 
-export const getSellerColumns = () => [
+export const getSellerColumns = (handleSuspendSeller) => [
   {
     key: "seller",
     title: "Sellers",
@@ -35,7 +35,7 @@ export const getSellerColumns = () => [
     },
   },
   {
-    key: "joined_on",
+    key: "createdAt",
     title: "Joined On",
     sortable: true,
     component: {
@@ -50,7 +50,7 @@ export const getSellerColumns = () => [
     },
   },
   {
-    key: "total_listing",
+    key: "totalListings",
     title: "Total Listings",
     sortable: true,
     component: {
@@ -62,7 +62,7 @@ export const getSellerColumns = () => [
     },
   },
   {
-    key: "total_order",
+    key: "totalOrders",
     title: "Total Orders",
     sortable: true,
     component: {
@@ -75,7 +75,7 @@ export const getSellerColumns = () => [
   },
 
   {
-    key: "total_earning",
+    key: "earnings",
     title: "Earning",
     sortable: true,
     component: {
@@ -91,7 +91,7 @@ export const getSellerColumns = () => [
   },
 
   {
-    key: "id_status",
+    key: "idStatus",
     title: "ID Status",
     sortable: true,
     component: {
@@ -138,7 +138,7 @@ export const getSellerColumns = () => [
       options: {
         actions: (row) => {
           switch (row.status) {
-            case "active":
+            case "Active":
               return [
                 {
                   label: "View Seller",
@@ -186,7 +186,7 @@ export const getSellerColumns = () => [
                       textareaPlaceholder="Add a Note"
                     />
                   ),
-                  onApply: (data) => console.log("Suspend Buyer:", row, data),
+                  onApply: (data) => handleSuspendSeller(row, data),
                 },
                 {
                   label: "Mark as Verfied ID",
@@ -209,7 +209,7 @@ export const getSellerColumns = () => [
                 },
               ];
 
-            case "inactive":
+            case "Inactive":
               return [
                 {
                   label: "View Seller",
@@ -243,7 +243,7 @@ export const getSellerColumns = () => [
                 },
               ];
 
-            case "suspended":
+            case "Suspended":
               return [
                 {
                   label: "View Seller",
@@ -252,20 +252,21 @@ export const getSellerColumns = () => [
                   url: "/seller/details/profile/",
                 },
 
-{
-                label: "Reactivate Seller",
-                iconUrl: "/assets/icon/reactivateCustomer.svg",
-                type: "modal_component",
-                component: (
-                  <ActionPopup
-                    heading="Reactivate Seller?"
-                    subHeading="Are you sure you want to reactivate this Seller’s account? Once reactivated, Seller will regain full access to Ksa, including booking appointments and making purchases."
-                    confirmText="Confirm Reactivation"
-                    confirmColor="text-secondary1"
-                  />
-                ),
-                onApply: (data) => console.log("Reactivate Seller:", row, data),
-              },
+                {
+                  label: "Reactivate Seller",
+                  iconUrl: "/assets/icon/reactivateCustomer.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Reactivate Seller?"
+                      subHeading="Are you sure you want to reactivate this Seller’s account? Once reactivated, Seller will regain full access to Ksa, including booking appointments and making purchases."
+                      confirmText="Confirm Reactivation"
+                      confirmColor="text-secondary1"
+                    />
+                  ),
+                  onApply: (data) =>
+                    console.log("Reactivate Seller:", row, data),
+                },
               ];
 
             default:
