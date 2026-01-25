@@ -1,6 +1,5 @@
 "use client";
 
-import PopupForm from "@/components/ui/popupform";
 import ViewOrderDetails from "@/components/common/ViewOrderDetails";
 import ActionPopup from "@/components/common/ActionPopup";
 import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
@@ -117,15 +116,15 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails/>,
+                  component: (
+                    <ViewOrderDetails module="seller" orderId={row._id} />
+                  ),
                 },
                 {
                   label: "Mark As Complete",
                   iconUrl: "/assets/icon/markCompleted.svg",
                   type: "popUp",
-                  component: (
-                    <ViewUser/>
-                  ),
+                  component: <ViewUser />,
                 },
                 {
                   label: "Flag Order",
@@ -202,7 +201,9 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails module="seller" />,
+                  component: (
+                    <ViewOrderDetails module="seller" orderId={row._id} />
+                  ),
                 },
                 {
                   label: "Download Invoice",
@@ -217,7 +218,9 @@ export const getOrderColumns = (role) => [
                   label: "View Order",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewOrderDetails module="seller" />,
+                  component: (
+                    <ViewOrderDetails module="seller" orderId={row._id} />
+                  ),
                 },
                 {
                   label: "Download Invoice",
