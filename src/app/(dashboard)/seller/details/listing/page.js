@@ -12,66 +12,30 @@ import {
   updateSellerProductStatus,
 } from "@/state/seller/listing/sellerListingSlice";
 import Pagination from "@/components/ui/pagination";
-
+import { useSearchParams } from "next/navigation";
+import ListingPDFDocument from "./ListingPDFDocument";
+import { pdf } from "@react-pdf/renderer";
 const options = {
   select: false,
   order: false,
   sortable: false,
 };
 
-const downloadActions = [
-  {
-    header: "Download List",
-  },
-  {
-    label: "Download PDF",
-    icon: (
-      <Image
-        src="/assets/icon/downloadpdf.svg"
-        alt="downloadpdf"
-        width={16}
-        height={16}
-      />
-    ),
-    onClick: () => console.log("Download PDF"),
-  },
-  {
-    label: "Download CSV",
-    icon: (
-      <Image
-        src="/assets/icon/downloadcsv.svg"
-        alt="downloadcsv"
-        width={16}
-        height={16}
-      />
-    ),
-    onClick: () => console.log("Download CSV"),
-  },
-];
-
 const ListingPage = () => {
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
+  const sellerId = searchParams.get("id"); // Get sellerId from URL
+
   const { listings, totalListings, totalPages, currentPage, loading } =
     useSelector((state) => state.sellerListing);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  // Hardcoded for testing as requested
-  const sellerId = "6965ed01ff1c8e0042fde18d";
-
   useEffect(() => {
-    console.log("ListingPage mounted via useEffect. SellerID:", sellerId);
-    console.log("Dispatching fetchSellerProducts with params:", {
-      page,
-      limit: 10,
-      search,
-    });
-    dispatch(
-      fetchSellerProducts({ sellerId, params: { page, limit: 10, search } })
-    )
-      .then((res) => console.log("Dispatch result:", res))
-      .catch((err) => console.error("Dispatch error:", err));
-  }, [dispatch, sellerId, page, search]);
+    if (sellerId) {
+      dispatch(fetchSellerProducts({ sellerId, params: { page, limit: 10 } }));
+    }
+  }, [dispatch, sellerId, page]);
 
   // Transform data for the grid
   const transformedData = React.useMemo(() => {
@@ -90,9 +54,16 @@ const ListingPage = () => {
     }));
   }, [listings]);
 
+  // Client-side filtering
+  const filteredData = React.useMemo(() => {
+    if (!search) return transformedData;
+    return transformedData.filter((item) =>
+      item.product.name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [transformedData, search]);
+
   const handleSearch = (e) => {
     setSearch(e.target.value);
-    setPage(1); // Reset to page 1 on search
   };
 
   const handlePageChange = (newPage) => {
@@ -104,10 +75,93 @@ const ListingPage = () => {
     dispatch(updateSellerProductStatus({ id, status }))
       .unwrap()
       .then(() => {
-        dispatch(fetchSellerProducts({ sellerId, params: { page, limit: 10, search } }));
+        dispatch(
+          fetchSellerProducts({
+            sellerId,
+            params: { page, limit: 10 },
+          }),
+        );
       })
       .catch((err) => console.error("Failed to update status:", err));
   };
+
+  const handleDownloadPDF = async () => {
+   
+    const blob = await pdf(
+      <ListingPDFDocument listings={filteredData} />,
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "seller_listings.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadCSV = () => {
+    if (!filteredData.length) return;
+
+    const headers = [
+      "Product Name",
+      "Category",
+      "Price",
+      "Created On",
+      "Status",
+    ];
+    const csvRows = [headers.join(",")];
+
+    filteredData.forEach((item) => {
+      const row = [
+        `"${item.product.name}"`,
+        `"${item.product.category}"`,
+        item.price,
+        `"${new Date(item.created_on).toLocaleDateString()}"`,
+        item.status,
+      ];
+      csvRows.push(row.join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "seller_listings.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadActions = [
+    {
+      header: "Download List",
+    },
+    {
+      label: "Download PDF",
+      icon: (
+        <Image
+          src="/assets/icon/downloadpdf.svg"
+          alt="downloadpdf"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: handleDownloadPDF,
+    },
+    {
+      label: "Download CSV",
+      icon: (
+        <Image
+          src="/assets/icon/downloadcsv.svg"
+          alt="downloadcsv"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: handleDownloadCSV,
+    },
+  ];
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -134,7 +188,7 @@ const ListingPage = () => {
 
       <div className="flex-1 min-h-0">
         <GridCommonComponent
-          data={transformedData}
+          data={filteredData}
           options={options}
           columns={getListingColumns(handleUpdateStatus).map((col) => {
             if (col.key === "actions") {
@@ -175,7 +229,7 @@ const ListingPage = () => {
                       height={16}
                     />
                   ),
-                  onClick: () => console.log("Download PDF"),
+                  onClick: handleDownloadPDF,
                 },
                 {
                   label: "Download CSV",
@@ -188,7 +242,7 @@ const ListingPage = () => {
                     />
                   ),
 
-                  onClick: () => console.log("Download CSV"),
+                  onClick: handleDownloadCSV,
                 },
               ],
             },

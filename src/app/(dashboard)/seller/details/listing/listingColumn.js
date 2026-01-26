@@ -82,7 +82,9 @@ export const getListingColumns = (handleUpdateStatus) => [
                   label: "View Listing",
                   iconUrl: "/assets/icon/View.svg",
                   type: "sidebar",
-                  component: <ViewListingDetails data={row} />,
+                  component: (
+                    <ViewListingDetails data={row} row={row.id || row._id} />
+                  ),
                 },
                 {
                   label: "Mark As Inactive",
