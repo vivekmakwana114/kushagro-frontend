@@ -5,9 +5,9 @@ import ActionPopup from "@/components/common/ActionPopup";
 import InitiateRefundPopup from "@/components/common/InitiateRefundPopup";
 import ViewUser from "@/app/(dashboard)/buyer/viewUser";
 
-export const getOrderColumns = (role) => [
+export const getOrderColumns = (role, handlers = {}) => [
   {
-    key: "product_order_id",
+    key: "orderNumber",
     title: "Order ID",
     sortable: true,
     component: {
@@ -109,8 +109,15 @@ export const getOrderColumns = (role) => [
       style: {},
       options: {
         actions: (row) => {
+          const {
+            onFlag,
+            onCancel,
+            onMarkComplete,
+            onRefund,
+            onDownloadInvoice,
+          } = handlers;
           switch (row.status) {
-            case "ongoing":
+            case "ONGOING":
               return [
                 {
                   label: "View Order",
@@ -123,8 +130,7 @@ export const getOrderColumns = (role) => [
                 {
                   label: "Mark As Complete",
                   iconUrl: "/assets/icon/markCompleted.svg",
-                  type: "popUp",
-                  component: <ViewUser />,
+                  onClick: () => onMarkComplete && onMarkComplete(row),
                 },
                 {
                   label: "Flag Order",
@@ -159,12 +165,12 @@ export const getOrderColumns = (role) => [
                       textareaPlaceholder="Add a Note"
                     />
                   ),
-                  onApply: (data) => console.log("Flag Order:", row, data),
+                  onApply: (data) => onFlag && onFlag(row, data),
                 },
                 {
                   label: "Download Invoice",
                   iconUrl: "/assets/icon/downloadGray.svg",
-                  onClick: (data) => console.log("Download invoice:", data),
+                  onClick: () => onDownloadInvoice && onDownloadInvoice(row),
                 },
                 {
                   label: "Cancel Order",
@@ -191,11 +197,11 @@ export const getOrderColumns = (role) => [
                       textareaPlaceholder="Add a Note"
                     />
                   ),
-                  onApply: (data) => console.log("Cancel Order:", row, data),
+                  onApply: (data) => onCancel && onCancel(row, data),
                 },
               ];
 
-            case "complete":
+            case "COMPLETE":
               return [
                 {
                   label: "View Order",
@@ -208,11 +214,11 @@ export const getOrderColumns = (role) => [
                 {
                   label: "Download Invoice",
                   iconUrl: "/assets/icon/downloadGray.svg",
-                  onClick: (data) => console.log("Download invoice:", data),
+                  onClick: () => onDownloadInvoice && onDownloadInvoice(row),
                 },
               ];
 
-            case "cancelled":
+            case "CANCELLED":
               return [
                 {
                   label: "View Order",
@@ -225,7 +231,7 @@ export const getOrderColumns = (role) => [
                 {
                   label: "Download Invoice",
                   iconUrl: "/assets/icon/downloadGray.svg",
-                  onClick: (data) => console.log("Download invoice:", data),
+                  onClick: () => onDownloadInvoice && onDownloadInvoice(row),
                 },
                 {
                   label: "Initiate Refund",
@@ -235,8 +241,7 @@ export const getOrderColumns = (role) => [
                     color: "#BC0D10",
                   },
                   component: <InitiateRefundPopup />,
-                  onApply: (data) =>
-                    console.log("Refund Initiated:", row, data),
+                  onApply: (data) => onRefund && onRefund(row, data),
                 },
               ];
 
