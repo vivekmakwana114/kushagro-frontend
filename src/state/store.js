@@ -9,6 +9,7 @@ import orderReducer from "./order/orderSlice";
 import buyerReducer from "./buyer/buyerSlice";
 import fraudReportReducer from "./fraudReport/fraudReportSlice";
 import sellerOrderHistoryReducer from "./seller/order-history/orderHistorySlice";
+import supportTicketReducer from "./setting/support-ticket/supportTicketSlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,5 +23,6 @@ export const store = configureStore({
     buyer: buyerReducer,
     fraudReport: fraudReportReducer,
     sellerOrderHistory: sellerOrderHistoryReducer,
+    supportTicket: supportTicketReducer,
   },
 });

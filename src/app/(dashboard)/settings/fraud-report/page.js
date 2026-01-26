@@ -8,9 +8,9 @@ import Pagination from "@/components/ui/pagination";
 import ActionPopup from "@/components/common/ActionPopup";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchFraudReports,
-  deleteReport,
-} from "@/state/setting/fraud-ticket/fraudTicketSlice";
+  fetchAllFraudReports,
+  deleteFraudReport,
+} from "@/state/fraudReport/fraudReportSlice";
 import { toast } from "sonner";
 
 const options = {
@@ -21,16 +21,16 @@ const options = {
 const FraudReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
-  const { fraudReports, isLoading } = useSelector((state) => state.fraudReport);
+  const { reports, loading } = useSelector((state) => state.fraudReport);
 
   useEffect(() => {
-    dispatch(fetchFraudReports());
+    dispatch(fetchAllFraudReports());
   }, [dispatch]);
 
   const handleDelete = useCallback(
     async (id) => {
       try {
-        await dispatch(deleteReport(id)).unwrap();
+        await dispatch(deleteFraudReport(id)).unwrap();
         toast.success("Fraud report deleted successfully");
       } catch (error) {
         toast.error("Failed to delete fraud report");
@@ -48,7 +48,7 @@ const FraudReportPage = () => {
   const indexofLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexofLastItem - itemsPerPage;
 
-  const currentData = (Array.isArray(fraudReports) ? fraudReports : [])
+  const currentData = (Array.isArray(reports) ? reports : [])
     .map((report) => ({
       ...report,
       report_id: report._id || report.id || "N/A",
@@ -69,7 +69,7 @@ const FraudReportPage = () => {
     }))
     .slice(indexOfFirstItem, indexofLastItem);
 
-  const totalPages = Math.ceil((fraudReports?.length || 0) / itemsPerPage);
+  const totalPages = Math.ceil((reports?.length || 0) / itemsPerPage);
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -87,7 +87,7 @@ const FraudReportPage = () => {
           data={currentData}
           options={options}
           columns={columns}
-          loading={isLoading}
+          loading={loading}
           theme={{
             border: "border-gray-300",
             header: {

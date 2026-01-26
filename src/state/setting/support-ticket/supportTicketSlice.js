@@ -112,7 +112,7 @@ const supportTicketSlice = createSlice({
       })
       .addCase(fetchSupportTickets.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.supportTickets = action.payload?.data?.results || [];
+        state.supportTickets = action.payload?.data || [];
         state.isSuccess = true;
       })
       .addCase(fetchSupportTickets.rejected, (state, action) => {
@@ -125,7 +125,7 @@ const supportTicketSlice = createSlice({
       })
       .addCase(fetchAllSupportTickets.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.supportTickets = action.payload?.data?.results || [];
+        state.supportTickets = action.payload?.data || [];
         state.isSuccess = true;
       })
       .addCase(fetchAllSupportTickets.rejected, (state, action) => {
