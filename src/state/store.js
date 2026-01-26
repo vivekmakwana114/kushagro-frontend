@@ -8,6 +8,7 @@ import profileReducer from "./profile/profileSlice";
 import orderReducer from "./order/orderSlice";
 import buyerReducer from "./buyer/buyerSlice";
 import fraudReportReducer from "./fraudReport/fraudReportSlice";
+import sellerOrderHistoryReducer from "./seller/order-history/orderHistorySlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,5 +21,6 @@ export const store = configureStore({
     order: orderReducer,
     buyer: buyerReducer,
     fraudReport: fraudReportReducer,
+    sellerOrderHistory: sellerOrderHistoryReducer,
   },
 });

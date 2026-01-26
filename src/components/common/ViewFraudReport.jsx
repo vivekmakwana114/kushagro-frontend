@@ -87,13 +87,11 @@ const ViewFraudReport = ({
     : "";
 
   const handleSuspend = async () => {
-    // Determine the user ID to suspend
-    // Try to get it from the full report object first
     const targetUserId =
       data.fullReport?.reportedId?._id ||
       data.fullReport?.reportedId?.id ||
       data.fullReport?.userId ||
-      data.fullReport?.reportedId; // Fallback if it's just an ID string
+      data.fullReport?.reportedId;
 
     if (!targetUserId) {
       toast.error("Could not identify the user to suspend.");
@@ -147,7 +145,7 @@ const ViewFraudReport = ({
             </div>
             <div className="flex justify-between w-full md:block md:w-auto text-left md:pr-12">
               <p className="text-sm text-dull-text mb-0 md:mb-1">Date</p>
-              <p className="text-sm font-medium text-black">{displayDate}</p>
+              <p className="text-sm font-medium text-black">{data.date}</p>
             </div>
           </div>
 
@@ -201,6 +199,7 @@ const ViewFraudReport = ({
                     fill
                     sizes="(max-width: 768px) 100vw, 500px"
                     className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-dull-text text-xs">

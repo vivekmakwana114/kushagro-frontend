@@ -14,6 +14,7 @@ import {
 } from "@/state/listing/listingSlice";
 import { useDebounce } from "@/hooks/useDebounce";
 import Pagination from "@/components/ui/pagination";
+import CategoryPDFDocument from "./CategoryPDFDocument";
 
 const options = {
   select: false,
@@ -60,13 +61,10 @@ const ListingPage = () => {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({});
 
-  // Debounce search
+  /* Removed debounced effect for client-side search */
   useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch(fetchProducts({ page, limit: 10, search, ...filters }));
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [search, page, filters, dispatch]);
+    dispatch(fetchProducts({ page, limit: 10, ...filters }));
+  }, [page, filters, dispatch]); // Removed search dependency
 
   const handleFilterApply = (appliedFilters) => {
     // Map UI filters to API params
@@ -106,91 +104,158 @@ const ListingPage = () => {
   };
 
   const handleStatusUpdate = (row, newStatus) => {
-    const params = { page, limit: 10, search, ...filters };
+    const params = { page, limit: 10, ...filters }; // Removed search
     dispatch(
-      updateProductStatusThunk({ id: row._id, status: newStatus, params })
+      updateProductStatusThunk({ id: row._id, status: newStatus, params }),
     );
   };
 
   const offerColumns = getOfferColumns(handleStatusUpdate);
 
   // Transform data for grid
-  const formattedListings = listings.map((item) => {
-    const missingFields = [];
+  const transformedData = React.useMemo(() => {
+    return listings.map((item) => {
+      const missingFields = [];
 
-    // Helper to log missing fields and return N/A
-    const validateField = (val, fieldName) => {
-      if ((val === null || val === undefined || val === "") && val !== 0) {
-        missingFields.push(fieldName);
-        return "N/A";
-      }
-      return val;
-    };
+      // Helper to log missing fields and return N/A
+      const validateField = (val, fieldName) => {
+        if ((val === null || val === undefined || val === "") && val !== 0) {
+          missingFields.push(fieldName);
+          return "N/A";
+        }
+        return val;
+      };
 
-    // Helper to safely extract name/title from an object or return the value if it's primitive
-    const safeExtract = (val, fieldName) => {
-      if (val && typeof val === "object") {
-        // Try common name fields
-        return (
-          val.name ||
-          val.fullName ||
-          val.title ||
-          val.email ||
-          validateField(null, fieldName)
+      const formattedItem = {
+        ...item,
+        _id: item.id || item._id, // Handle both id flavors
+        product: {
+          name: validateField(item.name, "product.name"),
+          // Prioritize populated category name, then categoryId (validated)
+          category:
+            item.category?.name ||
+            (typeof item.categoryId === "object"
+              ? item?.categoryId?.name
+              : item.categoryId) ||
+            validateField(null, "category"),
+          profile:
+            item?.images && item?.images?.length > 0
+              ? item?.images?.[0]
+              : "/assets/icon/image_not_found.svg",
+        },
+        seller: {
+          // Check sellerId object properties first (as per API response), then user object
+          name:
+            item?.sellerId?.name ||
+            item?.user?.fullName ||
+            item?.user?.name ||
+            validateField(null, "seller.name"),
+          email:
+            item?.sellerId?.email ||
+            item?.user?.email ||
+            validateField(null, "seller.email"),
+          profile:
+            item?.sellerId?.profile ||
+            item?.user?.profilePic ||
+            "/assets/icon/no_profile_icon.svg",
+        },
+        price: validateField(item?.price, "price"),
+        status: item?.status || "INACTIVE",
+        created_on: validateField(item?.createdAt, "created_on"),
+      };
+
+      if (missingFields.length > 0) {
+        console.warn(
+          `[Missing Data] Listing ID: ${
+            formattedItem._id
+          } - Missing fields: ${missingFields.join(", ")}`,
+          item,
         );
       }
-      return validateField(val, fieldName);
-    };
 
-    const formattedItem = {
-      ...item,
-      _id: item.id || item._id, // Handle both id flavors
-      product: {
-        name: validateField(item.name, "product.name"),
-        // Prioritize populated category name, then categoryId (validated)
-        category:
-          item.category?.name ||
-          (typeof item.categoryId === "object"
-            ? item?.categoryId?.name
-            : item.categoryId) ||
-          validateField(null, "category"),
-        profile:
-          item?.images && item?.images?.length > 0
-            ? item?.images?.[0]
-            : "/assets/icon/image_not_found.svg",
-      },
-      seller: {
-        // Check sellerId object properties first (as per API response), then user object
-        name:
-          item?.sellerId?.name ||
-          item?.user?.fullName ||
-          item?.user?.name ||
-          validateField(null, "seller.name"),
-        email:
-          item?.sellerId?.email ||
-          item?.user?.email ||
-          validateField(null, "seller.email"),
-        profile:
-          item?.sellerId?.profile ||
-          item?.user?.profilePic ||
-          "/assets/icon/no_profile_icon.svg",
-      },
-      price: validateField(item?.price, "price"),
-      status: item?.status || "INACTIVE",
-      created_on: validateField(item?.createdAt, "created_on"),
-    };
+      return formattedItem;
+    });
+  }, [listings]);
 
-    if (missingFields.length > 0) {
-      console.warn(
-        `[Missing Data] Listing ID: ${
-          formattedItem._id
-        } - Missing fields: ${missingFields.join(", ")}`,
-        item
-      );
-    }
+  // Client-side filtering
+  const filteredData = React.useMemo(() => {
+    if (!search) return transformedData;
+    return transformedData.filter((item) =>
+      item.product.name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [transformedData, search]);
 
-    return formattedItem;
-  });
+  const handleDownloadPDF = async () => {
+    const { pdf } = await import("@react-pdf/renderer");
+    const blob = await pdf(
+      <CategoryPDFDocument listings={filteredData} />,
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "listing_categories.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadCSV = () => {
+    if (!filteredData.length) return;
+
+    const headers = ["Product Name", "Seller", "Price", "Created On", "Status"];
+    const csvRows = [headers.join(",")];
+
+    filteredData.forEach((item) => {
+      const row = [
+        `"${item.product.name}"`,
+        `"${item.seller.name}"`,
+        item.price,
+        `"${new Date(item.created_on).toLocaleDateString()}"`,
+        item.status,
+      ];
+      csvRows.push(row.join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "listing_categories.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadActions = [
+    {
+      header: "Download List",
+    },
+    {
+      label: "Download PDF",
+      icon: (
+        <Image
+          src="/assets/icon/downloadpdf.svg"
+          alt="downloadpdf"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: handleDownloadPDF,
+    },
+    {
+      label: "Download CSV",
+      icon: (
+        <Image
+          src="/assets/icon/downloadcsv.svg"
+          alt="downloadcsv"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: handleDownloadCSV,
+    },
+  ];
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -239,7 +304,7 @@ const ListingPage = () => {
           </div>
         )}
         <GridCommonComponent
-          data={formattedListings}
+          data={filteredData}
           loading={loading}
           options={options}
           columns={offerColumns?.map((col) => {

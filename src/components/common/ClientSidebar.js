@@ -13,7 +13,6 @@ const ClientSidebar = ({ sidebarItems, sidebarHeader }) => {
   const { isClientSidebarOpen, closeAll } = useSideBarStore();
   const isMobile = useIsMobile();
 
-
   const isActive = (url) => {
     // Split query params if present
     const urlPath = url.split("?")[0];

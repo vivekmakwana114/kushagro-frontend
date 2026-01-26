@@ -14,43 +14,6 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
   const invoiceRef = useRef(null);
   const dispatch = useDispatch();
 
-  // Mock data for demonstration
-  const defaultData = {
-    orderId: "#KSA23102456145258",
-    totalAmount: "$1600",
-    transactionId: "#TXN54218390",
-    date: "15 Jul, 2025",
-    paymentMethod: "PayStack",
-    status: "Cancelled",
-    cancellationReason:
-      "Customer changed their mind about the product specifications.",
-    product: {
-      name: "Chana Dal",
-      category: "Cereals",
-      image: "https://picsum.photos/200",
-      quantity: "25 Kg",
-      price: "$40/Kg",
-      subtotal: "$800.00",
-    },
-    buyer: {
-      name: "Will Jack",
-      email: "willjack@email.com",
-      avatar: "https://picsum.photos/200",
-    },
-    seller: {
-      name: "DeShawn Miller",
-      email: "dees@selocarl.com",
-      avatar: "https://picsum.photos/201",
-    },
-    invoice: {
-      invoiceId: "#KSA23102456145258",
-      itemTotal: "$800.00",
-      taxes: "$2.00",
-      platformFee: "$10.00",
-      totalPayable: "$812.00",
-      paymentStatus: "Refunded",
-    },
-  };
   const mapOrderToViewData = (apiData) => {
     const order = apiData || {};
     return {
@@ -106,7 +69,7 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
   };
 
   const [fetchedOrder, setFetchedOrder] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!orderId && !orderData);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -132,9 +95,9 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
     };
 
     fetchOrderDetails();
-  }, [orderId, orderData]);
+  }, [orderId, orderData, dispatch]);
 
-  const data = fetchedOrder || orderData || defaultData;
+  const data = fetchedOrder || orderData;
 
   if (loading) {
     return (
@@ -143,6 +106,8 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
       </div>
     );
   }
+
+  if (!data) return null;
 
   const handleDownloadInvoice = async () => {
     try {

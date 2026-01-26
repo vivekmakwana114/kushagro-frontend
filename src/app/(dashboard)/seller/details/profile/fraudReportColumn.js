@@ -1,7 +1,7 @@
 "use client";
 import ViewFraudReport from "@/components/common/ViewFraudReport";
 
-export const getFraudReportColumns = () => [
+export const getFraudReportColumns = ({ onDelete }) => [
   {
     key: "reportId",
     title: "Report ID",
@@ -62,17 +62,23 @@ export const getFraudReportColumns = () => [
       type: "action",
       style: {},
       options: {
-        actions: () => {
+        actions: (row) => {
           return [
             {
               label: "View Report",
               iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
-              component: <ViewFraudReport userType="seller" />,
+              component: (
+                <ViewFraudReport
+                  userType="seller"
+                  reportId={row.reportId || row._id}
+                />
+              ),
             },
             {
               label: "Delete Report",
               iconUrl: "/assets/icon/deleteBarbershop.svg",
+              onClick: () => onDelete(row._id || row.id),
             },
           ];
         },

@@ -2,7 +2,12 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import ReviewCard from "./ReviewCard";
 
-const ReviewsDrawer = ({ isOpen, onClose, reviews, title = "Reviews" }) => {
+const ReviewsDrawer = ({
+  isOpen,
+  onClose,
+  reviews = [],
+  title = "Reviews",
+}) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -49,7 +54,7 @@ const ReviewsDrawer = ({ isOpen, onClose, reviews, title = "Reviews" }) => {
 
         {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto p-6 bg-[#F9FAFB] custom-scroll">
-          {reviews.map((review) => (
+          {(Array.isArray(reviews) ? reviews : []).map((review) => (
             <ReviewCard key={review.id} review={review} />
           ))}
         </div>

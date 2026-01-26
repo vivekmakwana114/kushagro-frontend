@@ -7,6 +7,7 @@ import ActionComponent from "@/components/grid/actionComponent";
 import CategoryForm from "./CategoryForm";
 import Image from "next/image";
 import { getCategoriesColumns } from "./categoriesColumn";
+import CategoriesListPDFDocument from "./CategoriesListPDFDocument";
 
 // import from redux store
 import { useDispatch, useSelector } from "react-redux";
@@ -24,43 +25,15 @@ const options = {
   sortable: false,
 };
 
-const downloadActions = [
-  { header: "Download List" },
-  {
-    label: "Download PDF",
-    icon: (
-      <Image
-        src="/assets/icon/downloadpdf.svg"
-        alt="downloadpdf"
-        width={16}
-        height={16}
-      />
-    ),
-    onClick: () => console.log("Download PDF"),
-  },
-  {
-    label: "Download CSV",
-    icon: (
-      <Image
-        src="/assets/icon/downloadcsv.svg"
-        alt="downloadcsv"
-        width={16}
-        height={16}
-      />
-    ),
-    onClick: () => console.log("Download CSV"),
-  },
-];
-
 const ListingCategoriesPage = () => {
   const dispatch = useDispatch();
 
   const { categories, totalPages, loading, success } = useSelector(
-    (state) => state.categories
+    (state) => state.categories,
   );
 
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  // const debouncedSearchTerm = useDebounce(searchTerm, 500); // Removed debounce
   const fetchedRef = useRef(false);
 
   useEffect(() => {
@@ -92,12 +65,97 @@ const ListingCategoriesPage = () => {
     await dispatch(removeCategory({ id }));
   };
 
+  // Client-side filtering
+  const filteredCategories = React.useMemo(() => {
+    let data = categories;
+    if (searchTerm) {
+      data = categories.filter((c) =>
+        c.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
+    // Map data for grid
+    return data.map((item) => ({
+      ...item,
+      productCount: item.productCount ?? "0", // Changed NA to 0 for consistency or ensure string
+      name: item.name || "NA",
+    }));
+  }, [categories, searchTerm]);
+
+  const handleDownloadPDF = async () => {
+    const { pdf } = await import("@react-pdf/renderer");
+    const blob = await pdf(
+      <CategoriesListPDFDocument categories={filteredCategories} />,
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "categories_list.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadCSV = () => {
+    if (!filteredCategories.length) return;
+
+    const headers = ["Category", "Created On", "Total Listings", "Status"];
+    const csvRows = [headers.join(",")];
+
+    filteredCategories.forEach((item) => {
+      const row = [
+        `"${item.name}"`,
+        `"${new Date(item.createdAt).toLocaleDateString()}"`,
+        item.productCount,
+        item.status,
+      ];
+      csvRows.push(row.join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "categories_list.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Pass handlers to columns
   const categoriesColumns = getCategoriesColumns({
     onEdit: handleUpdateCategory,
     onDelete: handleDeleteCategory,
     onStatusChange: handleStatusChange,
   });
+
+  const downloadActions = [
+    { header: "Download List" },
+    {
+      label: "Download PDF",
+      icon: (
+        <Image
+          src="/assets/icon/downloadpdf.svg"
+          alt="downloadpdf"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: handleDownloadPDF,
+    },
+    {
+      label: "Download CSV",
+      icon: (
+        <Image
+          src="/assets/icon/downloadcsv.svg"
+          alt="downloadcsv"
+          width={16}
+          height={16}
+        />
+      ),
+      onClick: handleDownloadCSV,
+    },
+  ];
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -147,21 +205,7 @@ const ListingCategoriesPage = () => {
         )}
 
         <GridCommonComponent
-          data={
-            // Fallback client-side filtering since API ignores search param
-            (debouncedSearchTerm
-              ? categories.filter((c) =>
-                  c.name
-                    ?.toLowerCase()
-                    .includes(debouncedSearchTerm.toLowerCase())
-                )
-              : categories
-            ).map((item) => ({
-              ...item,
-              productCount: item.productCount ?? "NA",
-              name: item.name || "NA",
-            }))
-          }
+          data={filteredCategories}
           options={options}
           columns={categoriesColumns?.map((col) => {
             if (col.key === "actions") {
