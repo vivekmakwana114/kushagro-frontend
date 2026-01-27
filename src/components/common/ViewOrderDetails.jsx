@@ -29,7 +29,8 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
         : "N/A",
       paymentMethod: order.payments?.[0]?.paymentMethod || "N/A",
       status: order.status || "N/A",
-      cancellationReason: order.cancelReason || "",
+      status: order.status || "N/A",
+      cancellationReason: order.cancellationReason || order.cancelReason || "",
       product: {
         name: order.product?.name || "N/A",
         category: order.category?.name || order.category || "N/A",
@@ -43,11 +44,15 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
       buyer: {
         name: order.buyer?.name || "N/A",
         email: order.buyer?.email || "N/A",
+        phone: order.buyer?.phone || "N/A",
+        contact: order.buyer?.phone || order.buyer?.email || "N/A",
         avatar: order.buyer?.profile || "https://picsum.photos/200",
       },
       seller: {
         name: order.seller?.name || "N/A",
         email: order.seller?.email || "N/A",
+        phone: order.seller?.phone || "N/A",
+        contact: order.seller?.phone || order.seller?.email || "N/A",
         avatar: order.seller?.profile || "https://picsum.photos/201",
       },
       invoice: {
@@ -62,9 +67,22 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
           : order.totalAmount
             ? `$${order.totalAmount}`
             : "N/A",
-        paymentStatus:
-          order.paymentStatus || order.payments?.[0]?.status || "N/A",
+        paymentStatus: (() => {
+          const rawStatus =
+            order.paymentStatus || order.payments?.[0]?.status || "N/A";
+          if (["Cancelled", "CANCELLED"].includes(order.status))
+            return "Cancelled";
+          if (["paid", "payment success"].includes(rawStatus.toLowerCase()))
+            return "Complete";
+          if (order.status === "Ongoing") return "Pending";
+          return rawStatus;
+        })(),
       },
+      otpStatus: order.otpVerified
+        ? "Verified"
+        : order.otpSent
+          ? "Sent"
+          : "Not Sent",
     };
   };
 
@@ -195,7 +213,7 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                   Transaction ID
                 </p>
                 <p className="text-sm font-medium text-secondary1">
-                  {data.transactionId}
+                  {/* {data.transactionId} */}-
                 </p>
               </div>
               <div className="flex justify-between items-center md:block">
@@ -207,7 +225,8 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                   Payment Method
                 </p>
                 <p className="text-sm font-medium text-black">
-                  {data.paymentMethod}
+                  {/* {data.paymentMethod || "Cash on Delivery"} */}
+                  Cash on Delivery
                 </p>
               </div>
               <div className="flex justify-between items-center md:block">
@@ -216,7 +235,7 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                   className={`text-sm font-medium ${
                     data.status === "Complete"
                       ? "text-secondary1"
-                      : data.status === "Cancelled"
+                      : ["Cancelled", "CANCELLED"].includes(data.status)
                         ? "text-red-500"
                         : "text-black"
                   }`}
@@ -248,7 +267,7 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                       {data.buyer.name}
                     </p>
                     <p className="text-xs text-dull-text truncate">
-                      {data.buyer.email}
+                      {data.buyer.contact}
                     </p>
                   </div>
                 </div>
@@ -272,7 +291,7 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                       {data.seller.name}
                     </p>
                     <p className="text-xs text-dull-text truncate">
-                      {data.seller.email}
+                      {data.seller.contact}
                     </p>
                   </div>
                 </div>
@@ -358,18 +377,32 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                 </div>
               </div>
             </div>
-            {data.status === "Cancelled" && data.cancellationReason && (
-              <div className="mt-4 border border-(--border-admin) rounded-lg p-4">
-                <div className="flex justify-between items-start md:block">
-                  <p className="text-sm text-dull-text mb-0 md:mb-1 shrink-0">
-                    Cancellation Reason:
-                  </p>
-                  <p className="text-sm font-medium text-black text-right md:text-left">
-                    {data.cancellationReason}
-                  </p>
+            {["Cancelled", "CANCELLED"].includes(data.status) &&
+              data.cancellationReason && (
+                <div className="mt-4 border border-(--border-admin) rounded-lg p-4">
+                  <div className="flex justify-between items-start md:block">
+                    <p className="text-sm text-dull-text mb-0 md:mb-1 shrink-0">
+                      Cancellation Reason:
+                    </p>
+                    <p className="text-sm font-medium text-black text-right md:text-left">
+                      {data.cancellationReason}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            {["Cancelled", "CANCELLED"].includes(data.status) &&
+              data.cancellationReason && (
+                <div className="mt-4 border border-(--border-admin) rounded-lg p-4">
+                  <div className="flex justify-between items-start md:block">
+                    <p className="text-sm text-dull-text mb-0 md:mb-1 shrink-0">
+                      OTP Status:
+                    </p>
+                    <p className="text-sm font-medium text-black text-right md:text-left">
+                      {data.otpStatus}
+                    </p>
+                  </div>
+                </div>
+              )}
           </div>
 
           {/* Invoice Details Section */}
@@ -432,18 +465,18 @@ const ViewOrderDetails = ({ orderData, module, onClose, orderId }) => {
                     </span>
                     <span
                       className={`text-sm font-semibold flex items-center gap-2 ${
-                        data.invoice.paymentStatus === "Paid"
+                        data.status === "Complete"
                           ? "text-secondary1"
-                          : data.invoice.paymentStatus === "Refunded"
+                          : ["Cancelled", "CANCELLED"].includes(data.status)
                             ? "text-red-500"
                             : "text-black"
                       }`}
                     >
                       <div
                         className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          data.invoice.paymentStatus === "Paid"
+                          data.status === "Complete"
                             ? "bg-green-500"
-                            : data.invoice.paymentStatus === "Refunded"
+                            : ["Cancelled", "CANCELLED"].includes(data.status)
                               ? "bg-red-500"
                               : "bg-gray-500"
                         }`}

@@ -62,7 +62,7 @@ const SellerFilterForm = ({ onCancel, onApply }) => {
         earningAmountFrom,
         earningAmountTo,
         "earningAmount",
-        "Earning Amount"
+        "Earning Amount",
       )
     )
       isValid = false;
@@ -75,7 +75,7 @@ const SellerFilterForm = ({ onCancel, onApply }) => {
         listingsRangeFrom,
         listingsRangeTo,
         "listingsRange",
-        "Listings Range"
+        "Listings Range",
       )
     )
       isValid = false;
@@ -116,9 +116,20 @@ const SellerFilterForm = ({ onCancel, onApply }) => {
     if (onApply) onApply(filterData);
   };
 
-  const handleCancel = () => {
+  const handleReset = () => {
+    setStatus(["all"]);
+    setIdStatus(["all"]);
+    setJoinDateFrom(null);
+    setJoinDateTo(null);
+    setEarningAmountFrom("");
+    setEarningAmountTo("");
+    setOrderRangeFrom("");
+    setOrderRangeTo("");
+    setListingsRangeFrom("");
+    setListingsRangeTo("");
     clearErrors();
-    if (onCancel) onCancel();
+    if (onApply) onApply({});
+    // if (onCancel) onCancel();
   };
 
   return (
@@ -248,11 +259,11 @@ const SellerFilterForm = ({ onCancel, onApply }) => {
         <div className="flex gap-4">
           <Button
             type="button"
-            onClick={handleCancel}
+            onClick={handleReset}
             variant="outline"
-            className="flex-1 border-[var(--color-secondary1)] text-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/10"
+            className="flex-1 border-secondary1 text-secondary1 hover:bg-secondary1/10"
           >
-            Cancel
+            Reset
           </Button>
           <Button
             type="button"

@@ -5,12 +5,12 @@ const ReviewCard = ({ review }) => {
   return (
     <div className="border border-[#E4E4E6] rounded-md p-4 bg-white mb-4 shadow-sm relative">
       <p className="text-[#666666] text-sm mb-4 leading-relaxed">
-        {review.text}
+        {review.review}
       </p>
 
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-[#4B8F62] flex items-center justify-center text-white font-bold text-lg">
-          {review.avatar}
+          {review.buyerId?.name?.charAt(0) || "U"}
         </div>
 
         <div>
@@ -18,7 +18,7 @@ const ReviewCard = ({ review }) => {
             {[1, 2, 3, 4, 5].map((star) => {
               const fillPercentage = Math.min(
                 100,
-                Math.max(0, (review.rating - (star - 1)) * 100)
+                Math.max(0, (review.rating - (star - 1)) * 100),
               );
 
               return (
@@ -46,7 +46,9 @@ const ReviewCard = ({ review }) => {
               );
             })}
           </div>
-          <p className="text-[#097416] font-medium text-sm">{review.user}</p>
+          <p className="text-[#097416] font-medium text-sm">
+            {review.buyerId?.name || "Unknown User"}
+          </p>
         </div>
       </div>
 

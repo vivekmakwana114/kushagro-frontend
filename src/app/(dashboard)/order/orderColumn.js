@@ -30,7 +30,6 @@ export const getOrderColumns = ({
       const displayValue =
         val !== undefined && val !== null ? String(val) : "N/A";
 
-
       console.log(row, "row");
 
       return (
@@ -180,6 +179,10 @@ export const getOrderColumns = ({
       type: "action",
       options: {
         actions: (row) => {
+          // Logic for Cancel Ability
+          const canCancel =
+            row.payment_status === "pending" && row.status === "ongoing";
+
           switch (row.status) {
             case "ongoing":
               return [
@@ -191,19 +194,19 @@ export const getOrderColumns = ({
                     <ViewOrderDetails module="order" orderId={row._id} />
                   ),
                 },
-                {
-                  label: "Mark As Complete",
-                  iconUrl: "/assets/icon/markCompleted.svg",
-                  onClick: () => {
-                    if (row.payment_status === "paid") {
-                      onMarkComplete && onMarkComplete(row);
-                    } else {
-                      toast.error(
-                        "Payment pending. Cannot mark order as complete.",
-                      );
-                    }
-                  },
-                },
+                // {
+                //   label: "Mark As Complete",
+                //   iconUrl: "/assets/icon/markCompleted.svg",
+                //   onClick: () => {
+                //     if (row.payment_status === "paid") {
+                //       onMarkComplete && onMarkComplete(row);
+                //     } else {
+                //       toast.error(
+                //         "Payment pending. Cannot mark order as complete.",
+                //       );
+                //     }
+                //   },
+                // },
                 {
                   label: "Flag Order",
                   iconUrl: "/assets/icon/flag.svg",
@@ -247,7 +250,7 @@ export const getOrderColumns = ({
                   iconUrl: "/assets/icon/downloadGray.svg",
                   onClick: () => onDownloadInvoice && onDownloadInvoice(row),
                 },
-                row.payment_status === "paid"
+                canCancel
                   ? {
                       label: "Cancel Order",
                       iconUrl: "/assets/icon/cancel.svg",
@@ -255,7 +258,7 @@ export const getOrderColumns = ({
                       component: (
                         <ActionPopup
                           heading="Cancel Product Order?"
-                          subHeading="Are you sure you want to cancel this order? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
+                          subHeading="Are you sure you want to cancel this order? This action will notify the Buyer. Once cancelled, this order cannot be undone."
                           confirmText="Cancel Order"
                           confirmColor="red"
                           dropdownOptions={[
@@ -283,7 +286,7 @@ export const getOrderColumns = ({
                       iconUrl: "/assets/icon/cancel.svg",
                       onClick: () =>
                         toast.error(
-                          "Payment not completed. Cannot cancel order.",
+                          "Cannot cancel order as the order is already completed",
                         ),
                     },
               ];
@@ -320,6 +323,17 @@ export const getOrderColumns = ({
                   iconUrl: "/assets/icon/downloadGray.svg",
                   onClick: () => onDownloadInvoice && onDownloadInvoice(row),
                 },
+                // {
+                //   label: "Initiate Refund",
+                //   iconUrl: "/assets/icon/refund.svg",
+                //   type: "modal_component",
+                //   style: {
+                //     color: "#BC0D10",
+                //   },
+                //   component: <InitiateRefundPopup />,
+                //   onApply: (data) => onRefund && onRefund(row, data),
+                // }
+                /*
                 row.payment_status === "paid"
                   ? {
                       label: "Initiate Refund",
@@ -351,6 +365,7 @@ export const getOrderColumns = ({
                         }
                       },
                     },
+                  */
               ];
 
             default:

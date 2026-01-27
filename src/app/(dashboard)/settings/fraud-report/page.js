@@ -20,6 +20,7 @@ const options = {
 };
 const FraudReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
   const { reports, loading } = useSelector((state) => state.fraudReport);
 
@@ -45,11 +46,49 @@ const FraudReportPage = () => {
   );
 
   const itemsPerPage = 10;
-  const indexofLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexofLastItem - itemsPerPage;
 
-  const currentData = (Array.isArray(reports) ? reports : [])
-    .map((report) => ({
+  // Filter fraud reports client-side
+  const filteredReports = useMemo(() => {
+    if (!reports) return [];
+
+    let result = Array.isArray(reports) ? reports : [];
+
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((report) => {
+        const reportId = (report._id || report.id || "")
+          .toString()
+          .toLowerCase();
+
+        // Handle potentially populated fields or IDs
+        const reportedUser = report.reportedId;
+        const reportedByName = (
+          typeof reportedUser === "object"
+            ? reportedUser?.name
+            : reportedUser || ""
+        ).toLowerCase();
+
+        const reporterUser = report.reporterId;
+        const reporterByName = (
+          typeof reporterUser === "object"
+            ? reporterUser?.name
+            : reporterUser || ""
+        ).toLowerCase();
+
+        const reason = (
+          Array.isArray(report.reason) ? report.reason[0] : report.reason || ""
+        ).toLowerCase();
+
+        return (
+          reportId.includes(lowerQuery) ||
+          reportedByName.includes(lowerQuery) ||
+          reporterByName.includes(lowerQuery) ||
+          reason.includes(lowerQuery)
+        );
+      });
+    }
+
+    return result.map((report) => ({
       ...report,
       report_id: report._id || report.id || "N/A",
       reported_user: report.reportedId || {
@@ -66,10 +105,20 @@ const FraudReportPage = () => {
         ? report.reason[0]
         : report.reason || "N/A",
       reported_on: report.createdAt,
-    }))
-    .slice(indexOfFirstItem, indexofLastItem);
+    }));
+  }, [reports, searchQuery]);
 
-  const totalPages = Math.ceil((reports?.length || 0) / itemsPerPage);
+  const indexofLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexofLastItem - itemsPerPage;
+
+  const currentData = filteredReports.slice(indexOfFirstItem, indexofLastItem);
+
+  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -79,6 +128,8 @@ const FraudReportPage = () => {
           <Input
             className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
             placeholder="Search here..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>

@@ -96,8 +96,16 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
     if (onApply) onApply(filterData);
   };
 
-  const handleCancel = () => {
-    if (onCancel) onCancel();
+  const handleReset = () => {
+    setStatus(["all"]);
+    setDateFrom(null);
+    setDateTo(null);
+    setPriceFrom("");
+    setPriceTo("");
+    setSelectedCategories([]);
+    setErrors({});
+
+    if (onApply) onApply({});
   };
 
   return (
@@ -196,11 +204,11 @@ const ListingFilterForm = ({ onCancel, onApply }) => {
         <div className="flex gap-4">
           <Button
             type="button"
-            onClick={handleCancel}
+            onClick={handleReset}
             variant="outline"
             className="flex-1 border-[var(--color-secondary1)] text-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/10"
           >
-            Cancel
+            Reset
           </Button>
           <Button
             type="button"

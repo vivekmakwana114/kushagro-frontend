@@ -5,6 +5,7 @@ import ImageZoomModal from "@/components/common/ImageZoomModal";
 import { useDispatch } from "react-redux";
 import { updateTicketStatus } from "@/state/setting/support-ticket/supportTicketSlice";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const ViewSupportTicket = ({ data, onCancel }) => {
   const [status, setStatus] = useState(data?.status || "open");
@@ -17,18 +18,22 @@ const ViewSupportTicket = ({ data, onCancel }) => {
     status: status,
     description:
       data?.description || data?.message || "No description provided.",
-    images: data?.images || [],
+    images: data?.attachments || data?.images || [],
     customer: {
       name: data?.user?.name || "N/A",
       email: data?.user?.email || "N/A",
       phone: data?.user?.phone || "N/A",
-      raisedOn: data?.createdAt
-        ? new Date(data.createdAt).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          })
-        : "N/A",
+      raisedOn:
+        data?.raisedOn || data?.createdAt
+          ? new Date(data?.raisedOn || data?.createdAt).toLocaleDateString(
+              "en-GB",
+              {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              },
+            )
+          : "N/A",
       profile: data?.user?.profile || "/assets/images/profile-placeholder.png",
     },
   };
@@ -40,9 +45,15 @@ const ViewSupportTicket = ({ data, onCancel }) => {
   ];
 
   const handleUpdate = async () => {
+    let apiStatus = status.toUpperCase();
+    if (status === "inprocess") apiStatus = "IN_PROGRESS";
+
     try {
       await dispatch(
-        updateTicketStatus({ id: data?._id || data?.id, data: { status } }),
+        updateTicketStatus({
+          id: data?._id || data?.id,
+          data: { status: apiStatus },
+        }),
       ).unwrap();
       toast.success("Ticket status updated successfully");
       onCancel && onCancel();
@@ -128,6 +139,7 @@ const ViewSupportTicket = ({ data, onCancel }) => {
                 <Image
                   src={img}
                   unoptimized
+                  fill
                   alt={`Evidence ${idx + 1}`}
                   className="w-full h-full object-cover cursor-pointer"
                   onClick={() => setSelectedImage(img)}

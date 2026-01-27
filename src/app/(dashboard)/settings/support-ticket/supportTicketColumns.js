@@ -107,7 +107,7 @@ export const getSupportTicketColumns = ({ onDelete, onStatusUpdate }) => [
               {
                 label: "Mark as In Process",
                 iconUrl: "/assets/icon/markCompleted.svg",
-               
+
                 onClick: () => onStatusUpdate(row._id || row.id, "inprocess"),
               },
               {
@@ -133,7 +133,7 @@ export const getSupportTicketColumns = ({ onDelete, onStatusUpdate }) => [
               {
                 label: "Mark as Done",
                 iconUrl: "/assets/icon/markCompleted.svg",
-                
+
                 onClick: () => onStatusUpdate(row._id || row.id, "done"),
               },
               {

@@ -15,12 +15,10 @@ import Image from "next/image";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import PortfolioCards from "@/components/common/PortfolioCard";
 import { useRouter } from "next/navigation";
-import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./fraudReportColumn";
 import ActionPopup from "@/components/common/ActionPopup";
 import { toast } from "sonner";
 import ReviewsDrawer from "@/components/common/reviews/ReviewsDrawer";
-import { reviewsData } from "@/components/common/reviews/reviewsData";
 
 const options = {
   select: false,
@@ -116,9 +114,14 @@ const SellerProfilePage = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const dispatch = useDispatch();
-  const { sellerDetails, sellerReports, sellerReviews, sellerReviewsStats, loading } = useSelector(
-    (state) => state.seller,
-  );
+  const {
+    sellerDetails,
+    sellerReports,
+    sellerReviews,
+    sellerReviewsStats,
+    sellers,
+    loading,
+  } = useSelector((state) => state.seller);
 
   const handleBack = () => router.back();
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
@@ -182,6 +185,10 @@ const SellerProfilePage = () => {
   const sellerData = sellerDetails?.seller || {};
   const stats = sellerDetails?.stats || {};
 
+  // Find seller in the list to prioritize list status if available (as list status seems more reliable/updated)
+  const listSeller = sellers.find((s) => s._id === id || s.id === id);
+  const prioritizedStatus = listSeller?.status || sellerData.status || "Active";
+
   // Normalize data fields
   const displaySeller = {
     ...sellerData,
@@ -194,7 +201,7 @@ const SellerProfilePage = () => {
         })
       : "N/A",
     phone: sellerData.phone || sellerData.phoneNumber || "N/A",
-    status: sellerData.status || "Active",
+    status: prioritizedStatus,
     verificationStatus: sellerData.verificationStatus || "Pending",
     rating: sellerData.rating || 0,
     reviews: sellerData.reviews || 0,
@@ -274,7 +281,7 @@ const SellerProfilePage = () => {
   // Map reports for grid
   const formattedReports = (sellerReports || []).map((report) => ({
     _id: report._id || report.id,
-    reportId: report.reportId || report._id, // Adjust based on API response
+    reportId: report.reportId || report.id || report._id,
     reportBy: {
       name: report.reporterId?.name || "Unknown",
       email: report.reporterId?.email || "N/A",
@@ -520,7 +527,11 @@ const SellerProfilePage = () => {
               {[1, 2, 3, 4, 5].map((star) => {
                 const fillPercentage = Math.min(
                   100,
-                  Math.max(0, ((sellerReviewsStats?.averageRating || 0) - (star - 1)) * 100),
+                  Math.max(
+                    0,
+                    ((sellerReviewsStats?.averageRating || 0) - (star - 1)) *
+                      100,
+                  ),
                 );
 
                 return (
@@ -565,7 +576,7 @@ const SellerProfilePage = () => {
       </div>
 
       {/* Suspension Reason */}
-      {displaySeller.status === "Suspended" &&
+      {displaySeller.status?.toLowerCase() === "suspended" &&
         displaySeller.suspensionReason && (
           <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
             <div className="rounded-md bg-gray-50 text-sm">

@@ -122,12 +122,12 @@ export const getProductOrderColumns = (
                     <ViewOrderDetails module="buyer" orderId={row._id} />
                   ),
                 },
-                {
-                  label: "Mark As Complete",
-                  iconUrl: "/assets/icon/markCompleted.svg",
-                  onClick: () =>
-                    handleMarkAsComplete && handleMarkAsComplete(row),
-                },
+                // {
+                //   label: "Mark As Complete",
+                //   iconUrl: "/assets/icon/markCompleted.svg",
+                //   onClick: () =>
+                //     handleMarkAsComplete && handleMarkAsComplete(row),
+                // },
                 {
                   label: "Flag Order",
                   iconUrl: "/assets/icon/flag.svg",
@@ -234,16 +234,16 @@ export const getProductOrderColumns = (
                   onClick: () =>
                     handleInvoiceDownload && handleInvoiceDownload(row),
                 },
-                {
-                  label: "Initiate Refund",
-                  iconUrl: "/assets/icon/refund.svg",
-                  type: "modal_component",
-                  style: {
-                    color: "#BC0D10",
-                  },
-                  component: <InitiateRefundPopup />,
-                  onApply: (data) => handleRefund && handleRefund(row, data),
-                },
+                // {
+                //   label: "Initiate Refund",
+                //   iconUrl: "/assets/icon/refund.svg",
+                //   type: "modal_component",
+                //   style: {
+                //     color: "#BC0D10",
+                //   },
+                //   component: <InitiateRefundPopup />,
+                //   onApply: (data) => handleRefund && handleRefund(row, data),
+                // },
               ];
 
             default:
