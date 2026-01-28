@@ -3,7 +3,7 @@ import {
   getAllFraudReports as getAllFraudReportsService,
   getFraudReportsByUserId as getFraudReportsByUserIdService,
   getFraudReportById as getFraudReportByIdService,
-  deleteFraudReport as deleteFraudReportService,
+  deleteFraudReports as deleteFraudReportsService,
 } from "./fraudReportService";
 
 // Async Thunks
@@ -43,13 +43,14 @@ export const fetchFraudReportById = createAsyncThunk(
     }
   },
 );
+// bulk report delete
 
-export const deleteFraudReport = createAsyncThunk(
-  "fraudReport/delete",
-  async (id, { rejectWithValue }) => {
+export const deleteFraudReports = createAsyncThunk(
+  "fraudReport/deleteBulk",
+  async (ids, { rejectWithValue }) => {
     try {
-      await deleteFraudReportService(id);
-      return id; // Return id to filter out from state
+      await deleteFraudReportsService(ids);
+      return ids;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -92,8 +93,10 @@ const fraudReportSlice = createSlice({
           state.reports = data;
         } else {
           state.reports = data.data || data.reports || [];
-          state.totalResults = data.totalResults || 0;
-          state.totalPages = data.totalPages || 1;
+          // Check for meta pagination data first, then fallbacks
+          const meta = data.meta || data.pagination;
+          state.totalResults = meta?.totalResults || data.totalResults || 0;
+          state.totalPages = meta?.totalPages || data.totalPages || 1;
         }
       })
       .addCase(fetchAllFraudReports.rejected, (state, action) => {
@@ -129,15 +132,16 @@ const fraudReportSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Delete
-      .addCase(deleteFraudReport.fulfilled, (state, action) => {
+      //  report delete
+      .addCase(deleteFraudReports.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.reports = state.reports.filter(
-          (report) => (report._id || report.id) !== action.payload,
+          (report) =>
+            !action.payload.includes((report._id || report.id).toString()),
         );
       })
-      .addCase(deleteFraudReport.rejected, (state, action) => {
+      .addCase(deleteFraudReports.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -9,7 +9,7 @@ import ActionPopup from "@/components/common/ActionPopup";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllFraudReports,
-  deleteFraudReport,
+  deleteFraudReports,
 } from "@/state/fraudReport/fraudReportSlice";
 import { toast } from "sonner";
 
@@ -22,30 +22,62 @@ const FraudReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
-  const { reports, loading } = useSelector((state) => state.fraudReport);
+  const { reports, loading, totalPages } = useSelector(
+    (state) => state.fraudReport,
+  );
 
   useEffect(() => {
-    dispatch(fetchAllFraudReports());
+    dispatch(fetchAllFraudReports({ page: 1, limit: 10 }));
   }, [dispatch]);
 
   const handleDelete = useCallback(
     async (id) => {
       try {
-        await dispatch(deleteFraudReport(id)).unwrap();
+        await dispatch(deleteFraudReports([id])).unwrap();
         toast.success("Fraud report deleted successfully");
+        // refresh
+        dispatch(
+          fetchAllFraudReports({
+            page: currentPage,
+            limit: 10,
+          }),
+        );
       } catch (error) {
         toast.error("Failed to delete fraud report");
       }
     },
-    [dispatch],
+    [dispatch, currentPage],
+  );
+
+  const handleBulkDelete = useCallback(
+    async (data, rows) => {
+      const ids = rows.map((row) => row._id || row.id);
+      if (ids.length === 0) {
+        toast.error("No items selected");
+        return;
+      }
+
+      try {
+        await dispatch(deleteFraudReports(ids)).unwrap();
+        toast.success("Fraud reports deleted successfully");
+        // Refresh to ensure pagination sync
+        dispatch(
+          fetchAllFraudReports({
+            page: currentPage,
+            limit: 10,
+          }),
+        );
+      } catch (error) {
+        toast.error("Failed to delete fraud reports");
+      }
+    },
+    [dispatch, currentPage],
   );
 
   const columns = useMemo(
     () => getFraudReportColumns({ onDelete: handleDelete }),
     [handleDelete],
   );
-
-  const itemsPerPage = 10;
 
   // Filter fraud reports client-side
   const filteredReports = useMemo(() => {
@@ -108,16 +140,12 @@ const FraudReportPage = () => {
     }));
   }, [reports, searchQuery]);
 
-  const indexofLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexofLastItem - itemsPerPage;
-
-  const currentData = filteredReports.slice(indexOfFirstItem, indexofLastItem);
-
-  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+  const currentData = filteredReports;
 
   // Reset to first page when search query changes
   useEffect(() => {
     setCurrentPage(1);
+    // Ideally dispatch search to server here if supported
   }, [searchQuery]);
 
   return (
@@ -158,7 +186,7 @@ const FraudReportPage = () => {
                   confirmColor="red"
                 />
               ),
-              onApply: (data) => console.log("Delete:", data),
+              onApply: handleBulkDelete,
             },
           ]}
         />
@@ -169,6 +197,7 @@ const FraudReportPage = () => {
         totalPages={totalPages}
         onPageChange={(page) => {
           setCurrentPage(page);
+          dispatch(fetchAllFraudReports({ page, limit: 10 }));
         }}
       />
     </div>

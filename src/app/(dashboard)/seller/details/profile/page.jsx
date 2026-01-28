@@ -6,10 +6,12 @@ import {
   reactivateSellerAction,
   verifySellerAction,
   resetPasswordLinkAction,
-  fetchSellerReports,
-  deleteReportAction,
   fetchSellerReviews,
 } from "@/state/seller/sellerSlice";
+import {
+  deleteFraudReports,
+  fetchFraudReportsByUser,
+} from "@/state/fraudReport/fraudReportSlice";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
@@ -116,12 +118,16 @@ const SellerProfilePage = () => {
   const dispatch = useDispatch();
   const {
     sellerDetails,
-    sellerReports,
     sellerReviews,
     sellerReviewsStats,
     sellers,
-    loading,
+    loading: sellerLoading,
   } = useSelector((state) => state.seller);
+  const { reports: sellerReports, loading: reportsLoading } = useSelector(
+    (state) => state.fraudReport,
+  );
+
+  const loading = sellerLoading || reportsLoading;
 
   const handleBack = () => router.back();
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
@@ -132,7 +138,7 @@ const SellerProfilePage = () => {
   useEffect(() => {
     if (id) {
       dispatch(getSellerDetailsAction(id));
-      dispatch(fetchSellerReports(id));
+      dispatch(fetchFraudReportsByUser(id));
       dispatch(fetchSellerReviews(id));
     }
   }, [dispatch, id]);
@@ -182,10 +188,10 @@ const SellerProfilePage = () => {
       .catch((err) => toast.error(err || "Failed to send link"));
   };
 
-  const sellerData = sellerDetails?.seller || {};
-  const stats = sellerDetails?.stats || {};
+  const sellerData = sellerDetails?.seller || sellerDetails || {};
+  const stats = sellerDetails?.stats || sellerDetails || {};
 
-  // Find seller in the list to prioritize list status if available (as list status seems more reliable/updated)
+  // Find seller in the list to prioritize list status if available
   const listSeller = sellers.find((s) => s._id === id || s.id === id);
   const prioritizedStatus = listSeller?.status || sellerData.status || "Active";
 
@@ -193,16 +199,28 @@ const SellerProfilePage = () => {
   const displaySeller = {
     ...sellerData,
     image: sellerData.profile || "/CustomerImage.svg",
-    joined: sellerData.joinedAt
-      ? new Date(sellerData.joinedAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-      : "N/A",
+    joined:
+      sellerData.createdAt || sellerData.joinedAt
+        ? new Date(
+            sellerData.createdAt || sellerData.joinedAt,
+          ).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "N/A",
+    name: sellerData.name || "N/A",
+    email: sellerData.email || "N/A",
     phone: sellerData.phone || sellerData.phoneNumber || "N/A",
     status: prioritizedStatus,
-    verificationStatus: sellerData.verificationStatus || "Pending",
+    verificationStatus:
+      sellerData.identityVerificationStatus === "APPROVED" ||
+      sellerData.idStatus === "Verified"
+        ? "Verified"
+        : sellerData.identityVerificationStatus === "REJECTED" ||
+            sellerData.idStatus === "Rejected"
+          ? "Rejected"
+          : "Pending",
     rating: sellerData.rating || 0,
     reviews: sellerData.reviews || 0,
     about: sellerData.bio || "No description provided.",
@@ -296,7 +314,7 @@ const SellerProfilePage = () => {
   }));
 
   const handleDeleteReport = (reportId) => {
-    dispatch(deleteReportAction(reportId))
+    dispatch(deleteFraudReports([reportId]))
       .unwrap()
       .then(() => toast.success("Report deleted successfully"))
       .catch((err) => toast.error(err || "Failed to delete report"));

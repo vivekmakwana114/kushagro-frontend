@@ -51,8 +51,8 @@ const ViewSupportTicket = ({ data, onCancel }) => {
     try {
       await dispatch(
         updateTicketStatus({
-          id: data?._id || data?.id,
-          data: { status: apiStatus },
+          ids: [data?._id || data?.id],
+          status: apiStatus,
         }),
       ).unwrap();
       toast.success("Ticket status updated successfully");

@@ -1,8 +1,14 @@
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
 const Standard_Avatar = ({ user, style }) => {
   const { name, email, category, profile, image, image1, image2, quantity } =
     user || {};
+  const [imgSrc, setImgSrc] = useState(profile);
+
+  useEffect(() => {
+    setImgSrc(profile);
+  }, [profile]);
 
   const profileImages = [];
   if (image) profileImages.push(image);
@@ -57,12 +63,12 @@ const Standard_Avatar = ({ user, style }) => {
               }}
             >
               <Image
-                src={profile}
+                src={imgSrc || "/assets/icon/no_profile_icon.svg"}
                 alt={name || "User"}
                 className={`w-full h-full object-cover ${imageRadius}`}
                 fill
                 unoptimized
-                onError={(e) => console.error("Image load error:", profile, e)}
+                onError={() => setImgSrc("/assets/icon/no_profile_icon.svg")}
               />
             </div>
           )

@@ -7,9 +7,6 @@ import {
   resetPasswordLink,
   verifySeller,
   reactivateSeller,
-  getFraudReportsByUser,
-  getFraudReportDetails,
-  deleteFraudReport,
   getSellerReviews,
 } from "./sellerService";
 
@@ -91,45 +88,6 @@ export const reactivateSellerAction = createAsyncThunk(
   },
 );
 
-// Get Fraud Reports By User
-export const fetchSellerReports = createAsyncThunk(
-  "seller/fetchReports",
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await getFraudReportsByUser(id);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  },
-);
-
-// Get Report Details
-export const fetchReportDetails = createAsyncThunk(
-  "seller/fetchReportDetails",
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await getFraudReportDetails(id);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  },
-);
-
-// Delete Fraud Report
-export const deleteReportAction = createAsyncThunk(
-  "seller/deleteReport",
-  async (id, { rejectWithValue }) => {
-    try {
-      await deleteFraudReport(id);
-      return id;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  },
-);
-
 // Get Seller Reviews
 export const fetchSellerReviews = createAsyncThunk(
   "seller/fetchReviews",
@@ -151,8 +109,6 @@ const initialState = {
   error: null,
   success: false,
   sellerDetails: null,
-  sellerReports: [],
-  currentReport: null,
   sellerReviews: [],
   sellerReviewsStats: null,
 };
@@ -267,30 +223,6 @@ const sellerSlice = createSlice({
       .addCase(reactivateSellerAction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      // Fraud Reports
-      .addCase(fetchSellerReports.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchSellerReports.fulfilled, (state, action) => {
-        state.loading = false;
-        state.sellerReports = action.payload.data || action.payload || [];
-      })
-      .addCase(fetchSellerReports.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Report Details
-      .addCase(fetchReportDetails.fulfilled, (state, action) => {
-        state.currentReport = action.payload.data || action.payload;
-      })
-      // Delete Report
-      .addCase(deleteReportAction.fulfilled, (state, action) => {
-        state.sellerReports = state.sellerReports.filter(
-          (report) =>
-            report._id !== action.payload && report.id !== action.payload,
-        );
-        toast.success("Report deleted successfully");
       })
       // Reviews
       .addCase(fetchSellerReviews.pending, (state) => {

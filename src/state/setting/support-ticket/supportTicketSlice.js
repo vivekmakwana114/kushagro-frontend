@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
-  deleteSupportTicket,
+  deleteSupportTickets,
   getAllSupportTickets,
   getSupportTicketById,
   getSupportTickets,
@@ -10,6 +10,12 @@ import {
 const initialState = {
   supportTickets: [],
   currentTicket: null,
+  pagination: {
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    totalResults: 0,
+  },
   isLoading: false,
   error: null,
   isSuccess: false,
@@ -57,9 +63,12 @@ export const fetchSupportTicketById = createAsyncThunk(
 // Update support ticket status
 export const updateTicketStatus = createAsyncThunk(
   "supportTicket/updateTicketStatus",
-  async ({ id, data }, thunkAPI) => {
+  async ({ ids, status }, thunkAPI) => {
     try {
-      const response = await updateSupportTicketStatus(id, data);
+      const response = await updateSupportTicketStatus({
+        ticketIds: ids,
+        status,
+      });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -72,8 +81,8 @@ export const deleteTicket = createAsyncThunk(
   "supportTicket/deleteTicket",
   async (id, thunkAPI) => {
     try {
-      const response = await deleteSupportTicket(id);
-      return { id, ...response.data };
+      await deleteSupportTickets({ ticketIds: [id] });
+      return id;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
@@ -85,7 +94,7 @@ export const deleteTickets = createAsyncThunk(
   "supportTicket/deleteTickets",
   async (ids, thunkAPI) => {
     try {
-      await Promise.all(ids.map((id) => deleteSupportTicket(id)));
+      await deleteSupportTickets({ ticketIds: ids });
       return ids;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -113,6 +122,12 @@ const supportTicketSlice = createSlice({
       .addCase(fetchSupportTickets.fulfilled, (state, action) => {
         state.isLoading = false;
         state.supportTickets = action.payload?.data || [];
+        state.pagination = action.payload?.meta || {
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+          totalResults: 0,
+        };
         state.isSuccess = true;
       })
       .addCase(fetchSupportTickets.rejected, (state, action) => {
@@ -152,29 +167,28 @@ const supportTicketSlice = createSlice({
       .addCase(updateTicketStatus.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        // Optionally update the ticket in the list
-        const updateId = action.meta.arg.id;
 
+        const { ids, status } = action.meta.arg;
+
+        // Update current ticket if it matches
         if (
           state.currentTicket &&
-          (state.currentTicket._id === updateId ||
-            state.currentTicket.id === updateId)
+          (ids.includes(state.currentTicket._id) ||
+            ids.includes(state.currentTicket.id))
         ) {
           state.currentTicket = {
             ...state.currentTicket,
-            ...action.meta.arg.data,
+            status: status,
           };
         }
 
-        const index = state.supportTickets.findIndex(
-          (ticket) => ticket._id === updateId || ticket.id === updateId,
-        );
-        if (index !== -1) {
-          state.supportTickets[index] = {
-            ...state.supportTickets[index],
-            ...action.meta.arg.data,
-          };
-        }
+        // Update list
+        state.supportTickets = state.supportTickets.map((ticket) => {
+          if (ids.includes(ticket._id) || ids.includes(ticket.id)) {
+            return { ...ticket, status: status };
+          }
+          return ticket;
+        });
       })
       .addCase(updateTicketStatus.rejected, (state, action) => {
         state.isLoading = false;
@@ -187,7 +201,7 @@ const supportTicketSlice = createSlice({
       .addCase(deleteTicket.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        const deleteId = action.meta.arg;
+        const deleteId = action.payload;
         state.supportTickets = state.supportTickets.filter(
           (ticket) => ticket._id !== deleteId && ticket.id !== deleteId,
         );

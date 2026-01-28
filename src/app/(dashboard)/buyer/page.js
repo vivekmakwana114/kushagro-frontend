@@ -149,7 +149,7 @@ const Page = () => {
     buyer: {
       name: buyer?.name || "N/A",
       email: buyer?.email || "N/A",
-      profile: buyer?.profile || "",
+      profile: buyer?.profile || "/assets/icon/no_profile_icon.svg",
     },
     phone: buyer?.phone || "N/A",
     joined_on: buyer?.createdAt || buyer?.joinedAt,

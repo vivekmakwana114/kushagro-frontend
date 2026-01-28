@@ -37,14 +37,19 @@ const SellerPage = () => {
     seller: {
       name: user.name,
       email: user.email,
-      profile: user.profile,
+      profile: user.profile || "/assets/icon/no_profile_icon.svg",
     },
     phone: user.phone || user.phoneNumber || "N/A",
     createdAt: user.createdAt,
     totalListings: user.totalListings,
     totalOrders: user.totalOrders,
     earnings: user.earnings,
-    idStatus: user.idStatus,
+    idStatus:
+      user.identityVerificationStatus === "APPROVED"
+        ? "Verified"
+        : user.identityVerificationStatus === "REJECTED"
+          ? "Rejected"
+          : "Pending",
     status: user.status,
   }));
 

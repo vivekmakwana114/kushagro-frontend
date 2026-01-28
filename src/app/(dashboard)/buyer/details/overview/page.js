@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import ActionPopup from "@/components/common/ActionPopup";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./farudReportColumn";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -16,7 +15,7 @@ import {
 } from "@/state/buyer/buyerSlice";
 import {
   fetchFraudReportsByUser,
-  deleteFraudReport,
+  deleteFraudReports,
 } from "@/state/fraudReport/fraudReportSlice";
 import { toast } from "sonner";
 
@@ -171,7 +170,7 @@ const ClientDetails = () => {
 
   const handleDeleteReport = async (reportId) => {
     try {
-      await dispatch(deleteFraudReport(reportId)).unwrap();
+      await dispatch(deleteFraudReports([reportId])).unwrap();
       toast.success("Report deleted successfully");
     } catch (error) {
       toast.error(error.message || "Failed to delete report");

@@ -18,7 +18,6 @@ import {
   removeCategory,
   updateExistingCategoryStatus,
 } from "@/state/categories/categoriesSlice";
-import { useDebounce } from "@/hooks/useDebounce";
 const options = {
   select: false,
   order: false,

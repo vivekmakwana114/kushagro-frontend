@@ -13,6 +13,7 @@ import {
   fetchSupportTickets,
   updateTicketStatus,
   deleteTicket,
+  deleteTickets,
 } from "@/state/setting/support-ticket/supportTicketSlice";
 import { toast } from "sonner";
 
@@ -25,13 +26,13 @@ const SupportTicketPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
-  const { supportTickets, isLoading } = useSelector(
+  const { supportTickets, isLoading, pagination } = useSelector(
     (state) => state.supportTicket,
   );
 
   // Initial fetch
   useEffect(() => {
-    dispatch(fetchSupportTickets());
+    dispatch(fetchSupportTickets({ page: 1, limit: 10 }));
   }, [dispatch]);
 
   const itemsPerPage = 10;
@@ -83,15 +84,14 @@ const SupportTicketPage = () => {
     }));
   }, [supportTickets, searchQuery]);
 
-  const indexofLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexofLastItem - itemsPerPage;
-  const currentData = filteredTickets.slice(indexOfFirstItem, indexofLastItem);
+  const currentData = filteredTickets;
 
-  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+  const totalPages = pagination?.totalPages || 1;
 
   // Reset to first page when search query changes
   useEffect(() => {
     setCurrentPage(1);
+    // Debounce search could be added here to fetch from server
   }, [searchQuery]);
 
   const handleDelete = useCallback(
@@ -114,7 +114,7 @@ const SupportTicketPage = () => {
 
       try {
         await dispatch(
-          updateTicketStatus({ id, data: { status: apiStatus } }),
+          updateTicketStatus({ ids: [id], status: apiStatus }),
         ).unwrap();
         toast.success("Ticket status updated successfully");
       } catch (error) {
@@ -154,7 +154,61 @@ const SupportTicketPage = () => {
     if (filterData.dateRange?.to)
       params.toDate = formatDate(filterData.dateRange.to);
 
+    // Reset to page 1 when filtering
+    setCurrentPage(1);
+    params.page = 1;
+    params.limit = 10;
+
     dispatch(fetchSupportTickets(params));
+  };
+
+  const handleBulkDelete = async (formData, selectedItems) => {
+    // Check if selectedItems is provided (from bulk action) or if formData is the array (direct call)
+    const items = Array.isArray(selectedItems)
+      ? selectedItems
+      : Array.isArray(formData)
+        ? formData
+        : [];
+
+    const ids = items.map((item) => item._id || item.id || item.ticket_id);
+    if (ids.length === 0) return;
+
+    try {
+      await dispatch(deleteTickets(ids)).unwrap();
+      toast.success("Tickets deleted successfully");
+      dispatch(
+        fetchSupportTickets({
+          page: currentPage,
+          limit: 10,
+          search: searchQuery,
+        }),
+      );
+    } catch (error) {
+      toast.error("Failed to delete tickets");
+    }
+  };
+
+  const handleBulkStatusUpdate = async (selectedItems, status) => {
+    const ids = selectedItems.map(
+      (item) => item._id || item.id || item.ticket_id,
+    );
+    if (ids.length === 0) return;
+
+    try {
+      await dispatch(updateTicketStatus({ ids, status })).unwrap();
+      toast.success(
+        `Tickets marked as ${status.toLowerCase().replace("_", " ")} successfully`,
+      );
+      dispatch(
+        fetchSupportTickets({
+          page: currentPage,
+          limit: 10,
+          search: searchQuery,
+        }),
+      );
+    } catch (error) {
+      toast.error("Failed to update ticket status");
+    }
   };
 
   return (
@@ -198,8 +252,18 @@ const SupportTicketPage = () => {
           }}
           bulkActionsConfig={[
             {
+              label: "Mark as Done",
+              iconUrl: "/assets/icon/markAsDone.svg",
+              onClick: (items) => handleBulkStatusUpdate(items, "DONE"),
+            },
+            {
+              label: "Mark as In Process",
+              iconUrl: "/assets/icon/markInprocess.svg",
+              onClick: (items) => handleBulkStatusUpdate(items, "IN_PROGRESS"),
+            },
+            {
               label: "Delete Ticket",
-              iconUrl: "/assets/icon/deleteBarbershop.svg",
+              iconUrl: "/assets/icon/deleteSelection.svg",
               type: "modal_component",
               component: (
                 <ActionPopup
@@ -209,16 +273,19 @@ const SupportTicketPage = () => {
                   confirmColor="red"
                 />
               ),
-              onApply: console.log("Delete Ticket"),
+              onApply: handleBulkDelete,
             },
           ]}
         />
       </div>
       <Pagination
-        currentPage={currentPage}
+        currentPage={pagination?.page || 1}
         totalPages={totalPages}
         onPageChange={(page) => {
           setCurrentPage(page);
+          dispatch(
+            fetchSupportTickets({ page, limit: 10, search: searchQuery }),
+          );
         }}
       />
     </div>

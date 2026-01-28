@@ -24,7 +24,7 @@ import {
 } from "../ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/state/auth/authSlice";
 
 import { useEffect, useRef, useState, Fragment } from "react";
@@ -80,7 +80,7 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const { dynamicCrumb } = useBreadcrumbStore();
+  const { user,dynamicCrumb } = useSelector((state) => state.auth);
 
   const getBreadcrumbs = () => {
     const segments = pathname.split("/").filter((s) => s);
@@ -198,12 +198,12 @@ const Header = () => {
         <div className="flex flex-row gap-2 items-center ">
           <div className="hidden md:flex md:flex-col gap-0.5">
             <div className="flex items-center justify-end">
-              <p className="text-[12px] font-medium text-placeholder-color text-left">
+              <p className="text-[12px] font-medium text-secondary1 text-left">
                 Hello
               </p>
             </div>
             <p className="text-[14px] font-medium text-(--dark) truncate">
-              John Doe
+              {user?.name || "User"}
             </p>
           </div>
 
@@ -213,7 +213,7 @@ const Header = () => {
               <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
                 <Avatar className={`size-8 md:size-12 border-2`}>
                   <AvatarImage
-                    src="/profile.jpg"
+                    src={user?.profile || "/profile.jpg"}
                     alt="User Avatar"
                     className="object-cover"
                   />
