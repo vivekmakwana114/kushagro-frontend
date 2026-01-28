@@ -29,6 +29,29 @@ import { logout } from "@/state/auth/authSlice";
 
 import { useEffect, useRef, useState, Fragment } from "react";
 import Notification from "@/components/common/Notification";
+import { LuBell } from "react-icons/lu";
+import { useNotificationStore } from "@/state/useNotificationStore";
+import {
+  connectSocket,
+  disconnectSocket,
+  subscribeToNotifications,
+  subscribeToReadEvents,
+  subscribeToDeleteEvent,
+} from "@/services/socketService";
+
+const getToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth");
+    if (raw) {
+      const { tokens } = JSON.parse(raw);
+      return tokens?.access?.token;
+    }
+  } catch (e) {
+    console.error("Error getting token:", e);
+  }
+  return null;
+};
 
 // Map of routes to their display names
 const routeMap = {
@@ -66,6 +89,7 @@ const Header = () => {
   const pathname = usePathname();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef(null);
+  const { unreadCount, addNotification, markAsRead, markAllAsRead, removeNotification } = useNotificationStore();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -78,6 +102,47 @@ const Header = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // socket connection
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      connectSocket(token);
+
+      const unsubscribeNotifications = subscribeToNotifications((newNotification) => {
+        const formattedNotification = {
+          id: newNotification._id || Date.now(),
+          type: newNotification.type || "default",
+          title: newNotification.title,
+          description: newNotification.message || newNotification.description,
+          time: "Just now",
+          isRead: false,
+          ...newNotification
+        };
+        addNotification(formattedNotification);
+      });
+
+      const unsubscribeRead = subscribeToReadEvents(
+        (updatedNotification) => {
+          markAsRead(updatedNotification._id || updatedNotification.id);
+        },
+        () => {
+          markAllAsRead();
+        }
+      );
+
+      const unsubscribeDelete = subscribeToDeleteEvent(({ id }) => {
+        removeNotification(id);
+      });
+
+      return () => {
+        unsubscribeNotifications?.();
+        unsubscribeRead?.();
+        unsubscribeDelete?.();
+        disconnectSocket();
+      };
+    }
   }, []);
 
   const { dynamicCrumb } = useBreadcrumbStore();
@@ -177,15 +242,16 @@ const Header = () => {
         <div className="relative" ref={notificationRef}>
           <div
             onClick={() => setIsNotificationOpen((prev) => !prev)}
-            className="w-[30px] h-[30px] border border-(--border-admin) 
-                   rounded-[6px] flex items-center justify-center shadow-md cursor-pointer"
+            className="w-[40px] h-[40px] border border-(--border-admin) 
+                   rounded-full flex items-center justify-center shadow-sm cursor-pointer hover:bg-gray-50 transition-colors relative"
           >
-            <Image
-              src="/assets/icon/notification.svg"
-              alt="Menubar"
-              width={16}
-              height={16}
-            />
+            <LuBell className="text-gray-600 w-5 h-5" />
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-white flex items-center justify-center">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </div>
 
           <Notification
