@@ -460,11 +460,19 @@ const SellerProfilePage = () => {
             </div>
 
             <div>
-              <p className="text-[var(--color-dull-text)] mb-2 font-medium">
+              <p className="text-dull-text mb-2 font-medium">
                 Verification Status
               </p>
               <div className="flex items-center justify-between gap-4">
-                <span className="bg-[#FFF8DD] text-primary1 px-3 py-1.5 rounded text-xs font-semibold">
+                <span
+                  className={`px-3 py-1.5 rounded text-xs font-semibold ${
+                    displaySeller.verificationStatus === "Verified"
+                      ? "bg-[#EAFFED] text-[#097416]"
+                      : displaySeller.verificationStatus === "Rejected"
+                        ? "bg-[#FFF0F0] text-[#BC0D10]"
+                        : "bg-[#FFF8DD] text-[#FFBE00]"
+                  }`}
+                >
                   {displaySeller.verificationStatus}
                 </span>
                 <div className="flex gap-2">

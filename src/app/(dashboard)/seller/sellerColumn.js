@@ -105,7 +105,7 @@ export const getSellerColumns = ({
       options: {
         value: {
           verified: "#097416", // green
-          pending: "#FFBE00", // gray
+          pending: "#FFBE00", // yellow
           rejected: "#BC0D10", //red
         },
       },
