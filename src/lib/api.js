@@ -8,10 +8,10 @@ console.log("Using API Base URL:", BASE_URL);
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    // TEMPORARY: Skip Ngrok browser warning page - REMOVE IN PRODUCTION
-    "ngrok-skip-browser-warning": "true",
-  },
+  // headers: {
+  //   // TEMPORARY: Skip Ngrok browser warning page - REMOVE IN PRODUCTION
+  //   "ngrok-skip-browser-warning": "true",
+  // },
 });
 
 api.interceptors.request.use((config) => {
