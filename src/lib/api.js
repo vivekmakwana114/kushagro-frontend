@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const RAW_BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  "http://localhost:3000";
+const RAW_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/g, "");
 
 // Log API URL to verify correct backend connection
