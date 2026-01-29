@@ -12,7 +12,6 @@ import {
   fetchProducts,
   updateProductStatusThunk,
 } from "@/state/listing/listingSlice";
-import { useDebounce } from "@/hooks/useDebounce";
 import Pagination from "@/components/ui/pagination";
 import CategoryPDFDocument from "./CategoryPDFDocument";
 

@@ -47,8 +47,28 @@ export const sendResetLink = (id) => {
 };
 
 // Get Buyer Orders
-export const getBuyerOrders = (id) => {
-  return api.get(`/v1/order/buyer/${id}`);
+export const getBuyerOrders = (id, params) => {
+  let url = `/v1/order/buyer/${id}`;
+  const searchParams = new URLSearchParams();
+
+  if (params) {
+    Object.keys(params).forEach((key) => {
+      if (
+        params[key] !== undefined &&
+        params[key] !== null &&
+        params[key] !== ""
+      ) {
+        searchParams.append(key, params[key]);
+      }
+    });
+  }
+
+  const queryString = searchParams.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+
+  return api.get(url);
 };
 
 // Flag order

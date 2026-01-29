@@ -124,14 +124,14 @@ export const listingSidebarItems = [
 
 // Settings Sidebar - settting
 export const settingSidebarItems = [
-  // {
-  //   title: "General",
-  //   url: "/settings",
-  //   icon: {
-  //     active: "/assets/icon/sett.svg",
-  //     inactive: "/assets/icon/sett_inactive.svg",
-  //   },
-  // },
+  {
+    title: "General",
+    url: "/settings",
+    icon: {
+      active: "/assets/icon/sett.svg",
+      inactive: "/assets/icon/sett_inactive.svg",
+    },
+  },
   {
     title: "Tax Commission",
     url: "/settings/tax-commission",

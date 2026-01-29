@@ -6,21 +6,21 @@ import {
   reactivateSellerAction,
   verifySellerAction,
   resetPasswordLinkAction,
-  fetchSellerReports,
-  deleteReportAction,
   fetchSellerReviews,
 } from "@/state/seller/sellerSlice";
+import {
+  deleteFraudReports,
+  fetchFraudReportsByUser,
+} from "@/state/fraudReport/fraudReportSlice";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import PortfolioCards from "@/components/common/PortfolioCard";
 import { useRouter } from "next/navigation";
-import { fraudReportData } from "./fraudReportData";
 import { getFraudReportColumns } from "./fraudReportColumn";
 import ActionPopup from "@/components/common/ActionPopup";
 import { toast } from "sonner";
 import ReviewsDrawer from "@/components/common/reviews/ReviewsDrawer";
-import { reviewsData } from "@/components/common/reviews/reviewsData";
 
 const options = {
   select: false,
@@ -116,9 +116,18 @@ const SellerProfilePage = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const dispatch = useDispatch();
-  const { sellerDetails, sellerReports, sellerReviews, sellerReviewsStats, loading } = useSelector(
-    (state) => state.seller,
+  const {
+    sellerDetails,
+    sellerReviews,
+    sellerReviewsStats,
+    sellers,
+    loading: sellerLoading,
+  } = useSelector((state) => state.seller);
+  const { reports: sellerReports, loading: reportsLoading } = useSelector(
+    (state) => state.fraudReport,
   );
+
+  const loading = sellerLoading || reportsLoading;
 
   const handleBack = () => router.back();
   const [isReactivateOpen, setIsReactivateOpen] = useState(false);
@@ -129,7 +138,7 @@ const SellerProfilePage = () => {
   useEffect(() => {
     if (id) {
       dispatch(getSellerDetailsAction(id));
-      dispatch(fetchSellerReports(id));
+      dispatch(fetchFraudReportsByUser(id));
       dispatch(fetchSellerReviews(id));
     }
   }, [dispatch, id]);
@@ -179,23 +188,39 @@ const SellerProfilePage = () => {
       .catch((err) => toast.error(err || "Failed to send link"));
   };
 
-  const sellerData = sellerDetails?.seller || {};
-  const stats = sellerDetails?.stats || {};
+  const sellerData = sellerDetails?.seller || sellerDetails || {};
+  const stats = sellerDetails?.stats || sellerDetails || {};
+
+  // Find seller in the list to prioritize list status if available
+  const listSeller = sellers.find((s) => s._id === id || s.id === id);
+  const prioritizedStatus = listSeller?.status || sellerData.status || "Active";
 
   // Normalize data fields
   const displaySeller = {
     ...sellerData,
     image: sellerData.profile || "/CustomerImage.svg",
-    joined: sellerData.joinedAt
-      ? new Date(sellerData.joinedAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-      : "N/A",
+    joined:
+      sellerData.createdAt || sellerData.joinedAt
+        ? new Date(
+            sellerData.createdAt || sellerData.joinedAt,
+          ).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "N/A",
+    name: sellerData.name || "N/A",
+    email: sellerData.email || "N/A",
     phone: sellerData.phone || sellerData.phoneNumber || "N/A",
-    status: sellerData.status || "Active",
-    verificationStatus: sellerData.verificationStatus || "Pending",
+    status: prioritizedStatus,
+    verificationStatus:
+      sellerData.identityVerificationStatus === "APPROVED" ||
+      sellerData.idStatus === "Verified"
+        ? "Verified"
+        : sellerData.identityVerificationStatus === "REJECTED" ||
+            sellerData.idStatus === "Rejected"
+          ? "Rejected"
+          : "Pending",
     rating: sellerData.rating || 0,
     reviews: sellerData.reviews || 0,
     about: sellerData.bio || "No description provided.",
@@ -274,7 +299,7 @@ const SellerProfilePage = () => {
   // Map reports for grid
   const formattedReports = (sellerReports || []).map((report) => ({
     _id: report._id || report.id,
-    reportId: report.reportId || report._id, // Adjust based on API response
+    reportId: report.reportId || report.id || report._id,
     reportBy: {
       name: report.reporterId?.name || "Unknown",
       email: report.reporterId?.email || "N/A",
@@ -289,7 +314,7 @@ const SellerProfilePage = () => {
   }));
 
   const handleDeleteReport = (reportId) => {
-    dispatch(deleteReportAction(reportId))
+    dispatch(deleteFraudReports([reportId]))
       .unwrap()
       .then(() => toast.success("Report deleted successfully"))
       .catch((err) => toast.error(err || "Failed to delete report"));
@@ -520,7 +545,11 @@ const SellerProfilePage = () => {
               {[1, 2, 3, 4, 5].map((star) => {
                 const fillPercentage = Math.min(
                   100,
-                  Math.max(0, ((sellerReviewsStats?.averageRating || 0) - (star - 1)) * 100),
+                  Math.max(
+                    0,
+                    ((sellerReviewsStats?.averageRating || 0) - (star - 1)) *
+                      100,
+                  ),
                 );
 
                 return (
@@ -565,7 +594,7 @@ const SellerProfilePage = () => {
       </div>
 
       {/* Suspension Reason */}
-      {displaySeller.status === "Suspended" &&
+      {displaySeller.status?.toLowerCase() === "suspended" &&
         displaySeller.suspensionReason && (
           <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
             <div className="rounded-md bg-gray-50 text-sm">

@@ -96,12 +96,8 @@ export const getFraudReportColumns = ({ onDelete }) => [
               component: (
                 <ViewFraudReport
                   userType="seller"
-                  reportData={{
-                    ...row,
-                    reportedBy: row.reported_by,
-                    date: row.reported_on,
-                    reportId: row.report_id,
-                  }}
+                  reportId={row._id || row.id}
+                  showReportedUser={true}
                 />
               ),
             },

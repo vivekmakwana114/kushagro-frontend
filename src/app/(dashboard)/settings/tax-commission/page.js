@@ -5,8 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleSwitch } from "@/components/ui/toggle";
 import useAutoDismissError from "@/hooks/useAutoDismissError";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateCommission,
+  resetCommissionState,
+  getCommission,
+} from "@/state/setting/commission/commissionSlice";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const TaxCommissionPage = () => {
+  const dispatch = useDispatch();
+  const { isLoading, isSuccess, isError, message, settings } = useSelector(
+    (state) => state.commission,
+  );
+
   const [activeTab, setActiveTab] = useState("commission");
 
   // Commission State
@@ -22,11 +35,41 @@ const TaxCommissionPage = () => {
   const [platformCharges, setPlatformCharges] = useState("");
   const [taxErrors, setTaxErrors, clearTaxErrors] = useAutoDismissError({});
 
+  // Fetch settings on mount
+  useEffect(() => {
+    dispatch(getCommission());
+  }, [dispatch]);
+
+  // Populate local state from settings
+  useEffect(() => {
+    if (settings) {
+      setEnableCommission(settings.isCommissionEnabled ?? false);
+      setCommissionPercent(settings.commissionPercentage?.toString() || "");
+      setCommissionMinValue(settings.minimumOrderValue?.toString() || "");
+
+      setTaxPercent(settings.taxPercentage?.toString() || "");
+      setEnablePlatformCharges(settings.isPlatformChargesApplied ?? false);
+      setPlatformCharges(settings.platformCharges?.toString() || "");
+    }
+  }, [settings]);
+
   // Clear errors when switching tabs
   useEffect(() => {
     clearCommissionErrors();
     clearTaxErrors();
   }, [activeTab, clearCommissionErrors, clearTaxErrors]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(message || "Settings updated successfully!");
+      dispatch(resetCommissionState());
+    }
+
+    if (isError) {
+      toast.error(message || "Failed to update settings");
+      dispatch(resetCommissionState());
+    }
+  }, [isSuccess, isError, message, dispatch]);
 
   // Commission Handlers
   const handleCommissionChange = (e) => {
@@ -67,12 +110,16 @@ const TaxCommissionPage = () => {
       return;
     }
 
-    console.log({
-      type: "Commission",
-      enableCommission,
-      commissionPercent,
-      minValue: commissionMinValue,
-    });
+    const payload = {
+      taxPercentage: Number(taxPercent) || 0,
+      isPlatformChargesApplied: enablePlatformCharges,
+      platformCharges: Number(platformCharges) || 0,
+      isCommissionEnabled: enableCommission,
+      commissionPercentage: Number(commissionPercent),
+      minimumOrderValue: Number(commissionMinValue),
+    };
+
+    dispatch(updateCommission(payload));
   };
 
   // Tax Handlers
@@ -114,12 +161,16 @@ const TaxCommissionPage = () => {
       return;
     }
 
-    console.log({
-      type: "Tax",
-      taxPercent,
-      enablePlatformCharges,
-      platformCharges,
-    });
+    const payload = {
+      taxPercentage: Number(taxPercent),
+      isPlatformChargesApplied: enablePlatformCharges,
+      platformCharges: Number(platformCharges) || 0,
+      isCommissionEnabled: enableCommission,
+      commissionPercentage: Number(commissionPercent) || 0,
+      minimumOrderValue: Number(commissionMinValue) || 0,
+    };
+
+    dispatch(updateCommission(payload));
   };
 
   return (
@@ -219,8 +270,12 @@ const TaxCommissionPage = () => {
               <Button
                 className="w-full mt-10 bg-[#2D5B32] hover:bg-[#254b29] text-white h-11 text-md font-medium rounded-md"
                 onClick={handleCommissionSubmit}
+                disabled={isLoading}
               >
-                Update Settings
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {isLoading ? "Updating..." : "Update Settings"}
               </Button>
             </SettingsSection>
           </div>
@@ -230,7 +285,6 @@ const TaxCommissionPage = () => {
               title="Tax & Platform Charges"
               description="Configure tax rates and platform fees for your services."
             >
-              {/* Note: Tax Percentage is first in the image */}
               <div>
                 <label className="font-medium text-black">
                   Tax Percentage (%)
@@ -290,8 +344,12 @@ const TaxCommissionPage = () => {
               <Button
                 className="w-full mt-10 bg-[#2D5B32] hover:bg-[#254b29] text-white h-11 text-md font-medium rounded-md"
                 onClick={handleTaxSubmit}
+                disabled={isLoading}
               >
-                Update Settings
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {isLoading ? "Updating..." : "Update Settings"}
               </Button>
             </SettingsSection>
           </div>

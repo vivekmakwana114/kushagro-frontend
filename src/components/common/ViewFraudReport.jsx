@@ -18,6 +18,7 @@ const ViewFraudReport = ({
   onApply,
   id,
   reportId,
+  showReportedUser = false,
   ...props
 }) => {
   const dispatch = useDispatch();
@@ -50,6 +51,12 @@ const ViewFraudReport = ({
         email: currentReport.reporterId?.email || "N/A",
         avatar:
           currentReport.reporterId?.profile || "/assets/images/placeholder.png",
+      },
+      reportedUser: {
+        name: currentReport.reportedId?.name || "N/A",
+        email: currentReport.reportedId?.email || "N/A",
+        avatar:
+          currentReport.reportedId?.profile || "/assets/images/placeholder.png",
       },
       notes: Array.isArray(currentReport.reason)
         ? currentReport.reason.join(", ")
@@ -108,7 +115,7 @@ const ViewFraudReport = ({
 
       toast.success(`${userTypeCapitalized} suspended successfully`);
       if (onSuspend) onSuspend();
-      handleCancel(); 
+      handleCancel();
     } catch (error) {
       toast.error(error.message || `Failed to suspend ${userType}`);
     }
@@ -149,31 +156,63 @@ const ViewFraudReport = ({
             </div>
           </div>
 
-          <div className="flex justify-between items-center md:block">
-            <p className="text-sm text-left text-dull-text mb-0 md:mb-3">
-              Reported By
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
-                <Image
-                  src={
-                    data.reportedBy?.profile ||
-                    "/assets/icon/no_profile_icon.svg"
-                  }
-                  alt={data.reportedBy?.name || "User"}
-                  fill
-                  unoptimized
-                  sizes="40px"
-                  className="object-cover"
-                />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {showReportedUser && (
+              <div className="flex justify-between items-center md:block">
+                <p className="text-sm text-left text-dull-text mb-0 md:mb-3">
+                  Reported User
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
+                    <Image
+                      src={
+                        data.reportedUser?.avatar ||
+                        "/assets/icon/no_profile_icon.svg"
+                      }
+                      alt={data.reportedUser?.name || "User"}
+                      fill
+                      unoptimized
+                      sizes="40px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-black truncate">
+                      {data.reportedUser?.name || "N/A"}
+                    </p>
+                    <p className="text-xs text-dull-text truncate">
+                      {data.reportedUser?.email || "N/A"}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-black truncate">
-                  {data.reportedBy?.name || "N/A"}
-                </p>
-                <p className="text-xs text-dull-text truncate">
-                  {data.reportedBy?.email || "N/A"}
-                </p>
+            )}
+            <div className="flex justify-between items-center md:block">
+              <p className="text-sm text-left text-dull-text mb-0 md:mb-3">
+                Reported By
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden relative bg-gray-100">
+                  <Image
+                    src={
+                      data.reportedBy?.profile ||
+                      "/assets/icon/no_profile_icon.svg"
+                    }
+                    alt={data.reportedBy?.name || "User"}
+                    fill
+                    unoptimized
+                    sizes="40px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-black truncate">
+                    {data.reportedBy?.name || "N/A"}
+                  </p>
+                  <p className="text-xs text-dull-text truncate">
+                    {data.reportedBy?.email || "N/A"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

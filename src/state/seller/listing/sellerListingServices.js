@@ -20,7 +20,7 @@ export const getSellerProducts = (sellerId, params = {}) => {
 };
 
 export const updateProductStatus = (id, status) => {
-  return api.post(`/v1/product/${id}`, { status });
+  return api.patch(`/v1/product/${id}`, { status });
 };
 
 export const getProductById = (id) => {

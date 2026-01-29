@@ -36,11 +36,11 @@ export const getSupportTicketById = (id) => {
 };
 
 // Update support ticket status
-export const updateSupportTicketStatus = (id, data) => {
-  return api.patch(`/v1/ticket/status/${id}`, data);
+export const updateSupportTicketStatus = (data) => {
+  return api.patch(`/v1/ticket/status`, data);
 };
 
 // Delete support ticket
-export const deleteSupportTicket = (id) => {
-  return api.delete(`/v1/ticket/${id}`);
+export const deleteSupportTickets = (data) => {
+  return api.delete(`/v1/ticket`, { data });
 };

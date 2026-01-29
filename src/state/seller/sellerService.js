@@ -53,21 +53,6 @@ export const reactivateSeller = (id) => {
   return api.post(`/v1/users/${id}/reactivate`);
 };
 
-// Get Fraud Reports by User ID
-export const getFraudReportsByUser = (id) => {
-  return api.get(`/v1/report/user/${id}`);
-};
-
-// Get Single Fraud Report Details
-export const getFraudReportDetails = (id) => {
-  return api.get(`/v1/report/${id}`);
-};
-
-// Delete Fraud Report
-export const deleteFraudReport = (id) => {
-  return api.delete(`/v1/report/${id}`);
-};
-
 // Get Seller Reviews
 export const getSellerReviews = (id) => {
   return api.get(`/v1/rating/seller/${id}`);

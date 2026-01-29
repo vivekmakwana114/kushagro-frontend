@@ -37,14 +37,19 @@ const SellerPage = () => {
     seller: {
       name: user.name,
       email: user.email,
-      profile: user.profile,
+      profile: user.profile || "/assets/icon/no_profile_icon.svg",
     },
     phone: user.phone || user.phoneNumber || "N/A",
     createdAt: user.createdAt,
     totalListings: user.totalListings,
     totalOrders: user.totalOrders,
     earnings: user.earnings,
-    idStatus: user.idStatus,
+    idStatus:
+      user.identityVerificationStatus === "APPROVED"
+        ? "Verified"
+        : user.identityVerificationStatus === "REJECTED"
+          ? "Rejected"
+          : "Pending",
     status: user.status,
   }));
 
@@ -138,33 +143,36 @@ const SellerPage = () => {
 
     // Status
     if (filters.status && !filters.status.includes("all")) {
-      newParams.status = filters.status[0];
+      newParams.status =
+        filters.status[0].charAt(0).toUpperCase() + filters.status[0].slice(1);
     }
 
     // ID Status
     if (filters.idStatus && !filters.idStatus.includes("all")) {
-      newParams.idStatus = filters.idStatus[0];
+      newParams.idStatus =
+        filters.idStatus[0].charAt(0).toUpperCase() +
+        filters.idStatus[0].slice(1);
     }
 
     // Join Date
-    if (filters.joinDate?.from) newParams.from = filters.joinDate.from;
-    if (filters.joinDate?.to) newParams.to = filters.joinDate.to;
+    if (filters.joinDate?.from) newParams.joinFrom = filters.joinDate.from;
+    if (filters.joinDate?.to) newParams.joinTo = filters.joinDate.to;
 
     // Earning
     if (filters.earningAmount?.from)
-      newParams.minSpent = filters.earningAmount.from;
+      newParams.earningFrom = filters.earningAmount.from;
     if (filters.earningAmount?.to)
-      newParams.maxSpent = filters.earningAmount.to;
+      newParams.earningTo = filters.earningAmount.to;
 
     // Orders
-    if (filters.orderRange?.from) newParams.minOrders = filters.orderRange.from;
-    if (filters.orderRange?.to) newParams.maxOrders = filters.orderRange.to;
+    if (filters.orderRange?.from) newParams.orderFrom = filters.orderRange.from;
+    if (filters.orderRange?.to) newParams.orderTo = filters.orderRange.to;
 
     // Listings
     if (filters.listingsRange?.from)
-      newParams.minListings = filters.listingsRange.from;
+      newParams.listingFrom = filters.listingsRange.from;
     if (filters.listingsRange?.to)
-      newParams.maxListings = filters.listingsRange.to;
+      newParams.listingTo = filters.listingsRange.to;
 
     setFilterParams(newParams);
     setCurrentPage(1);

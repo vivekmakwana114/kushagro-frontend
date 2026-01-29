@@ -129,19 +129,23 @@ const OrderPage = () => {
       }
     });
 
-    const paymentStatus = normalizePaymentStatus(order);
+    let paymentStatus = normalizePaymentStatus(order);
     const status = normalizeStatus(order.status);
-    const orderIdValue = order.orderId || order.orderNumber || order._id || "";
-    const isFlagged = order.isFlagged || false;
+
+    // Automatic refund status for cancelled orders
+    if (status === "cancelled") {
+      paymentStatus = "refunded";
+    }
+
+    const orderIdValue = order.orderNumber || "";
+    const isFlagged = order.isFlagged || "";
 
     return {
       ...order,
-      // keep orderId as a primitive value for the grid
       orderId:
         orderIdValue !== undefined && orderIdValue !== null
           ? String(extractValue(orderIdValue))
           : "N/A",
-      // expose flag state at row level
       isFlagged: Boolean(isFlagged),
       product: {
         name: extractValue(order.product?.name) || "N/A",
@@ -167,8 +171,7 @@ const OrderPage = () => {
         profile: extractValue(order.seller?.profile) || "",
       },
       date_time: extractValue(order.createdAt) || extractValue(order.date),
-      amount:
-        extractValue(order.totalAmount) ?? extractValue(order.amount) ?? 0,
+      amount: extractValue(order.amount) ?? extractValue(order.amount) ?? 0,
       payment_status: paymentStatus,
       status: status,
     };
@@ -238,12 +241,24 @@ const OrderPage = () => {
   };
 
   const handleCancelOrder = async (row, data) => {
-    // Instead of canceling directly, open the Refund Popup for confirmation
-    setRefundPopupData({ row, ...data });
-    setIsRefundPopupOpen(true);
+    await dispatch(
+      cancelOrderAction({
+        orderId: row._id,
+        cancellationReason: data.selectedOptions?.join(", "),
+        note: data.note,
+      }),
+    );
+    dispatch(
+      fetchOrders({
+        page: currentPage,
+        limit: itemsPerPage,
+        ...filters,
+      }),
+    );
   };
 
   const handleConfirmCancel = async () => {
+    // This function is no longer used for cancellation but keeping it if needed for reference or other refund flows
     if (!refundPopupData) return;
 
     await dispatch(
@@ -600,11 +615,11 @@ const OrderPage = () => {
             },
           }}
           bulkActionsConfig={[
-            {
-              label: "Mark As Complete",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              onClick: (rows) => handleBulkMarkComplete(rows),
-            },
+            // {
+            //   label: "Mark As Complete",
+            //   iconUrl: "/assets/icon/markCompleted.svg",
+            //   onClick: (rows) => handleBulkMarkComplete(rows),
+            // },
             {
               label: "Flag Order",
               iconUrl: "/assets/icon/flag.svg",

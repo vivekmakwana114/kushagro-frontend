@@ -71,9 +71,14 @@ const BuyerFilterForm = ({ onCancel, onApply }) => {
     if (onApply) onApply(filterData);
   };
 
-  const handleCancel = () => {
+  const handleReset = () => {
+    setStatus(["all"]);
+    setJoinDateFrom(null);
+    setJoinDateTo(null);
+    setSpendAmountFrom("");
+    setSpendAmountTo("");
     clearErrors();
-    if (onCancel) onCancel();
+    if (onApply) onApply({});
   };
 
   return (
@@ -147,11 +152,11 @@ const BuyerFilterForm = ({ onCancel, onApply }) => {
         <div className="flex gap-4">
           <Button
             type="button"
-            onClick={handleCancel}
+            onClick={handleReset}
             variant="outline"
             className="flex-1 border-secondary1 text-secondary1 hover:bg-secondary1/10"
           >
-            Cancel
+            Reset
           </Button>
           <Button
             type="button"

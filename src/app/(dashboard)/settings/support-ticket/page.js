@@ -1,14 +1,10 @@
 "use client";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-// import { supportData } from "./supportData";
 import { getSupportTicketColumns } from "./supportTicketColumns";
 import ActionComponent from "@/components/grid/actionComponent";
 import SupportTicketFilterForm from "./SupportTicketFilterForm";
 import { Filter, Search } from "lucide-react";
-
-import ViewUser from "../../buyer/viewUser";
-
 import { Input } from "@/components/ui/input";
 import Pagination from "@/components/ui/pagination";
 import ActionPopup from "@/components/common/ActionPopup";
@@ -17,6 +13,7 @@ import {
   fetchSupportTickets,
   updateTicketStatus,
   deleteTicket,
+  deleteTickets,
 } from "@/state/setting/support-ticket/supportTicketSlice";
 import { toast } from "sonner";
 
@@ -27,35 +24,75 @@ const options = {
 };
 const SupportTicketPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
-  const { supportTickets, isLoading } = useSelector(
+  const { supportTickets, isLoading, pagination } = useSelector(
     (state) => state.supportTicket,
   );
 
   // Initial fetch
   useEffect(() => {
-    dispatch(fetchSupportTickets());
+    dispatch(fetchSupportTickets({ page: 1, limit: 10 }));
   }, [dispatch]);
 
   const itemsPerPage = 10;
 
-  const indexofLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexofLastItem - itemsPerPage;
-  const currentData = (Array.isArray(supportTickets) ? supportTickets : [])
-    .map((ticket) => ({
+  // Filter support tickets client-side
+  const filteredTickets = useMemo(() => {
+    if (!supportTickets) return [];
+
+    let result = Array.isArray(supportTickets) ? supportTickets : [];
+
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((ticket) => {
+        const ticketId = (ticket.ticketId || ticket._id || "")
+          .toString()
+          .toLowerCase();
+        const subject = (ticket.topic || "").toLowerCase();
+        const userName = (
+          typeof ticket.user === "object"
+            ? ticket.user?.name
+            : ticket.user || ""
+        ).toLowerCase();
+        const status = (ticket.status || "").toLowerCase();
+
+        return (
+          ticketId.includes(lowerQuery) ||
+          subject.includes(lowerQuery) ||
+          userName.includes(lowerQuery) ||
+          status.includes(lowerQuery)
+        );
+      });
+    }
+
+    return result.map((ticket) => ({
       ...ticket,
       ticket_id: ticket.ticketId || ticket._id || "N/A",
-      subject: ticket.topic || "N/A",
-      date_time: ticket.createdAt,
+      subject: ticket.subject || ticket.topic || "N/A",
+      date_time: ticket.raisedOn,
       user:
         typeof ticket.user === "object"
           ? ticket.user
           : { name: ticket.user || "N/A", email: "N/A", profile: "" },
-      status: ticket.status ? ticket.status.toLowerCase() : "open",
-    }))
-    .slice(indexOfFirstItem, indexofLastItem);
+      status:
+        ticket.status && ticket.status.toUpperCase() === "IN_PROGRESS"
+          ? "inprocess"
+          : ticket.status
+            ? ticket.status.toLowerCase()
+            : "open",
+    }));
+  }, [supportTickets, searchQuery]);
 
-  const totalPages = Math.ceil((supportTickets?.length || 0) / itemsPerPage);
+  const currentData = filteredTickets;
+
+  const totalPages = pagination?.totalPages || 1;
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+    // Debounce search could be added here to fetch from server
+  }, [searchQuery]);
 
   const handleDelete = useCallback(
     async (id) => {
@@ -72,8 +109,13 @@ const SupportTicketPage = () => {
 
   const handleStatusUpdate = useCallback(
     async (id, status) => {
+      let apiStatus = status.toUpperCase();
+      if (status === "inprocess") apiStatus = "IN_PROGRESS";
+
       try {
-        await dispatch(updateTicketStatus({ id, data: { status } })).unwrap();
+        await dispatch(
+          updateTicketStatus({ ids: [id], status: apiStatus }),
+        ).unwrap();
         toast.success("Ticket status updated successfully");
       } catch (error) {
         toast.error("Failed to update status");
@@ -112,7 +154,61 @@ const SupportTicketPage = () => {
     if (filterData.dateRange?.to)
       params.toDate = formatDate(filterData.dateRange.to);
 
+    // Reset to page 1 when filtering
+    setCurrentPage(1);
+    params.page = 1;
+    params.limit = 10;
+
     dispatch(fetchSupportTickets(params));
+  };
+
+  const handleBulkDelete = async (formData, selectedItems) => {
+    // Check if selectedItems is provided (from bulk action) or if formData is the array (direct call)
+    const items = Array.isArray(selectedItems)
+      ? selectedItems
+      : Array.isArray(formData)
+        ? formData
+        : [];
+
+    const ids = items.map((item) => item._id || item.id || item.ticket_id);
+    if (ids.length === 0) return;
+
+    try {
+      await dispatch(deleteTickets(ids)).unwrap();
+      toast.success("Tickets deleted successfully");
+      dispatch(
+        fetchSupportTickets({
+          page: currentPage,
+          limit: 10,
+          search: searchQuery,
+        }),
+      );
+    } catch (error) {
+      toast.error("Failed to delete tickets");
+    }
+  };
+
+  const handleBulkStatusUpdate = async (selectedItems, status) => {
+    const ids = selectedItems.map(
+      (item) => item._id || item.id || item.ticket_id,
+    );
+    if (ids.length === 0) return;
+
+    try {
+      await dispatch(updateTicketStatus({ ids, status })).unwrap();
+      toast.success(
+        `Tickets marked as ${status.toLowerCase().replace("_", " ")} successfully`,
+      );
+      dispatch(
+        fetchSupportTickets({
+          page: currentPage,
+          limit: 10,
+          search: searchQuery,
+        }),
+      );
+    } catch (error) {
+      toast.error("Failed to update ticket status");
+    }
   };
 
   return (
@@ -123,6 +219,8 @@ const SupportTicketPage = () => {
           <Input
             className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
             placeholder="Search here..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -154,8 +252,18 @@ const SupportTicketPage = () => {
           }}
           bulkActionsConfig={[
             {
+              label: "Mark as Done",
+              iconUrl: "/assets/icon/markAsDone.svg",
+              onClick: (items) => handleBulkStatusUpdate(items, "DONE"),
+            },
+            {
+              label: "Mark as In Process",
+              iconUrl: "/assets/icon/markInprocess.svg",
+              onClick: (items) => handleBulkStatusUpdate(items, "IN_PROGRESS"),
+            },
+            {
               label: "Delete Ticket",
-              iconUrl: "/assets/icon/deleteBarbershop.svg",
+              iconUrl: "/assets/icon/deleteSelection.svg",
               type: "modal_component",
               component: (
                 <ActionPopup
@@ -163,19 +271,21 @@ const SupportTicketPage = () => {
                   subHeading="Are you sure you want to delete these tickets?"
                   confirmText="Delete All"
                   confirmColor="red"
-                 
                 />
               ),
-              onApply: console.log("Delete Ticket"),
+              onApply: handleBulkDelete,
             },
           ]}
         />
       </div>
       <Pagination
-        currentPage={currentPage}
+        currentPage={pagination?.page || 1}
         totalPages={totalPages}
         onPageChange={(page) => {
           setCurrentPage(page);
+          dispatch(
+            fetchSupportTickets({ page, limit: 10, search: searchQuery }),
+          );
         }}
       />
     </div>

@@ -8,9 +8,9 @@ import Pagination from "@/components/ui/pagination";
 import ActionPopup from "@/components/common/ActionPopup";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchFraudReports,
-  deleteReport,
-} from "@/state/setting/fraud-ticket/fraudTicketSlice";
+  fetchAllFraudReports,
+  deleteFraudReports,
+} from "@/state/fraudReport/fraudReportSlice";
 import { toast } from "sonner";
 
 const options = {
@@ -20,23 +20,58 @@ const options = {
 };
 const FraudReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
-  const { fraudReports, isLoading } = useSelector((state) => state.fraudReport);
+  const { reports, loading, totalPages } = useSelector(
+    (state) => state.fraudReport,
+  );
 
   useEffect(() => {
-    dispatch(fetchFraudReports());
+    dispatch(fetchAllFraudReports({ page: 1, limit: 10 }));
   }, [dispatch]);
 
   const handleDelete = useCallback(
     async (id) => {
       try {
-        await dispatch(deleteReport(id)).unwrap();
+        await dispatch(deleteFraudReports([id])).unwrap();
         toast.success("Fraud report deleted successfully");
+        // refresh
+        dispatch(
+          fetchAllFraudReports({
+            page: currentPage,
+            limit: 10,
+          }),
+        );
       } catch (error) {
         toast.error("Failed to delete fraud report");
       }
     },
-    [dispatch],
+    [dispatch, currentPage],
+  );
+
+  const handleBulkDelete = useCallback(
+    async (data, rows) => {
+      const ids = rows.map((row) => row._id || row.id);
+      if (ids.length === 0) {
+        toast.error("No items selected");
+        return;
+      }
+
+      try {
+        await dispatch(deleteFraudReports(ids)).unwrap();
+        toast.success("Fraud reports deleted successfully");
+        // Refresh to ensure pagination sync
+        dispatch(
+          fetchAllFraudReports({
+            page: currentPage,
+            limit: 10,
+          }),
+        );
+      } catch (error) {
+        toast.error("Failed to delete fraud reports");
+      }
+    },
+    [dispatch, currentPage],
   );
 
   const columns = useMemo(
@@ -44,12 +79,48 @@ const FraudReportPage = () => {
     [handleDelete],
   );
 
-  const itemsPerPage = 10;
-  const indexofLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexofLastItem - itemsPerPage;
+  // Filter fraud reports client-side
+  const filteredReports = useMemo(() => {
+    if (!reports) return [];
 
-  const currentData = (Array.isArray(fraudReports) ? fraudReports : [])
-    .map((report) => ({
+    let result = Array.isArray(reports) ? reports : [];
+
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((report) => {
+        const reportId = (report._id || report.id || "")
+          .toString()
+          .toLowerCase();
+
+        // Handle potentially populated fields or IDs
+        const reportedUser = report.reportedId;
+        const reportedByName = (
+          typeof reportedUser === "object"
+            ? reportedUser?.name
+            : reportedUser || ""
+        ).toLowerCase();
+
+        const reporterUser = report.reporterId;
+        const reporterByName = (
+          typeof reporterUser === "object"
+            ? reporterUser?.name
+            : reporterUser || ""
+        ).toLowerCase();
+
+        const reason = (
+          Array.isArray(report.reason) ? report.reason[0] : report.reason || ""
+        ).toLowerCase();
+
+        return (
+          reportId.includes(lowerQuery) ||
+          reportedByName.includes(lowerQuery) ||
+          reporterByName.includes(lowerQuery) ||
+          reason.includes(lowerQuery)
+        );
+      });
+    }
+
+    return result.map((report) => ({
       ...report,
       report_id: report._id || report.id || "N/A",
       reported_user: report.reportedId || {
@@ -66,10 +137,16 @@ const FraudReportPage = () => {
         ? report.reason[0]
         : report.reason || "N/A",
       reported_on: report.createdAt,
-    }))
-    .slice(indexOfFirstItem, indexofLastItem);
+    }));
+  }, [reports, searchQuery]);
 
-  const totalPages = Math.ceil((fraudReports?.length || 0) / itemsPerPage);
+  const currentData = filteredReports;
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+    // Ideally dispatch search to server here if supported
+  }, [searchQuery]);
 
   return (
     <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
@@ -79,6 +156,8 @@ const FraudReportPage = () => {
           <Input
             className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
             placeholder="Search here..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
@@ -87,7 +166,7 @@ const FraudReportPage = () => {
           data={currentData}
           options={options}
           columns={columns}
-          loading={isLoading}
+          loading={loading}
           theme={{
             border: "border-gray-300",
             header: {
@@ -107,7 +186,7 @@ const FraudReportPage = () => {
                   confirmColor="red"
                 />
               ),
-              onApply: (data) => console.log("Delete:", data),
+              onApply: handleBulkDelete,
             },
           ]}
         />
@@ -118,6 +197,7 @@ const FraudReportPage = () => {
         totalPages={totalPages}
         onPageChange={(page) => {
           setCurrentPage(page);
+          dispatch(fetchAllFraudReports({ page, limit: 10 }));
         }}
       />
     </div>

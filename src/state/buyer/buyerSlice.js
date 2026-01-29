@@ -60,15 +60,27 @@ export const sendResetPasswordLink = createAsyncThunk(
 
 // Fetch Buyer Orders
 export const fetchBuyerOrders = createAsyncThunk(
-  async (buyerId, { rejectWithValue }) => {
+  "buyer/fetchOrders", // Added action type prefix for clarity
+  async (payload, { rejectWithValue }) => {
     try {
       const { getBuyerOrders } = await import("./buyerService");
+
+      let buyerId;
+      let params = {};
+
+      if (typeof payload === "object" && payload !== null) {
+        buyerId = payload.id;
+        const { id, ...rest } = payload;
+        params = rest;
+      } else {
+        buyerId = payload;
+      }
 
       if (!buyerId) {
         throw new Error("Buyer ID is required to fetch orders");
       }
 
-      const response = await getBuyerOrders(buyerId);
+      const response = await getBuyerOrders(buyerId, params);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -107,9 +119,14 @@ export const cancelBuyerOrder = createAsyncThunk(
 // Update Order Status
 export const updateBuyerOrderStatus = createAsyncThunk(
   "buyer/updateOrderStatus",
-  async (data, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
       const { updateOrderStatus } = await import("./buyerService");
+      const { orderId, ...rest } = payload;
+      const data = {
+        orderIds: [orderId],
+        ...rest,
+      };
       const response = await updateOrderStatus(data);
       return response.data;
     } catch (error) {

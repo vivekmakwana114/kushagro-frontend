@@ -20,7 +20,7 @@ export const getFraudReportById = (id) => {
   return api.get(`/v1/report/${id}`);
 };
 
-// Delete fraud report
-export const deleteFraudReport = (id) => {
-  return api.delete(`/v1/report/${id}`);
+// Bulk delete fraud reports
+export const deleteFraudReports = (ids) => {
+  return api.delete("/v1/report/delete", { data: { reportIds: ids } });
 };

@@ -36,7 +36,7 @@ export default function Page() {
 
   useEffect(() => {
     if (buyerId) {
-      dispatch(fetchBuyerOrders(buyerId));
+      dispatch(fetchBuyerOrders({ id: buyerId, limit: 1000 }));
     }
   }, [dispatch, buyerId]);
 
@@ -107,8 +107,6 @@ export default function Page() {
       await dispatch(
         updateBuyerOrderStatus({
           orderId: row._id || row.id || row.orderId,
-          status: "complete", // Or whatever status "mark as complete" implies
-          note: data?.note,
         }),
       ).unwrap();
       toast.success("Order marked as complete");
@@ -173,7 +171,7 @@ export default function Page() {
         platformFee: order.platformFee || 0,
         totalPayable: order.totalAmount,
       },
-      date_time: order.date || order.createdAt,
+      date_time: order.orderDate || order.createdAt,
       amount: order.amount ?? order.totalAmount,
       status: paymentStatus === "processing" ? "cancelled" : currentStatus,
       payment_status: paymentStatus,

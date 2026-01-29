@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import { transactionData } from "./transactionData";
 import { transactionColumn } from "./transactionColumn";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";

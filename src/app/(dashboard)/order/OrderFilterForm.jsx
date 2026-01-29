@@ -84,9 +84,16 @@ const OrderFilterForm = ({ onCancel, onApply }) => {
     if (onApply) onApply(filterData);
   };
 
-  const handleCancel = () => {
+  const handleReset = () => {
+    setOrderStatus(["all"]);
+    setPaymentStatus(["all"]);
+    setDateFrom(null);
+    setDateTo(null);
+    setAmountFrom("");
+    setAmountTo("");
     clearErrors();
-    if (onCancel) onCancel();
+
+    if (onApply) onApply({});
   };
 
   return (
@@ -185,11 +192,11 @@ const OrderFilterForm = ({ onCancel, onApply }) => {
         <div className="flex gap-4">
           <Button
             type="button"
-            onClick={handleCancel}
+            onClick={handleReset}
             variant="outline"
             className="flex-1 border-[var(--color-secondary1)] text-[var(--color-secondary1)] hover:bg-[var(--color-secondary1)]/10"
           >
-            Cancel
+            Reset
           </Button>
           <Button
             type="button"

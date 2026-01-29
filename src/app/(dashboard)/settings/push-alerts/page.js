@@ -1,12 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SettingsSection from "@/components/ui/SettingSection";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Loader2 } from "lucide-react";
 import useAutoDismissError from "@/hooks/useAutoDismissError";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  sendNotification,
+  resetNotificationState,
+} from "@/state/setting/notification/notificationSlice";
+import { toast } from "sonner";
 
 const PushAlertsPage = () => {
+  const dispatch = useDispatch();
+  const { isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.notification,
+  );
+
   const [notification, setNotificationTitle] = useState("");
   const [bodyContent, setBodyContent] = useState("");
   const [receiver, setReceiver] = useState("");
@@ -18,36 +29,52 @@ const PushAlertsPage = () => {
   });
 
   const receiverOptions = [
-    { label: "All buyers", value: "All buyers" },
-    { label: "All sellers", value: "All sellers" },
+    { label: "All buyers", value: "BUYER" },
+    { label: "All sellers", value: "SELLER" },
   ];
 
   const typeOptions = [
     {
       label: "Promotional - Offers, discounts, seasonal sales.",
-      value: "Promotional-",
+      value: "PROMOTIONAL",
     },
     {
       label: "Transactional - Booking confirmation, receipts, payment updates.",
-      value: "Transactional-",
+      value: "TRANSACTIONAL",
     },
     {
       label: "Reminder - Booking reminders, cart abandonment.",
-      value: "Reminder-",
+      value: "REMINDER",
     },
     {
       label: "Alert - Urgent updates, security alerts, system notices.",
-      value: "Alert-",
+      value: "ALERT",
     },
     {
       label: "Informational - General news, new features, announcements.",
-      value: "Informational-",
+      value: "INFORMATIONAL",
     },
     {
       label: "Event-based - Special events, live sessions, festivals.",
-      value: "Event-based-",
+      value: "EVENT-BASED",
     },
   ];
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(message || "Notification sent successfully!");
+      setNotificationTitle("");
+      setBodyContent("");
+      setReceiver("");
+      setType("");
+      dispatch(resetNotificationState());
+    }
+
+    if (isError) {
+      toast.error(message || "Failed to send notification");
+      dispatch(resetNotificationState());
+    }
+  }, [isSuccess, isError, message, dispatch]);
 
   const toggleDropdown = (key) => {
     setShowDropdowns((prev) => ({
@@ -86,13 +113,16 @@ const PushAlertsPage = () => {
       return;
     }
 
-    console.log({
-      notification,
-      bodyContent,
-      receiver,
-      type,
-    });
+    const payload = {
+      title: notification,
+      body: bodyContent,
+      userType: receiver,
+      notificationType: type,
+    };
+
+    dispatch(sendNotification(payload));
   };
+
   return (
     <div className="w-full flex justify-center mt-10">
       <div className="w-full max-w-2xl">
@@ -137,7 +167,9 @@ const PushAlertsPage = () => {
               onClick={() => toggleDropdown("receiver")}
             >
               <span className={!receiver ? "text-muted-foreground" : ""}>
-                {receiver || "Select Receiver"}
+                {receiver
+                  ? receiverOptions.find((o) => o.value === receiver)?.label
+                  : "Select Receiver"}
               </span>
               <ChevronDown className="h-4 w-4 opacity-50" />
             </div>
@@ -214,8 +246,12 @@ const PushAlertsPage = () => {
                  hover:bg-[var(--color-secondary1)] 
                  hover:text-white "
             onClick={handleSubmit}
+            disabled={isLoading}
           >
-            Send Notification
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : null}
+            {isLoading ? "Sending..." : "Send Notification"}
           </Button>
         </SettingsSection>
       </div>

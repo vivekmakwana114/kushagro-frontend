@@ -64,7 +64,7 @@ const OrderHistoryPage = () => {
     return (orders || []).map((order) => {
       return {
         ...order,
-        orderNumber: order.orderId || order.orderNumber || order._id || "N/A",
+        orderNumber: order.orderNumber || "N/A",
         product: {
           name: extractValue(order.product?.name) || "N/A",
           category:

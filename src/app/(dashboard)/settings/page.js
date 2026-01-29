@@ -8,7 +8,7 @@ import useAutoDismissError from "@/hooks/useAutoDismissError";
 const GeneralSettingsPage = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [notifications, setNotifications] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [platformAccess, setPlatformAccess] = useState(false);
   const [errors, setErrors] = useAutoDismissError({});
 
@@ -65,11 +65,11 @@ const GeneralSettingsPage = () => {
   return (
     <div className="w-full">
       <div className="w-full bg-white rounded-xl shadow-md p-6 border border-[var(--border-admin)]">
-        <h2 className="text-lg font-semibold text-[var(--color-black)] mb-4">
+        {/* <h2 className="text-lg font-semibold text-[var(--color-black)] mb-4">
           Contact Information
-        </h2>
+        </h2> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div>
             <label className="text-sm text-[var(--color-black)] mb-1 block">
               Support Email
@@ -99,7 +99,7 @@ const GeneralSettingsPage = () => {
               <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
             )}
           </div>
-        </div>
+        </div> */}
 
         <h2 className="text-lg font-semibold text-[var(--color-black)] mb-4">
           Platform Controls
@@ -108,11 +108,11 @@ const GeneralSettingsPage = () => {
         <div className="p-4  flex flex-col gap-4">
           <div className="flex items-center justify-between w-[50%]">
             <p className="font-medium text-[var(--color-black)]">
-              Enable Notifications
+              Maintenance Mode
             </p>
             <ToggleSwitch
-              checked={notifications}
-              onChange={(e) => setNotifications(e.target.checked)}
+              checked={maintenanceMode}
+              onChange={(e) => setMaintenanceMode(e.target.checked)}
             />
           </div>
 
