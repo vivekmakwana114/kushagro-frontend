@@ -76,6 +76,13 @@ const Page = () => {
         reactivateBuyer({ id: row._id || row.id, data: { reason } }),
       ).unwrap();
       toast.success("Buyer reactivated successfully");
+      dispatch(
+        fetchBuyers({
+          page: currentPage,
+          limit: itemsPerPage,
+          ...filters,
+        }),
+      );
     } catch (error) {
       toast.error(error.message || "Failed to reactivate buyer");
     }
