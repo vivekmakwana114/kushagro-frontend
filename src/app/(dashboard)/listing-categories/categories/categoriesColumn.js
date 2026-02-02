@@ -106,7 +106,7 @@ export const getCategoriesColumns = ({ onEdit, onDelete, onStatusChange }) => [
               onApply: () =>
                 onStatusChange(
                   row._id || row.id,
-                  isActive ? "INACTIVE" : "ACTIVE"
+                  isActive ? "INACTIVE" : "ACTIVE",
                 ),
             },
             {

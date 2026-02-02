@@ -78,7 +78,11 @@ const ClientDetails = () => {
         ? "Active"
         : "Inactive",
     joined: buyerData.createdAt
-      ? new Date(buyerData.createdAt).toLocaleDateString()
+      ? new Date(buyerData.createdAt).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
       : "N/A",
     suspensionReason: buyerData.suspensionReason || "",
   };
@@ -98,7 +102,7 @@ const ClientDetails = () => {
           alt="Booking"
         />
       ),
-      description: "Total orders placed",
+      description: "Products Orders placed this month",
     },
     {
       color: "bg-secondary1",
@@ -114,7 +118,7 @@ const ClientDetails = () => {
           alt="Revenue"
         />
       ),
-      description: "Lifetime spent",
+      description: "Spent this month",
     },
   ];
 
@@ -226,7 +230,7 @@ const ClientDetails = () => {
         {/* Information of Client */}
         <div className="grid grid-cols-3  text-sm text-center border-t border-b py-4">
           <div>
-            <p className="text-[var(--color-dull-text)] mb-1">phone</p>
+            <p className="text-[var(--color-dull-text)] mb-1">Phone</p>
             <p className="font-medium">{client.phone}</p>
           </div>
 
@@ -243,7 +247,7 @@ const ClientDetails = () => {
             )}
           </div>
           <div>
-            <p className="text-[var(--color-dull-text)] mb-1">Joined On</p>
+            <p className="text-[var(--color-dull-text)] mb-1">Joined Date</p>
             <p className="font-medium">{client.joined}</p>
           </div>
         </div>
@@ -251,7 +255,7 @@ const ClientDetails = () => {
 
       {/* Fraud Report Grid */}
       <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
-        <h2 className="text-lg font-semibold mb-4">Fraud Report</h2>
+        <h2 className="text-lg font-semibold mb-4">Fraud Reports</h2>
         <div className="mt-6 mb-6">
           <GridCommonComponent
             data={formattedFraudReports}

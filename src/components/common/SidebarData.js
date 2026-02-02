@@ -42,11 +42,10 @@ export const leftSidebarItems = [
     },
   },
 
-  
-
   {
     title: "Settings",
     url: "/settings",
+    redirectUrl: "/settings/tax-commission",
     icon: {
       active: "/assets/icon/settings.svg",
       inactive: "/assets/icon/settings_inactive.svg",
@@ -124,14 +123,14 @@ export const listingSidebarItems = [
 
 // Settings Sidebar - settting
 export const settingSidebarItems = [
-  {
-    title: "General",
-    url: "/settings",
-    icon: {
-      active: "/assets/icon/sett.svg",
-      inactive: "/assets/icon/sett_inactive.svg",
-    },
-  },
+  // {
+  //   title: "General",
+  //   url: "/settings",
+  //   icon: {
+  //     active: "/assets/icon/sett.svg",
+  //     inactive: "/assets/icon/sett_inactive.svg",
+  //   },
+  // },
   {
     title: "Tax Commission",
     url: "/settings/tax-commission",

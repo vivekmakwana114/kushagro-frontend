@@ -41,12 +41,12 @@ const ReviewsDrawer = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="rounded-full transition-colors"
           >
             <Image
               src="/assets/icon/cross.svg"
-              width={14}
-              height={14}
+              width={30}
+              height={30}
               alt="Close"
             />
           </button>

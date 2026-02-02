@@ -23,7 +23,7 @@ export default function MyStorePageLayout({ children }) {
       </div>
 
       {/* Content area */}
-      <div className="flex-1 min-w-0 overflow-x-hidden md:ml-[220px]">
+      <div className="flex-1 min-w-0 overflow-x-hidden md:ml-[220px] no-scrollbar">
         {children}
       </div>
     </div>

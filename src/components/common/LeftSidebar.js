@@ -50,8 +50,9 @@ const LeftSidebar = ({ onOpenChange }) => {
   const renderMenuItem = (item, index) => {
     const active = isActive(item?.url);
 
-    // Redirect logic for barbershop role
-    let href = item?.url;
+    // Redirect logic admin panel
+    // redirectUrl is used for redirecting to the specific page for the admin panel.
+    let href = item?.redirectUrl || item?.url;
 
     return (
       <SidebarMenuItem key={index}>

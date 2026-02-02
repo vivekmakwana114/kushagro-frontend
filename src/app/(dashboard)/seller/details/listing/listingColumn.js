@@ -68,8 +68,8 @@ export const getListingColumns = (handleUpdateStatus) => [
     },
   },
   {
-    key: "actions",
-    title: "Actions",
+    key: "action",
+    title: "Action",
     component: {
       type: "action",
       style: {},

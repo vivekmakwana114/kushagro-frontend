@@ -15,7 +15,7 @@ export const getFraudReportColumns = ({ onDelete }) => [
   },
   {
     key: "reportBy",
-    title: "Report By",
+    title: "Reported By",
     isObject: true,
     structure: {
       name: "name",
@@ -43,7 +43,7 @@ export const getFraudReportColumns = ({ onDelete }) => [
   },
   {
     key: "report_on",
-    title: "Report On",
+    title: "Reported On",
     component: {
       type: "date",
       options: {
@@ -56,8 +56,8 @@ export const getFraudReportColumns = ({ onDelete }) => [
     },
   },
   {
-    key: "actions",
-    title: "Actions",
+    key: "action",
+    title: "Action",
     component: {
       type: "action",
       style: {},
