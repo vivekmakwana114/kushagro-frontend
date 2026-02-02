@@ -73,7 +73,7 @@ export const getProductOrderColumns = (
   },
   {
     key: "amount",
-    title: "Amount Paid",
+    title: "Amount",
     sortable: true,
     component: {
       type: "currency",

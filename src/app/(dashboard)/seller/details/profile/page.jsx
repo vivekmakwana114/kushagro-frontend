@@ -204,9 +204,9 @@ const SellerProfilePage = () => {
         ? new Date(
             sellerData.createdAt || sellerData.joinedAt,
           ).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
             day: "numeric",
+            month: "short",
+            year: "numeric",
           })
         : "N/A",
     name: sellerData.name || "N/A",
@@ -409,7 +409,7 @@ const SellerProfilePage = () => {
 
               <div>
                 <p className="text-[var(--color-dull-text)] mb-2 font-medium">
-                  Joined date
+                  Joined Date
                 </p>
                 <p className="font-semibold text-[#111111]">
                   {displaySeller.joined}
@@ -509,7 +509,7 @@ const SellerProfilePage = () => {
 
       {/* Fraud Report Grid */}
       <div className="border border-[#E4E4E6] rounded-lg p-6 bg-[#FFFFFF] mb-4">
-        <h2 className="text-lg font-semibold mb-4">Fraud Report</h2>
+        <h2 className="text-lg font-semibold mb-4">Fraud Reports</h2>
         <div className="mt-6 mb-6">
           <GridCommonComponent
             data={formattedReports}
@@ -517,7 +517,7 @@ const SellerProfilePage = () => {
             columns={getFraudReportColumns({
               onDelete: handleDeleteReport,
             }).map((col) => {
-              if (col.key === "actions") {
+              if (col.key === "action") {
                 return {
                   ...col,
                   component: {

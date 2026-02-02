@@ -191,7 +191,7 @@ const ListingPage = () => {
           data={filteredData}
           options={options}
           columns={getListingColumns(handleUpdateStatus).map((col) => {
-            if (col.key === "actions") {
+            if (col.key === "action") {
               return {
                 ...col,
                 component: {

@@ -45,6 +45,7 @@ const ActionPopup = ({
   showTextarea,
   textareaLabel = "Note",
   textareaPlaceholder = "Add a Note",
+  showCancel = true,
 }) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [note, setNote] = useState("");
@@ -148,7 +149,7 @@ const ActionPopup = ({
 
           {/* Footer Actions */}
           <div className="flex gap-3">
-            {cancelText && (
+            {cancelText && showCancel && (
               <button
                 onClick={handleCancel}
                 className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"

@@ -175,7 +175,7 @@ const PushAlertsPage = () => {
             </div>
 
             {showDropdowns.receiver && (
-              <div className="absolute z-10 mt-1 w-full overflow-auto rounded-md border bg-white shadow-lg">
+              <div className="absolute z-10 w-full overflow-auto max-h-20 rounded-md border bg-white shadow-lg overscroll-y-contain no-scrollbar">
                 {receiverOptions.map((option) => (
                   <div
                     key={option.value}
@@ -215,7 +215,7 @@ const PushAlertsPage = () => {
             </div>
 
             {showDropdowns.type && (
-              <div className="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-white shadow-lg">
+              <div className="absolute z-10 w-full max-h-20 overflow-auto rounded-md border bg-white shadow-lg overscroll-y-contain no-scrollbar">
                 {typeOptions.map((option) => (
                   <div
                     key={option.value}

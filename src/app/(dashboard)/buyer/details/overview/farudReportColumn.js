@@ -1,6 +1,5 @@
 "use client";
 import ViewFraudReport from "@/components/common/ViewFraudReport";
-import ActionPopup from "@/components/common/ActionPopup";
 
 export const getFraudReportColumns = ({ onDelete } = {}) => [
   {
@@ -16,7 +15,7 @@ export const getFraudReportColumns = ({ onDelete } = {}) => [
   },
   {
     key: "reportBy",
-    title: "Report By",
+    title: "Reported By",
     isObject: true,
     structure: {
       name: "name",
@@ -44,7 +43,7 @@ export const getFraudReportColumns = ({ onDelete } = {}) => [
   },
   {
     key: "reportOn",
-    title: "Report On",
+    title: "Reported On",
     component: {
       type: "date",
       options: {
@@ -58,7 +57,7 @@ export const getFraudReportColumns = ({ onDelete } = {}) => [
   },
   {
     key: "actions",
-    title: "Actions",
+    title: "Action",
     component: {
       type: "action",
       style: {},
