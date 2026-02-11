@@ -75,7 +75,7 @@ const ListingCategoriesPage = () => {
     // Map data for grid
     return data.map((item) => ({
       ...item,
-      productCount: item.productCount ?? "0", // Changed NA to 0 for consistency or ensure string
+      productCount: item.productCount ?? "0", 
       name: item.name || "NA",
     }));
   }, [categories, searchTerm]);

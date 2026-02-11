@@ -20,7 +20,7 @@ const TaxCommissionPage = () => {
     (state) => state.commission,
   );
 
-  const [activeTab, setActiveTab] = useState("commission");
+  const [activeTab, setActiveTab] = useState("tax");
 
   // Commission State
   const [enableCommission, setEnableCommission] = useState(false);
@@ -187,7 +187,7 @@ const TaxCommissionPage = () => {
         >
           Platform Tax
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab("commission")}
           className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 border ${
             activeTab === "commission"
@@ -196,7 +196,7 @@ const TaxCommissionPage = () => {
           }`}
         >
           Platform Commission
-        </button>
+        </button> */}
       </div>
 
       {/* Content Area */}
@@ -238,6 +238,7 @@ const TaxCommissionPage = () => {
                   value={commissionPercent}
                   placeholder="Commission %"
                   onChange={handleCommissionChange}
+                  disabled={!enableCommission}
                 />
                 {commissionErrors.commissionPercent && (
                   <p className="text-red-500 text-xs mt-1">
@@ -259,6 +260,7 @@ const TaxCommissionPage = () => {
                   value={commissionMinValue}
                   placeholder="Minimum Value of Service"
                   onChange={handleCommissionMinValueChange}
+                  disabled={!enableCommission}
                 />
                 {commissionErrors.minValue && (
                   <p className="text-red-500 text-xs mt-1">
