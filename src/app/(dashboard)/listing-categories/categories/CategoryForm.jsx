@@ -14,6 +14,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
   const handleClose = onClose || onCancel;
   const isEditMode = !!data;
   const [categoryName, setCategoryName] = useState("");
+  const [tax, setTax] = useState("");
   const [status, setStatus] = useState("ACTIVE");
   const [dynamicFields, setDynamicFields] = useState([]);
   const [errors, setErrors, clearErrors] = useAutoDismissError({});
@@ -24,11 +25,8 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
     if (data) {
       // Map initial API data to form state (fast render)
       setCategoryName(data.name || data.category || "");
-      setStatus(
-        data.status
-          ? data.status.toUpperCase() // Ensure backend enum format
-          : "ACTIVE"
-      );
+      setTax(data.tax ?? "");
+      setStatus(data.status ? data.status.toUpperCase() : "ACTIVE");
 
       // Fetch full details (for fields)
       const id = data._id || data.id;
@@ -40,10 +38,6 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
           .then((responseData) => {
             const categoryData = responseData.data || responseData;
             if (categoryData) {
-              console.log(
-                "CategoryForm Fetched Data (Edit Mode):",
-                categoryData
-              );
               // Update fields from full data
               if (categoryData.fields && Array.isArray(categoryData.fields)) {
                 setDynamicFields(
@@ -52,22 +46,23 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
                     name: f.label || f.key,
                     label: f.label || "Field Name",
                     value: f.key || "",
-                  }))
+                  })),
                 );
               }
-              // Optional: ensure other fields are in sync if API returns more up-to-date info
+
+              if (categoryData.tax !== undefined && categoryData.tax !== null) {
+                setTax(categoryData.tax);
+              }
             }
           })
           .catch((err) => {
             console.error(
               `Failed to fetch full category details for ID ${id}:`,
-              err?.message || err
+              err?.message || err,
             );
           })
           .finally(() => setLoadingDetails(false));
       }
-
-      // Existing local logic fallback if fields present in prop (though unlikely for list view)
       if (data.fields && Array.isArray(data.fields)) {
         setDynamicFields(
           data.fields.map((f) => ({
@@ -75,7 +70,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
             name: f.label || f.key,
             label: f.label || "Field Name",
             value: f.key || "",
-          }))
+          })),
         );
       }
     }
@@ -88,6 +83,9 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
     }
     if (!status) {
       newErrors.status = "Status is required";
+    }
+    if (tax && (Number(tax) < 0 || Number(tax) > 100)) {
+      newErrors.tax = "Tax Commission must be between 0 and 100";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -107,8 +105,8 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
   const handleFieldChange = (id, key, value) => {
     setDynamicFields(
       dynamicFields.map((field) =>
-        field.id === id ? { ...field, [key]: value } : field
-      )
+        field.id === id ? { ...field, [key]: value } : field,
+      ),
     );
   };
 
@@ -119,6 +117,7 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
     // Transform to Backend Schema
     const payload = {
       name: categoryName,
+      tax: Number(tax),
       status: status.toUpperCase(),
       fields: dynamicFields.map((field, index) => ({
         label: field.name,
@@ -204,6 +203,27 @@ const CategoryForm = ({ data, onClose, onCancel, onSubmit }) => {
             />
             {errors.status && (
               <p className="text-red-500 text-xs mt-1">{errors.status}</p>
+            )}
+          </div>
+
+          <div className="pt-2">
+            <label className="text-left text-sm font-medium text-black block mb-2">
+              Tax Commission (%)
+            </label>
+            <Input
+              type="number"
+              value={tax}
+              onChange={(e) => {
+                setTax(e.target.value);
+                if (errors.tax) {
+                  setErrors((prev) => ({ ...prev, tax: "" }));
+                }
+              }}
+              placeholder="e.g. 10"
+              className={`h-11 ${errors.tax ? "border-red-500" : ""}`}
+            />
+            {errors.tax && (
+              <p className="text-red-500 text-xs mt-1">{errors.tax}</p>
             )}
           </div>
 
