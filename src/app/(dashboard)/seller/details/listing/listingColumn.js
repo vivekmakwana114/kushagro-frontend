@@ -1,90 +1,137 @@
 "use client";
+import ViewListingDetails from "@/components/common/ViewListingDetails";
+import ActionPopup from "@/components/common/ActionPopup";
 
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import PopupForm from "@/components/ui/popupform";
-import {
-  addServiceConfig,
-  cancelOrderConfig,
-  cancelServiceConfig,
-  editServiceConfig,
-} from "./config";
-
-export const columns = [
+export const getListingColumns = (handleUpdateStatus) => [
   {
-    key: "service_name",
-    title: "Service Name",
+    key: "product",
+    title: "Product",
     isObject: true,
     sortable: true,
     structure: {
       name: "name",
+      category: "category",
       profile: "profile",
     },
     component: {
       type: "standard_avatar",
       style: {
-        radius: "rounded-full",
+        radius: "rounded-md",
       },
     },
   },
   {
-    key: "duration",
-    title: "Duration",
+    key: "created_on",
+    title: "Created On",
+    sortable: true,
+    component: {
+      type: "date",
+      options: {
+        format: "dd MM, yyyy",
+      },
+      style: {
+        color: "var(--color-dull-text)",
+        fontWeight: "500",
+      },
+    },
   },
   {
     key: "price",
     title: "Price",
+    sortable: true,
     component: {
       type: "currency",
-      style: {},
       sign: "$",
       position: "start",
+      style: {
+        color: "var(--color-black)",
+        fontWeight: "500",
+      },
     },
   },
   {
     key: "status",
     title: "Status",
+    sortable: true,
     component: {
       type: "badge",
       style: {
-        borderRadius: "0.15rem",
+        borderRadius: "3.15px",
+        padding: "8px 12px",
       },
       options: {
         value: {
-          active: "#00A78E",
-          completed: "#9CA3AF",
-          cancelled: "#EF4444",
+          active: "#2E5B20", // Green
+          inactive: "#7D7D7D", //Gray
         },
       },
     },
   },
   {
-    key: "actions",
-    title: "Actions",
+    key: "action",
+    title: "Action",
     component: {
       type: "action",
       style: {},
       options: {
-        actions: [
-          {
-            label: "Edit Service",
-            iconUrl: "/icons/editService.svg",
-            type: "sidebar",
-            component: <DynamicForm config={editServiceConfig} />,
-          },
-          {
-            label: "Delete Service",
-            iconUrl: "/icons/deleteService.svg",
-            type: "popUp",
-            component: (
-              <PopupForm
-                config={cancelServiceConfig}
-                width="500px"
-                onApply={(data) => console.log("Deleted:", data)}
-                onCancel={() => console.log("Cancelled")}
-              />
-            ),
-          },
-        ],
+        actions: (row) => {
+          switch (row.status) {
+            case "active":
+              return [
+                {
+                  label: "View Listing",
+                  iconUrl: "/assets/icon/View.svg",
+                  type: "sidebar",
+                  component: (
+                    <ViewListingDetails data={row} row={row.id || row._id} />
+                  ),
+                },
+                {
+                  label: "Mark As Inactive",
+                  iconUrl: "/assets/icon/markCompleted.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Mark As Inactive?"
+                      subHeading="Are you sure you want to mark this listing as inactive? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
+                      confirmText="Confirm Inactivation"
+                      confirmColor="text-secondary1"
+                    />
+                  ),
+                  onApply: () =>
+                    handleUpdateStatus(row.id || row._id, "INACTIVE"),
+                },
+              ];
+
+            case "inactive":
+              return [
+                {
+                  label: "View Listing",
+                  iconUrl: "/assets/icon/View.svg",
+                  type: "sidebar",
+                  component: <ViewListingDetails data={row} />,
+                },
+                {
+                  label: "Mark As Active",
+                  iconUrl: "/assets/icon/markCompleted.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Mark As Active?"
+                      subHeading="Are you sure you want to mark this listing as active? This action will notify the Buyer and initiate a refund process if applicable. Once cancelled, this order cannot be undone."
+                      confirmText="Confirm Reactivation"
+                      confirmColor="text-secondary1"
+                    />
+                  ),
+                  onApply: () =>
+                    handleUpdateStatus(row.id || row._id, "ACTIVE"),
+                },
+              ];
+
+            default:
+              return [];
+          }
+        },
       },
     },
   },

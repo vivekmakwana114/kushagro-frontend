@@ -4,12 +4,9 @@ import { CardContent } from "../ui/card";
 import { useEffect } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
-const chartData = [
-  { name: "Completed", value: 350, color: "#2E5B20" },
-  { name: "Pending", value: 250, color: "#FFBE00" },
-];
+const COLORS = ["#2E5B20", "#FFBE00", "#FF4560", "#775DD0"];
 
-const PieChartComponent = () => {
+const PieChartComponent = ({ data = [] }) => {
   const [screenSize, setScreenSize] = useState("desktop");
 
   useEffect(() => {
@@ -29,7 +26,7 @@ const PieChartComponent = () => {
     };
   }, []);
 
-  const noData = chartData.every((d) => Number(d.value) === 0);
+  const noData = !data || data.length === 0 || data.every((d) => Number(d.value) === 0);
 
   // Responsive chart dimensions
   const chartWidth =
@@ -45,7 +42,7 @@ const PieChartComponent = () => {
     <div className="border border-[var(--border-admin)] rounded-[8px] pb-6 h-full">
       <div className="border border-[var(--border-admin)] border-b p-4 justify-between flex flex-row">
         <p className="text-black text-[18px] font-semibold ">
-         Orders Status
+          Orders Status
         </p>
       </div>
 
@@ -64,7 +61,7 @@ const PieChartComponent = () => {
             <ResponsiveContainer width={chartWidth} height={chartHeight}>
               <PieChart>
                 <Pie
-                  data={chartData}
+                  data={data}
                   dataKey="value"
                   cx="50%"
                   cy="50%"
@@ -75,10 +72,10 @@ const PieChartComponent = () => {
                   strokeWidth={4}
                   stroke="#ffffff"
                 >
-                  {chartData.map((entry, index) => (
+                  {data.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={entry.color}
+                      fill={entry.color || COLORS[index % COLORS.length]}
                       cornerRadius={index === 0 ? 10 : 10}
                     />
                   ))}
@@ -91,22 +88,21 @@ const PieChartComponent = () => {
         {!noData && (
           <div
             className={`flex flex-row-reverse justify-center mt-2 
-  ${
-    screenSize === "mobile"
-      ? "gap-3"
-      : screenSize === "tablet"
-      ? "gap-5"
-      : "gap-8"
-  }`}
+  ${screenSize === "mobile"
+                ? "gap-3"
+                : screenSize === "tablet"
+                  ? "gap-5"
+                  : "gap-8"
+              }`}
           >
-            {chartData.map((item, index) => (
+            {data.map((item, index) => (
               <div
                 key={index}
                 className="flex justify-center items-center gap-2"
               >
                 <div
                   className="h-4 w-4 rounded"
-                  style={{ backgroundColor: item.color }}
+                  style={{ backgroundColor: item.color || COLORS[index % COLORS.length] }}
                 ></div>
                 <span className="text-[14px] font-medium">{item.name}</span>
               </div>

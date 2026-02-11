@@ -1,0 +1,88 @@
+"use client";
+import ViewFraudReport from "@/components/common/ViewFraudReport";
+
+export const getFraudReportColumns = ({ onDelete }) => [
+  {
+    key: "reportId",
+    title: "Report ID",
+    component: {
+      type: "phone",
+      style: {
+        color: "var(--color-secondary1)",
+        fontWeight: "500",
+      },
+    },
+  },
+  {
+    key: "reportBy",
+    title: "Reported By",
+    isObject: true,
+    structure: {
+      name: "name",
+      email: "email",
+      profile: "profile",
+    },
+    component: {
+      type: "standard_avatar",
+      style: {
+        radius: "rounded-full",
+      },
+    },
+  },
+  {
+    key: "reason",
+    title: "Reason",
+    mobileStack: true,
+    component: {
+      type: "phone",
+      style: {
+        color: "var(--color-dull-text)",
+        fontWeight: "500",
+      },
+    },
+  },
+  {
+    key: "report_on",
+    title: "Reported On",
+    component: {
+      type: "date",
+      options: {
+        format: "M d yyyy",
+      },
+      style: {
+        color: "var(--color-dull-text)",
+        fontWeight: "500",
+      },
+    },
+  },
+  {
+    key: "action",
+    title: "Action",
+    component: {
+      type: "action",
+      style: {},
+      options: {
+        actions: (row) => {
+          return [
+            {
+              label: "View Report",
+              iconUrl: "/assets/icon/View.svg",
+              type: "sidebar",
+              component: (
+                <ViewFraudReport
+                  userType="seller"
+                  reportId={row.reportId || row._id}
+                />
+              ),
+            },
+            {
+              label: "Delete Report",
+              iconUrl: "/assets/icon/deleteBarbershop.svg",
+              onClick: () => onDelete(row._id || row.id),
+            },
+          ];
+        },
+      },
+    },
+  },
+];

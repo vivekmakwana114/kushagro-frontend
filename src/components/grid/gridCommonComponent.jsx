@@ -7,7 +7,7 @@ import DateFormateComponent from "./dateFormateComponent";
 import CurrencyComponent from "./currencyComponent";
 import BadgeComponent from "./badgeComponent";
 import ActionComponent from "./actionComponent";
-import VerificationActionComponent from "./verificationActionComponent";
+
 import IdImageComponent from "./idImageComponent";
 import TimeRangeCell from "../ui/timerangecell";
 import Image from "next/image";
@@ -89,7 +89,7 @@ const GridCommonComponent = ({
     setSelectedRows((prev) =>
       prev.includes(rowIndex)
         ? prev.filter((index) => index !== rowIndex)
-        : [...prev, rowIndex]
+        : [...prev, rowIndex],
     );
   };
 
@@ -109,9 +109,10 @@ const GridCommonComponent = ({
     return path.split(".").reduce((acc, part) => acc && acc[part], obj);
   };
 
-  const renderCellContent = (column, value, row) => {
+  const renderCellContent = (column, value, row, context = {}) => {
     if (column?.render) {
-      return column?.render(value);
+      // Pass value, full row and context so custom renderers have more control
+      return column.render(value, row, context);
     }
 
     // Recent activity Component using grid
@@ -178,11 +179,15 @@ const GridCommonComponent = ({
             />
           );
         case "phone":
+          let phoneStyle = column.component.style;
+          if (context.isMobile && column.mobileStack) {
+            phoneStyle = { ...phoneStyle, whiteSpace: "normal" };
+          }
           return (
             <PhoneComponent
               data={value}
               {...column.component.props}
-              style={column.component.style}
+              style={phoneStyle}
             />
           );
         case "date":
@@ -246,15 +251,6 @@ const GridCommonComponent = ({
             </label>
           );
 
-        case "verification_action":
-          return (
-            <VerificationActionComponent
-              row={row}
-              {...column.component.props}
-              // style={column.component.style}
-            />
-          );
-
         case "id_image":
           return (
             <IdImageComponent
@@ -269,7 +265,11 @@ const GridCommonComponent = ({
       }
     }
 
-    return value || "-";
+    if (typeof value === "object") {
+      return JSON.stringify(value);
+    }
+
+    return value ?? "-";
   };
 
   // Desktop/Tablet Table View
@@ -393,6 +393,18 @@ const GridCommonComponent = ({
                 </tr>
               </thead>
               <tbody className="bg-white">
+                {sortedData.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={
+                        columns.length + (select ? 1 : 0) + (order ? 1 : 0)
+                      }
+                      className="px-6 py-12 text-center text-(--color-dull-text)"
+                    >
+                      No Data Available
+                    </td>
+                  </tr>
+                )}
                 {sortedData.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}
@@ -452,7 +464,7 @@ const GridCommonComponent = ({
                             column.component?.type === "action"
                               ? row
                               : row[column.key],
-                            row
+                            row,
                           )}
                         </div>
                       </td>
@@ -520,7 +532,7 @@ const GridCommonComponent = ({
                     {renderCellContent(
                       primaryColumn,
                       row[primaryColumn.key],
-                      row
+                      row,
                     )}
                   </div>
                 </div>
@@ -576,40 +588,77 @@ const GridCommonComponent = ({
                 <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
                   {columns // skip the nonExpandable columns
                     .filter(
-                      (column) => !column.isPrimary && !column.nonExpandable
+                      (column) => !column.isPrimary && !column.nonExpandable,
                     )
-                    .map((column, colIndex) => (
-                      <div
-                        key={colIndex}
-                        className={`flex justify-between items-center py-1 sm:py-2 border-b border-gray-200 last:border-b-0 min-h-[2rem]
+                    .map((column, colIndex) => {
+                      // Check for mobileStack property
+                      const isStacked = column.mobileStack;
+
+                      return (
+                        <div
+                          key={colIndex}
+                          className={`${
+                            isStacked
+                              ? "flex flex-col items-start py-2" // Stacked layout
+                              : "flex justify-between items-center py-1 sm:py-2" // Default layout
+                          } border-b border-gray-200 last:border-b-0 min-h-[2rem]
                         ${column.component?.style?.text}`}
-                      >
-                        <span className="text-xs sm:text-sm font-medium text-gray-600 flex-shrink-0 w-24 sm:w-32">
-                          {column.title}
-                        </span>
-                        <div className="text-xs sm:text-sm text-gray-900 text-right flex-1 min-w-0 ml-2">
-                          <div className="flex items-center justify-end w-full">
-                            {renderCellContent(column, row[column.key], row)}
+                        >
+                          <span
+                            className={`text-xs sm:text-sm font-medium text-gray-600 flex-shrink-0 ${
+                              isStacked ? "mb-1 w-full" : "w-24 sm:w-32"
+                            }`}
+                          >
+                            {column.title}
+                          </span>
+                          <div
+                            className={`text-xs sm:text-sm text-gray-900 ${
+                              isStacked
+                                ? "w-full text-left"
+                                : "text-right flex-1 min-w-0 ml-2"
+                            }`}
+                          >
+                            <div
+                              className={`flex ${
+                                isStacked
+                                  ? "items-start w-full"
+                                  : "items-center justify-end w-full"
+                              }`}
+                            >
+                              {renderCellContent(
+                                column,
+                                row[column.key],
+                                row,
+                                { isMobile: true }, // context
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                 </div>
               </div>
             )}
           </div>
         );
       })}
+      {sortedData.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-(--color-dull-text)">
+          <p>No Data Available</p>
+        </div>
+      )}
     </div>
   );
 
   return (
     <div className="w-full max-w-full h-full flex flex-col">
       {/* Tablet and Desktop view */}
-      <div className="hidden sm:flex h-full flex-col">{renderTableView()}</div>
+      <div className="hidden sm:flex flex-1 min-h-0 flex-col">
+        {renderTableView()}
+      </div>
 
       {/* Mobile view (320px and up) */}
-      <div className="block sm:hidden h-full overflow-y-auto custom-scroll">
+      <div className="block sm:hidden flex-1 min-h-0 overflow-y-auto custom-scroll">
         {/* Mobile Header with Select All */}
         {select && (
           <div className="mb-3 mx-2 p-3 bg-gray-50 rounded-lg">
@@ -689,7 +738,7 @@ GridCommonComponent.propTypes = {
         options: PropTypes.object,
         style: PropTypes.object,
       }),
-    })
+    }),
   ).isRequired,
   onSort: PropTypes.func,
 
@@ -699,7 +748,7 @@ GridCommonComponent.propTypes = {
       iconUrl: PropTypes.string,
       component: PropTypes.node,
       children: PropTypes.array,
-    })
+    }),
   ),
 };
 

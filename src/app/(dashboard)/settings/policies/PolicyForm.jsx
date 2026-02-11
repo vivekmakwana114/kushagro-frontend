@@ -65,10 +65,10 @@ const PolicyForm = ({ isOpen, onClose, onSave, initialData, sectionTitle }) => {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent
-        className="mr-4 mt-4 mb-4 rounded-lg h-[calc(100vh-2rem)] border border-[#E4E4E6] shadow-xl sm:max-w-[600px] p-0 overflow-y-auto focus-visible:outline-none bg-white"
+        className="mr-4 mt-4 mb-4 rounded-lg h-[calc(100vh-2rem)] border border-[#E4E4E6] shadow-xl sm:max-w-[600px] p-0 overflow-y-auto focus-visible:outline-none bg-white no-scrollbar"
         side="right"
       >
-        <div className="p-6">
+        <div className="p-4">
           <div className="flex justify-between items-center mb-6">
             <SheetHeader className="text-left p-0">
               <SheetTitle className="text-xl font-bold">
@@ -150,17 +150,17 @@ const PolicyForm = ({ isOpen, onClose, onSave, initialData, sectionTitle }) => {
               />
             </div>
 
-            <div className="flex gap-4 pt-4 mt-36">
+            <div className="flex gap-4 pt-2 md:mt-36 mt-18">
               <Button
                 type="button"
                 onClick={onClose}
-                className="flex-1 border border-primary1 text-primary1 hover:bg-white/20 bg-white cursor-pointer"
+                className="flex-1 border border-secondary1 text-secondary1 hover:bg-white/20 bg-white cursor-pointer"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="flex-1 border-primary1 text-white bg-primary1 hover:bg-primary1/50 cursor-pointer"
+                className="flex-1 border-secondary1 text-white bg-secondary1 hover:bg-secondary1/50 cursor-pointer"
               >
                 {initialData.title ? "Update" : "Add"}
               </Button>

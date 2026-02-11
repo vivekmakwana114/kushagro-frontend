@@ -13,13 +13,12 @@ const ClientSidebar = ({ sidebarItems, sidebarHeader }) => {
   const { isClientSidebarOpen, closeAll } = useSideBarStore();
   const isMobile = useIsMobile();
 
-  // const isActive = (url) => {
-  //   return pathname === url || pathname.startsWith(url + "/");
-  // };
-
   const isActive = (url) => {
+    // Split query params if present
+    const urlPath = url.split("?")[0];
+
     const normalizePath = (path) => path.replace(/\/$/, "");
-    const normalizedUrl = normalizePath(url);
+    const normalizedUrl = normalizePath(urlPath);
     const normalizedPath = normalizePath(pathname);
 
     // Exact match
@@ -28,7 +27,8 @@ const ClientSidebar = ({ sidebarItems, sidebarHeader }) => {
     // Only highlight subpath if it matches fully and is the longest match
     return (
       normalizedPath.startsWith(normalizedUrl + "/") &&
-      normalizedUrl !== "/settings"
+      normalizedUrl !== "/settings" &&
+      normalizedUrl !== "/listing-categories"
     );
   };
 
@@ -106,7 +106,9 @@ const ClientSidebar = ({ sidebarItems, sidebarHeader }) => {
         style={{ pointerEvents: "auto" }}
       >
         <div className="py-4">
-          <div className="px-3 text-dull-text text-sm mb-3">{sidebarHeader}</div>
+          <div className="px-3 text-dull-text text-sm mb-3">
+            {sidebarHeader}
+          </div>
           <nav className="flex flex-col gap-2 px-2">
             {sidebarItems.map((item, index) => (
               <Link

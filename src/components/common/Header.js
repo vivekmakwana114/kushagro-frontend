@@ -24,22 +24,49 @@ import {
 } from "../ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/state/auth/authSlice";
 
 import { useEffect, useRef, useState, Fragment } from "react";
 import Notification from "@/components/common/Notification";
+import { LuBell } from "react-icons/lu";
+import { useNotificationStore } from "@/state/useNotificationStore";
+import {
+  connectSocket,
+  disconnectSocket,
+  subscribeToNotifications,
+  subscribeToReadEvents,
+  subscribeToDeleteEvent,
+} from "@/services/socketService";
+
+const getToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth");
+    if (raw) {
+      const { tokens } = JSON.parse(raw);
+      return tokens?.access?.token;
+    }
+  } catch (e) {
+    console.error("Error getting token:", e);
+  }
+  return null;
+};
 
 // Map of routes to their display names
 const routeMap = {
   "/": "Dashboard",
+
   "/buyer": "Buyer",
   "/buyer/details": "Buyer Details",
   "/buyer/details/product-order": "Product Orders",
 
-  "/barbershop": "Barbershops",
-  "/barbershop/details/profile": "Barbershop Details",
-  "/barbershop/details/barber": "Barbers",
-  "/barbershop/details/availability": "Availability",
-  "/barbershop/details/gallery": "Gallery",
+  "/seller": "Seller",
+  "/seller/details/profile": "Seller Details",
+  "/seller/details/seller": "Seller",
+
+  "/listing-categories": "Listing & Categories",
+  "/listing-categories/categories": "Categories",
 
   "/payment-and-payouts/all-transaction": "All Transaction",
 
@@ -49,21 +76,21 @@ const routeMap = {
   "/settings/tax-commission": "Tax Commission",
   "/settings/push-alerts": "Push Alerts",
   "/settings/support-ticket": "Support Ticket",
+  "/settings/fraud-report": "Fraud Report",
   "/settings/policies": "Policies",
   "/settings/email": "Email Settings",
   "/settings/payments": "Payments",
-
-  // breadcrumbs for the barber
-  "/barber/appointment": "My Appointments",
-  "/barber/availibility": "Availability",
 };
 
 const Header = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { toggle, isOpen } = useSideBarStore();
   const pathname = usePathname();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef(null);
+  const { unreadCount, addNotification, markAsRead, markAllAsRead, removeNotification } = useNotificationStore();
+  const { user,dynamicCrumb } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -78,7 +105,48 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const { dynamicCrumb } = useBreadcrumbStore();
+  // socket connection
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      connectSocket(token);
+
+      const unsubscribeNotifications = subscribeToNotifications((newNotification) => {
+        const formattedNotification = {
+          id: newNotification._id || Date.now(),
+          type: newNotification.type || "default",
+          title: newNotification.title,
+          description: newNotification.message || newNotification.description,
+          time: "Just now",
+          isRead: false,
+          ...newNotification
+        };
+        addNotification(formattedNotification);
+      });
+
+      const unsubscribeRead = subscribeToReadEvents(
+        (updatedNotification) => {
+          markAsRead(updatedNotification._id || updatedNotification.id);
+        },
+        () => {
+          markAllAsRead();
+        }
+      );
+
+      const unsubscribeDelete = subscribeToDeleteEvent(({ id }) => {
+        removeNotification(id);
+      });
+
+      return () => {
+        unsubscribeNotifications?.();
+        unsubscribeRead?.();
+        unsubscribeDelete?.();
+        disconnectSocket();
+      };
+    }
+  }, []);
+
+
 
   const getBreadcrumbs = () => {
     const segments = pathname.split("/").filter((s) => s);
@@ -105,6 +173,12 @@ const Header = () => {
       breadcrumbs.push({
         href: "/settings",
         label: "General Settings",
+      });
+    }
+    if (pathname === "/listing-categories") {
+      breadcrumbs.push({
+        href: "/listing",
+        label: "Listings",
       });
     }
 
@@ -135,7 +209,7 @@ const Header = () => {
                     {!isLast ? (
                       <BreadcrumbLink
                         href={breadcrumb.href}
-                        className="text-sm font-medium text-black hover:text-primary1 hover:underline"
+                        className="text-sm font-medium text-black hover:text-secondary1 hover:underline"
                       >
                         {breadcrumb.label}
                       </BreadcrumbLink>
@@ -156,7 +230,7 @@ const Header = () => {
       </div>
       <div className="md:hidden flex items-center">
         <Image
-          src="/assets/logo/Mobile_CutInQ.svg"
+          src="/assets/logo/Mobile_KushAgro.svg"
           alt="logo"
           width={40}
           height={40}
@@ -168,15 +242,16 @@ const Header = () => {
         <div className="relative" ref={notificationRef}>
           <div
             onClick={() => setIsNotificationOpen((prev) => !prev)}
-            className="w-[30px] h-[30px] border border-[var(--border-admin)] 
-                   rounded-[6px] flex items-center justify-center shadow-md cursor-pointer"
+            className="w-[40px] h-[40px] border border-(--border-admin) 
+                   rounded-full flex items-center justify-center shadow-sm cursor-pointer hover:bg-gray-50 transition-colors relative"
           >
-            <Image
-              src="/assets/icon/notification.svg"
-              alt="Menubar"
-              width={16}
-              height={16}
-            />
+            <LuBell className="text-gray-600 w-5 h-5" />
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-white flex items-center justify-center">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </div>
 
           <Notification
@@ -190,12 +265,12 @@ const Header = () => {
         <div className="flex flex-row gap-2 items-center ">
           <div className="hidden md:flex md:flex-col gap-0.5">
             <div className="flex items-center justify-end">
-              <p className="text-[12px] font-medium text-[var(--color-placeholder-color)] text-left">
+              <p className="text-[12px] font-medium text-secondary1 text-left">
                 Hello
               </p>
             </div>
-            <p className="text-[14px] font-medium text-[var(--dark)] truncate">
-              John Doe
+            <p className="text-[14px] font-medium text-(--dark) truncate">
+              {user?.name || "User"}
             </p>
           </div>
 
@@ -205,7 +280,7 @@ const Header = () => {
               <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
                 <Avatar className={`size-8 md:size-12 border-2`}>
                   <AvatarImage
-                    src="/profile.jpg"
+                    src={user?.profile || "/profile.jpg"}
                     alt="User Avatar"
                     className="object-cover"
                   />
@@ -229,27 +304,26 @@ const Header = () => {
                 className="flex items-center gap-2 cursor-pointer p-3"
                 onClick={() => router.push("/profile")}
               >
-                <User className="text-[var(--color-placeholder-color)] h-4 w-4" />
-                <span className="text-[var(--color-placeholder-color)]">
-                  My Profile
-                </span>
+                <User className="text-dull-text h-4 w-4" />
+                <span className="text-dull-text">My Profile</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer p-3 "
-                onClick={() => router.push("/auth")}
+                onClick={() => {
+                  dispatch(logout());
+                  router.push("/auth");
+                }}
               >
-                <LogOut className="text-[var(--color-placeholder-color)] h-4 w-4" />
-                <span className="text-[var(--color-placeholder-color)]">
-                  Log out
-                </span>
+                <LogOut className="text-dull-text h-4 w-4" />
+                <span className="text-dull-text">Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Hamburger Menu */}
           <div
-            className="flex md:hidden w-[30px] h-[30px] border border-[var(--border-admin)] rounded-[6px] items-center justify-center shadow-md cursor-pointer"
+            className="flex md:hidden w-[30px] h-[30px] border border-(--border-admin) rounded-[6px] items-center justify-center shadow-md cursor-pointer"
             onClick={toggle}
             data-hamburger="true"
           >

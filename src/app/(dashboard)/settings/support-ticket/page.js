@@ -1,80 +1,295 @@
 "use client";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import React from "react";
-import { supportData } from "./supportData";
-import { supportTicketColumns } from "./supportTicketColumns";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { getSupportTicketColumns } from "./supportTicketColumns";
 import ActionComponent from "@/components/grid/actionComponent";
-import { Filter } from "lucide-react";
+import SupportTicketFilterForm from "./SupportTicketFilterForm";
+import { Filter, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import Pagination from "@/components/ui/pagination";
+import ActionPopup from "@/components/common/ActionPopup";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  deleteSupportTicketConfig,
-  supportTicketFilterConfig,
-} from "./supportTicketConfig";
-import ViewUser from "../../buyer/viewUser";
-import PopupForm from "@/components/ui/popupform";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
+  fetchSupportTickets,
+  updateTicketStatus,
+  deleteTicket,
+  deleteTickets,
+} from "@/state/setting/support-ticket/supportTicketSlice";
+import { toast } from "sonner";
 
 const options = {
   select: true,
   order: false,
   sortable: false,
 };
-const supportTicketPage = () => {
+const SupportTicketPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const dispatch = useDispatch();
+  const { supportTickets, isLoading, pagination } = useSelector(
+    (state) => state.supportTicket,
+  );
+
+  // Initial fetch
+  useEffect(() => {
+    dispatch(fetchSupportTickets({ page: 1, limit: 10 }));
+  }, [dispatch]);
+
+  const itemsPerPage = 10;
+
+  // Filter support tickets client-side
+  const filteredTickets = useMemo(() => {
+    if (!supportTickets) return [];
+
+    let result = Array.isArray(supportTickets) ? supportTickets : [];
+
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((ticket) => {
+        const ticketId = (ticket.ticketId || ticket._id || "")
+          .toString()
+          .toLowerCase();
+        const subject = (ticket.topic || "").toLowerCase();
+        const userName = (
+          typeof ticket.user === "object"
+            ? ticket.user?.name
+            : ticket.user || ""
+        ).toLowerCase();
+        const status = (ticket.status || "").toLowerCase();
+
+        return (
+          ticketId.includes(lowerQuery) ||
+          subject.includes(lowerQuery) ||
+          userName.includes(lowerQuery) ||
+          status.includes(lowerQuery)
+        );
+      });
+    }
+
+    return result.map((ticket) => ({
+      ...ticket,
+      ticket_id: ticket.ticketId || ticket._id || "N/A",
+      subject: ticket.subject || ticket.topic || "N/A",
+      date_time: ticket.raisedOn,
+      user:
+        typeof ticket.user === "object"
+          ? ticket.user
+          : { name: ticket.user || "N/A", email: "N/A", profile: "" },
+      status:
+        ticket.status && ticket.status.toUpperCase() === "IN_PROGRESS"
+          ? "inprocess"
+          : ticket.status
+            ? ticket.status.toLowerCase()
+            : "open",
+    }));
+  }, [supportTickets, searchQuery]);
+
+  const currentData = filteredTickets;
+
+  const totalPages = pagination?.totalPages || 1;
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+    // Debounce search could be added here to fetch from server
+  }, [searchQuery]);
+
+  const handleDelete = useCallback(
+    async (id) => {
+      try {
+        await dispatch(deleteTicket(id)).unwrap();
+        toast.success("Ticket deleted successfully");
+        dispatch(fetchSupportTickets());
+      } catch (error) {
+        toast.error("Failed to delete ticket");
+      }
+    },
+    [dispatch],
+  );
+
+  const handleStatusUpdate = useCallback(
+    async (id, status) => {
+      let apiStatus = status.toUpperCase();
+      if (status === "inprocess") apiStatus = "IN_PROGRESS";
+
+      try {
+        await dispatch(
+          updateTicketStatus({ ids: [id], status: apiStatus }),
+        ).unwrap();
+        toast.success("Ticket status updated successfully");
+      } catch (error) {
+        toast.error("Failed to update status");
+      }
+    },
+    [dispatch],
+  );
+
+  const columns = useMemo(
+    () =>
+      getSupportTicketColumns({
+        onDelete: handleDelete,
+        onStatusUpdate: handleStatusUpdate,
+      }),
+    [handleDelete, handleStatusUpdate],
+  );
+
+  const handleFilterApply = (filterData) => {
+    const params = {};
+    if (
+      filterData.status &&
+      filterData.status.length > 0 &&
+      !filterData.status.includes("all")
+    ) {
+      params.status = filterData.status[0];
+    }
+
+    const formatDate = (date) => {
+      if (!date) return undefined;
+      const d = new Date(date);
+      return d.toISOString().split("T")[0];
+    };
+
+    if (filterData.dateRange?.from)
+      params.fromDate = formatDate(filterData.dateRange.from);
+    if (filterData.dateRange?.to)
+      params.toDate = formatDate(filterData.dateRange.to);
+
+    // Reset to page 1 when filtering
+    setCurrentPage(1);
+    params.page = 1;
+    params.limit = 10;
+
+    dispatch(fetchSupportTickets(params));
+  };
+
+  const handleBulkDelete = async (formData, selectedItems) => {
+    // Check if selectedItems is provided (from bulk action) or if formData is the array (direct call)
+    const items = Array.isArray(selectedItems)
+      ? selectedItems
+      : Array.isArray(formData)
+        ? formData
+        : [];
+
+    const ids = items.map((item) => item._id || item.id || item.ticket_id);
+    if (ids.length === 0) return;
+
+    try {
+      await dispatch(deleteTickets(ids)).unwrap();
+      toast.success("Tickets deleted successfully");
+      dispatch(
+        fetchSupportTickets({
+          page: currentPage,
+          limit: 10,
+          search: searchQuery,
+        }),
+      );
+    } catch (error) {
+      toast.error("Failed to delete tickets");
+    }
+  };
+
+  const handleBulkStatusUpdate = async (selectedItems, status) => {
+    const ids = selectedItems.map(
+      (item) => item._id || item.id || item.ticket_id,
+    );
+    if (ids.length === 0) return;
+
+    try {
+      await dispatch(updateTicketStatus({ ids, status })).unwrap();
+      toast.success(
+        `Tickets marked as ${status.toLowerCase().replace("_", " ")} successfully`,
+      );
+      dispatch(
+        fetchSupportTickets({
+          page: currentPage,
+          limit: 10,
+          search: searchQuery,
+        }),
+      );
+    } catch (error) {
+      toast.error("Failed to update ticket status");
+    }
+  };
+
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-end gap-2 mb-4 w-full">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
+      <div className="flex items-center justify-between gap-2 mb-4 w-full flex-none">
+        <div className="relative flex-1 min-w-[150px] max-w-[400px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-dull-text" />
+          <Input
+            className="pl-10 h-10 w-full border border-(--border-admin) rounded-md"
+            placeholder="Search here..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <div className="flex items-center gap-2">
           <ActionComponent
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={supportTicketFilterConfig} />,
+                component: (
+                  <SupportTicketFilterForm onApply={handleFilterApply} />
+                ),
               },
             ]}
-            icon={<Filter className="w-4 h-4 text-[var(--color-primary1)]" />}
-            buttonClassName="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3 sm:py-2 border border-[var(--color-primary1)] bg-white rounded-md shadow-sm hover:bg-gray-50"
+            icon={<Filter className="w-4 h-4 text-secondary1" />}
+            buttonClassName="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3 sm:py-2 border border-secondary1 bg-white rounded-md shadow-sm hover:bg-gray-50"
           />
         </div>
       </div>
-      <GridCommonComponent
-        data={supportData}
-        options={options}
-        columns={supportTicketColumns}
-        theme={{
-          border: "border-gray-300",
-          header: {
-            bg: "bg-gray-100",
-          },
+      <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+        <GridCommonComponent
+          data={currentData}
+          options={options}
+          columns={columns}
+          loading={isLoading}
+          theme={{
+            border: "border-(--border-admin)",
+            header: {
+              bg: "bg-gray-100",
+            },
+          }}
+          bulkActionsConfig={[
+            {
+              label: "Mark as Done",
+              iconUrl: "/assets/icon/markAsDone.svg",
+              onClick: (items) => handleBulkStatusUpdate(items, "DONE"),
+            },
+            {
+              label: "Mark as In Process",
+              iconUrl: "/assets/icon/markInprocess.svg",
+              onClick: (items) => handleBulkStatusUpdate(items, "IN_PROGRESS"),
+            },
+            {
+              label: "Delete Ticket",
+              iconUrl: "/assets/icon/deleteSelection.svg",
+              type: "modal_component",
+              component: (
+                <ActionPopup
+                  heading="Delete Selected Tickets?"
+                  subHeading="Are you sure you want to delete these tickets?"
+                  confirmText="Delete All"
+                  confirmColor="red"
+                />
+              ),
+              onApply: handleBulkDelete,
+            },
+          ]}
+        />
+      </div>
+      <Pagination
+        currentPage={pagination?.page || 1}
+        totalPages={totalPages}
+        onPageChange={(page) => {
+          setCurrentPage(page);
+          dispatch(
+            fetchSupportTickets({ page, limit: 10, search: searchQuery }),
+          );
         }}
-        bulkActionsConfig={[
-          {
-            label: "Mark as In Process",
-            iconUrl: "/assets/icon/markCompleted.svg",
-            type: "popUp",
-            component: <ViewUser />,
-          },
-          {
-            label: "Mark as Resolved",
-            iconUrl: "/assets/icon/markCompleted.svg",
-            type: "popUp",
-            component: <ViewUser />,
-          },
-          {
-            label: "Delete Ticket",
-            iconUrl: "/assets/icon/deleteBarbershop.svg",
-            type: "popUp",
-            component: (
-              <PopupForm
-                config={deleteSupportTicketConfig}
-                width="600px"
-                onApply={(data) => console.log("Ticket Deleted", data)}
-                onCancel={() => console.log("Cancelled")}
-              />
-            ),
-          },
-        ]}
       />
     </div>
   );
 };
 
-export default supportTicketPage;
+export default SupportTicketPage;

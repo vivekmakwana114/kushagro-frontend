@@ -18,7 +18,7 @@ const LoginForm = ({
   setPasswordFocused,
   handleSubmit,
   handleLogin,
-  setCurrentView,
+  handleForgotPassword, // New prop
 }) => {
   return (
     <>
@@ -144,7 +144,7 @@ const LoginForm = ({
           <button
             type="button"
             className="text-placeholder-color whitespace-nowrap cursor-pointer"
-            onClick={() => setCurrentView("forgot-password")}
+            onClick={handleForgotPassword}
           >
             Forgot Password?
           </button>

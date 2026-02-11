@@ -1,18 +1,12 @@
 "use client";
+import ActionPopup from "@/components/common/ActionPopup";
 
-import StarRating from "@/components/ui/starRating";
-import PopupForm from "@/components/ui/popupform";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import {
-  deleteSellerConfig,
-  getSellerConfig,
-  markAsActiveConfig,
-  markAsInactiveConfig,
-  reactivateSellerConfig,
-  suspendSellerConfig,
-} from "./sellerConfig";
-
-export const getSellerColumns = () => [
+export const getSellerColumns = ({
+  onSuspend,
+  onReset,
+  onVerify,
+  onReactivate,
+}) => [
   {
     key: "seller",
     title: "Sellers",
@@ -43,7 +37,7 @@ export const getSellerColumns = () => [
     },
   },
   {
-    key: "joined_on",
+    key: "createdAt",
     title: "Joined On",
     sortable: true,
     component: {
@@ -58,7 +52,7 @@ export const getSellerColumns = () => [
     },
   },
   {
-    key: "total_listing",
+    key: "totalListings",
     title: "Total Listings",
     sortable: true,
     component: {
@@ -70,7 +64,7 @@ export const getSellerColumns = () => [
     },
   },
   {
-    key: "total_order",
+    key: "totalOrders",
     title: "Total Orders",
     sortable: true,
     component: {
@@ -83,7 +77,7 @@ export const getSellerColumns = () => [
   },
 
   {
-    key: "total_earning",
+    key: "earnings",
     title: "Earning",
     sortable: true,
     component: {
@@ -98,19 +92,8 @@ export const getSellerColumns = () => [
     },
   },
 
-  // {
-  //   key: "avg_rating",
-  //   title: "Rating",
-  //   sortable: true,
-  //   render: (value) => (
-  //     <div className="text-black-500">
-  //       <StarRating value={value} />
-  //     </div>
-  //   ),
-  // },
-
   {
-    key: "id_status",
+    key: "idStatus",
     title: "ID Status",
     sortable: true,
     component: {
@@ -122,7 +105,7 @@ export const getSellerColumns = () => [
       options: {
         value: {
           verified: "#097416", // green
-          pending: "#FFBE00", // gray
+          pending: "#FFBE00", // yellow
           rejected: "#BC0D10", //red
         },
       },
@@ -157,125 +140,116 @@ export const getSellerColumns = () => [
       options: {
         actions: (row) => {
           switch (row.status) {
-            case "active":
+            case "Active":
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
                 {
-                  label: "Edit Seller",
-                  iconUrl: "/assets/icon/editBooking.svg",
-                  type: "sidebar",
-                  component: <DynamicForm config={getSellerConfig("edit", {})} />,
+                  label: "Suspend Seller",
+                  iconUrl: "/assets/icon/suspendCustomer.svg",
+                  type: "modal_component",
+                  component: (
+                    <ActionPopup
+                      heading="Suspend Seller?"
+                      subHeading="Are you sure you want to suspend this Seller’s account? This will prevent Seller from placing orders, or accessing their profile until reactivated."
+                      confirmText="Confirm Suspend"
+                      confirmColor="red"
+                      dropdownOptions={[
+                        {
+                          label: "Inappropriate behavior",
+                          value: "Inappropriate behavior",
+                        },
+                        {
+                          label: "Multiple no-shows",
+                          value: "Multiple no-shows",
+                        },
+                        {
+                          label: "Payment-related issues",
+                          value: "Payment-related issues",
+                        },
+                        {
+                          label: "Spam or fake account",
+                          value: "Spam or fake account",
+                        },
+                        { label: "Buyer request", value: "Buyer request" },
+                        {
+                          label: "Missing essential Buyer details.",
+                          value: "Missing essential Buyer details.",
+                        },
+                        { label: "Other", value: "Other" },
+                      ]}
+                      dropdownLabel="Select Suspension Reason"
+                      dropdownPlaceholder="Select Suspension Reason"
+                      textareaLabel="Note"
+                      textareaPlaceholder="Add a Note"
+                    />
+                  ),
+                  onApply: (data) => onSuspend(row, data),
                 },
                 {
-                  label: "Mark as Inactive",
+                  label: "Mark as Verified ID",
+                  iconUrl: "/assets/icon/markCompleted.svg",
+                  onClick: () => onVerify(row, "APPROVED"),
+                },
+                {
+                  label: "Mark as Rejected ID",
                   iconUrl: "/assets/icon/markInactive.svg",
-                  type: "popUp",
-                  component: (
-                    <PopupForm
-                      config={markAsInactiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Activated:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  onClick: () => onVerify(row, "REJECTED"),
                 },
+
                 {
-                  label: "Suspend Barbershop",
-                  iconUrl: "/assets/icon/suspendBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={suspendSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
-                },
-                {
-                  label: "Delete Barbershop",
-                  iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={deleteSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  label: "Share Reset Password Link",
+                  iconUrl: "/assets/icon/lock.svg",
+                  onClick: (data) => onReset(row),
                 },
               ];
 
-            case "inactive":
+            case "Inactive":
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
                 {
                   label: "Mark as Active",
                   iconUrl: "/assets/icon/reactivateCustomer.svg",
-                  component: (
-                    <PopupForm
-                      config={markAsActiveConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Activated:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  onClick: () => onVerify(row, "APPROVED"),
                 },
                 {
                   label: "Delete Seller",
                   iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={deleteSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  onClick: () => onDelete(row),
                 },
               ];
 
-            case "suspended":
+            case "Suspended":
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
 
                 {
                   label: "Reactivate Seller",
-                  iconUrl: "/assets/icon/markCompleted.svg",
+                  iconUrl: "/assets/icon/reactivateCustomer.svg",
+                  type: "modal_component",
                   component: (
-                    <PopupForm
-                      config={reactivateSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Reactivated:", data)}
-                      onCancel={() => console.log("Cancelled")}
+                    <ActionPopup
+                      heading="Reactivate Seller?"
+                      subHeading="Are you sure you want to reactivate this Seller’s account? Once reactivated, Seller will regain full access to Ksa, including booking appointments and making purchases."
+                      confirmText="Confirm Reactivation"
+                      confirmColor="text-secondary1"
                     />
                   ),
-                },
-                {
-                  label: "Delete Seller",
-                  iconUrl: "/assets/icon/deleteBarbershop.svg",
-                  component: (
-                    <PopupForm
-                      config={deleteSellerConfig}
-                      width="500px"
-                      onApply={(data) => console.log("Suspended:", data)}
-                      onCancel={() => console.log("Cancelled")}
-                    />
-                  ),
+                  onApply: (data) => onReactivate(row),
                 },
               ];
 
@@ -283,9 +257,9 @@ export const getSellerColumns = () => [
               return [
                 {
                   label: "View Seller",
-                  iconUrl: "/assets/icon/ViewCustomer.svg",
+                  iconUrl: "/assets/icon/View.svg",
                   type: "navigate",
-                  url: "/seller/details/profile/",
+                  url: `/seller/details/profile?id=${row._id}`,
                 },
               ];
           }

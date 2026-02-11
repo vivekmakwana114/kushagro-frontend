@@ -50,8 +50,9 @@ const LeftSidebar = ({ onOpenChange }) => {
   const renderMenuItem = (item, index) => {
     const active = isActive(item?.url);
 
-    // Redirect logic for barbershop role
-    let href = item?.url;
+    // Redirect logic admin panel
+    // redirectUrl is used for redirecting to the specific page for the admin panel.
+    let href = item?.redirectUrl || item?.url;
 
     return (
       <SidebarMenuItem key={index}>
@@ -111,12 +112,12 @@ const LeftSidebar = ({ onOpenChange }) => {
             <hr className="w-8 h-[0.5px] border border-[var(--border-admin)] my-1" />
 
             {leftSidebarItems
-              .slice(3, 6)
+              .slice(3, 5)
               .map((item, index) => renderMenuItem(item, index + 4))}
 
             <hr className="w-8 h-[0.5px] border border-[var(--border-admin)] my-1" />
 
-            {renderMenuItem(leftSidebarItems[6], 6)}
+            {renderMenuItem(leftSidebarItems[5], 5)}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

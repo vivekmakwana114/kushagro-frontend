@@ -35,7 +35,7 @@ export const leftSidebarItems = [
 
   {
     title: "Listing",
-    url: "/listing",
+    url: "/listing-categories",
     icon: {
       active: "/assets/icon/listing.svg",
       inactive: "/assets/icon/listing_inactive.svg",
@@ -43,17 +43,9 @@ export const leftSidebarItems = [
   },
 
   {
-    title: "Payment & Payouts",
-    url: "/payment-and-payouts/all-transaction",
-    icon: {
-      active: "/assets/icon/payments.svg",
-      inactive: "/assets/icon/payments_inactive.svg",
-    },
-  },
-
-  {
     title: "Settings",
     url: "/settings",
+    redirectUrl: "/settings/tax-commission",
     icon: {
       active: "/assets/icon/settings.svg",
       inactive: "/assets/icon/settings_inactive.svg",
@@ -101,25 +93,44 @@ export const sellerSidebarItems = [
     },
   },
   {
-    title:"Listing",
-    url:"/seller/details/listing",
-    icon:{
-      active:"/assets/icon/seller_listing.svg",
-      inactive:"/assets/icon/seller_listing_inactive.svg",
+    title: "Listing",
+    url: "/seller/details/listing",
+    icon: {
+      active: "/assets/icon/seller_listing.svg",
+      inactive: "/assets/icon/seller_listing_inactive.svg",
+    },
+  },
+];
+
+export const listingSidebarItems = [
+  {
+    title: "Listing",
+    url: "/listing-categories",
+    icon: {
+      active: "/assets/icon/listing_category_listing.svg",
+      inactive: "/assets/icon/listing_category_listing_inactive.svg",
+    },
+  },
+  {
+    title: "Categories",
+    url: "/listing-categories/categories",
+    icon: {
+      active: "/assets/icon/listing_category.svg",
+      inactive: "/assets/icon/listing_category_inactive.svg",
     },
   },
 ];
 
 // Settings Sidebar - settting
 export const settingSidebarItems = [
-  {
-    title: "General",
-    url: "/settings",
-    icon: {
-      active: "/assets/icon/sett.svg",
-      inactive: "/assets/icon/sett_inactive.svg",
-    },
-  },
+  // {
+  //   title: "General",
+  //   url: "/settings",
+  //   icon: {
+  //     active: "/assets/icon/sett.svg",
+  //     inactive: "/assets/icon/sett_inactive.svg",
+  //   },
+  // },
   {
     title: "Tax Commission",
     url: "/settings/tax-commission",
@@ -145,27 +156,35 @@ export const settingSidebarItems = [
     },
   },
   {
-    title: "Policies",
-    url: "/settings/policies",
+    title: "Fraud Report",
+    url: "/settings/fraud-report",
     icon: {
-      active: "/assets/icon/policies.svg",
-      inactive: "/assets/icon/policies_inactive.svg",
+      active: "/assets/icon/fraud.svg",
+      inactive: "/assets/icon/fraud_inactive.svg",
     },
   },
-  {
-    title: "Email & SMS",
-    url: "/settings/email",
-    icon: {
-      active: "/assets/icon/email.svg",
-      inactive: "/assets/icon/email_inactive.svg",
-    },
-  },
-  {
-    title: "Payments",
-    url: "/settings/payments",
-    icon: {
-      active: "/assets/icon/pay.svg",
-      inactive: "/assets/icon/pay_inactive.svg",
-    },
-  },
+  // {
+  //   title: "Policies",
+  //   url: "/settings/policies",
+  //   icon: {
+  //     active: "/assets/icon/policies.svg",
+  //     inactive: "/assets/icon/policies_inactive.svg",
+  //   },
+  // },
+  // {
+  //   title: "Email & SMS",
+  //   url: "/settings/email",
+  //   icon: {
+  //     active: "/assets/icon/email.svg",
+  //     inactive: "/assets/icon/email_inactive.svg",
+  //   },
+  // },
+  // {
+  //   title: "Payments",
+  //   url: "/settings/payments",
+  //   icon: {
+  //     active: "/assets/icon/pay.svg",
+  //     inactive: "/assets/icon/pay_inactive.svg",
+  //   },
+  // },
 ];

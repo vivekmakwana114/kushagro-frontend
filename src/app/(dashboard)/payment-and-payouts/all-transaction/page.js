@@ -1,15 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import GridCommonComponent from "@/components/grid/gridCommonComponent";
-import { transactionData } from "./transactionData";
 import { transactionColumn } from "./transactionColumn";
 import { Input } from "@/components/ui/input";
 import { Download, Filter, Search } from "lucide-react";
-import { BsFilePdf, BsFileSpreadsheet } from "react-icons/bs";
 import ActionComponent from "@/components/grid/actionComponent";
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import { transactionFilterConfig } from "./transactionConfig";
+import TransactionFilterForm from "./TransactionFilterForm";
 import Pagination from "@/components/ui/pagination";
+import Image from "next/image";
 
 const options = {
   select: false,
@@ -24,15 +22,26 @@ const downloadActions = [
   {
     label: "Download PDF",
     icon: (
-      <BsFilePdf className="w-4 h-4 text-[var(--color-placeholder-color)] font-bold" />
+      <Image
+        src="/assets/icon/downloadpdf.svg"
+        alt="downloadpdf"
+        width={16}
+        height={16}
+      />
     ),
     onClick: () => console.log("Download PDF"),
   },
   {
     label: "Download CSV",
     icon: (
-      <BsFileSpreadsheet className="w-4 h-4  text-[var(--color-placeholder-color)] font-bold" />
+      <Image
+        src="/assets/icon/downloadcsv.svg"
+        alt="downloadcsv"
+        width={16}
+        height={16}
+      />
     ),
+
     onClick: () => console.log("Download CSV"),
   },
 ];
@@ -45,50 +54,54 @@ const AllTransactionPage = () => {
   const currentData = transactionData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(transactionData.length / itemsPerPage);
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-2 gap-2">
+    <div className="w-full md:h-[calc(100vh-9rem)] h-full flex flex-col">
+      <div className="flex items-center justify-between mb-2 gap-2 flex-none">
         <div className="relative w-[400px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-dull-text)]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-dull-text" />
           <Input className="pl-10 w-full" placeholder="Search here..." />
         </div>
 
         <div className="flex gap-2">
           <ActionComponent
             actions={downloadActions}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
-            icon={<Download className="w-5 h-5 text-[var(--color-primary1)]" />}
+            buttonClassName="inline-flex items-center justify-center p-2 border border-(--border-admin) bg-white rounded-md  hover:bg-gray-50"
+            icon={
+              <Download className="w-5 h-5 text-secondary1" />
+            }
           />
 
           <ActionComponent
             actions={[
               {
                 type: "sidebar",
-                component: <DynamicForm config={transactionFilterConfig} />,
+                component: <TransactionFilterForm />,
               },
             ]}
-            icon={<Filter className="w-5 h-5 text-[var(--color-primary1)]" />}
-            buttonClassName="inline-flex items-center justify-center p-2 border border-[var(--border-admin)] bg-white rounded-md  hover:bg-gray-50"
+            icon={<Filter className="w-5 h-5 text-secondary1" />}
+            buttonClassName="inline-flex items-center justify-center p-2 border border-border-admin bg-white rounded-md  hover:bg-gray-50"
           />
         </div>
       </div>
-      <div className="">
+      <div className="flex-1 min-h-0">
         <GridCommonComponent
           data={currentData}
           options={options}
           columns={transactionColumn}
           theme={{
-            border: "border-gray-300",
+            border: "border-border-admin",
             header: {
               bg: "bg-gray-100",
             },
           }}
         />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
+      <div className="flex-none mt-2">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </div>
     </div>
   );
 };

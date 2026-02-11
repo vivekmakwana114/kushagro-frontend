@@ -1,23 +1,19 @@
 "use client";
+import ViewSupportTicket from "./ViewSupportTicket";
 
-import DetailView from "@/components/modules/DetailView";
-
-import PopupForm from "@/components/ui/popupform";
 import ViewUser from "../../buyer/viewUser";
-import {
-  deleteSupportTicketConfig,
-  supportTicketDetailsConfig,
-} from "./supportTicketConfig";
 
-export const supportTicketColumns = [
+import ActionPopup from "@/components/common/ActionPopup";
+
+export const getSupportTicketColumns = ({ onDelete, onStatusUpdate }) => [
   {
-    key: "booking_id",
-    title: "Booking ID",
+    key: "ticket_id",
+    title: "Ticket ID",
     sortable: true,
     component: {
       type: "phone",
       style: {
-        color: "var(--color-primary1)",
+        color: "var(--color-secondary1)",
         fontWeight: "500",
       },
     },
@@ -29,14 +25,14 @@ export const supportTicketColumns = [
     component: {
       type: "phone",
       style: {
-        color: "var(--color-placeholder-color)",
+        color: "var(--color-dull-text)",
         fontWeight: "500",
       },
     },
   },
   {
-    key: "customer",
-    title: "Customer",
+    key: "user",
+    title: "User",
     isObject: true,
     sortable: true,
     structure: {
@@ -59,11 +55,11 @@ export const supportTicketColumns = [
     component: {
       type: "date",
       style: {
-        color: "var(--color-placeholder-color)",
+        color: "var(--color-dull-text)",
         fontWeight: "500",
       },
       options: {
-        format: "MM dd yyyy",
+        format: "dd MM, yyyy",
       },
     },
   },
@@ -80,8 +76,8 @@ export const supportTicketColumns = [
       },
       options: {
         value: {
-          resolved: "#097415", // Green
-          inprocess: "#6C63FF", // indigo
+          done: "#097415", // Green
+          inprocess: "#FFBE00", // yellow
           open: "#7D7D7D", //Gray
         },
       },
@@ -96,92 +92,83 @@ export const supportTicketColumns = [
       options: {
         actions: (row) => {
           // row.status determines which actions to show
-          if (row.status === "inprocess") {
-            return [
-              {
-                label: "View Details",
-                iconUrl: "/assets/icon/viewCustomer.svg",
-                type: "sidebar",
-                component: <DetailView config={supportTicketDetailsConfig} />,
-              },
-              {
-                label: "Mark as Resolved",
-                iconUrl: "/assets/icon/markCompleted.svg",
-                type: "popUp",
-                component: <ViewUser />,
-              },
-              {
-                label: "Delete Ticket",
-                iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={deleteSupportTicketConfig}
-                    width="600px"
-                    onApply={(data) => console.log("Ticket Deleted", data)}
-                    onCancel={() => console.log("Cancelled")}
-                  />
-                ),
-              },
-            ];
-          }
-
-          if (row.status === "resolved") {
-            return [
-              {
-                label: "View Details",
-                iconUrl: "/assets/icon/viewCustomer.svg",
-                type: "sidebar",
-                component: <DetailView config={supportTicketDetailsConfig} />,
-              },
-              {
-                label: "Delete Ticket",
-                iconUrl: "/assets/icon/deleteBarbershop.svg",
-                type: "popUp",
-                component: (
-                  <PopupForm
-                    config={deleteSupportTicketConfig}
-                    width="600px"
-                    onApply={(data) => console.log("Ticket Deleted", data)}
-                    onCancel={() => console.log("Cancelled")}
-                  />
-                ),
-              },
-            ];
-          }
-
-          // default actions for other statuses
-          return [
+          const commonActions = [
             {
               label: "View Details",
-              iconUrl: "/assets/icon/viewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
-              component: <DetailView config={supportTicketDetailsConfig} />,
+              component: <ViewSupportTicket />, // ViewSupportTicket handles its own updates now
             },
-            {
-              label: "Mark as In Process",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
-            {
-              label: "Mark as Resolved",
-              iconUrl: "/assets/icon/markCompleted.svg",
-              type: "popUp",
-              component: <ViewUser />,
-            },
+          ];
+
+          if (row.status === "open") {
+            return [
+              ...commonActions,
+              {
+                label: "Mark as In Process",
+                iconUrl: "/assets/icon/markCompleted.svg",
+
+                onClick: () => onStatusUpdate(row._id || row.id, "inprocess"),
+              },
+              {
+                label: "Delete Ticket",
+                iconUrl: "/assets/icon/deleteBarbershop.svg",
+                type: "modal_component",
+                component: (
+                  <ActionPopup
+                    heading="Delete Support Ticket?"
+                    subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                    confirmText="Delete Ticket"
+                    confirmColor="red"
+                  />
+                ),
+                onApply: () => onDelete(row._id || row.id),
+              },
+            ];
+          }
+
+          if (row.status === "inprocess") {
+            return [
+              ...commonActions,
+              {
+                label: "Mark as Done",
+                iconUrl: "/assets/icon/markCompleted.svg",
+
+                onClick: () => onStatusUpdate(row._id || row.id, "done"),
+              },
+              {
+                label: "Delete Ticket",
+                iconUrl: "/assets/icon/deleteBarbershop.svg",
+                type: "modal_component",
+                component: (
+                  <ActionPopup
+                    heading="Delete Support Ticket?"
+                    subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                    confirmText="Delete Ticket"
+                    confirmColor="red"
+                  />
+                ),
+                onApply: () => onDelete(row._id || row.id),
+              },
+            ];
+          }
+
+          // default actions for other statuses (e.g. closed)
+          return [
+            ...commonActions,
             {
               label: "Delete Ticket",
               iconUrl: "/assets/icon/deleteBarbershop.svg",
-              type: "popUp",
+              type: "modal_component",
               component: (
-                <PopupForm
-                  config={deleteSupportTicketConfig}
-                  width="600px"
-                  onApply={(data) => console.log("Ticket Deleted", data)}
-                  onCancel={() => console.log("Cancelled")}
+                <ActionPopup
+                  heading="Delete Support Ticket?"
+                  subHeading="Are you sure you want to delete this support ticket? Once deleted, this ticket will be removed from the panel and will no longer be visible to admin."
+                  confirmText="Delete Ticket"
+                  confirmColor="red"
                 />
               ),
+              onApply: () => onDelete(row._id || row.id),
             },
           ];
         },

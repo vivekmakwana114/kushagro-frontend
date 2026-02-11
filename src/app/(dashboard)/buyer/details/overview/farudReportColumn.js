@@ -1,9 +1,7 @@
 "use client";
+import ViewFraudReport from "@/components/common/ViewFraudReport";
 
-import DynamicForm from "@/components/modules/DynamicFormRendering";
-import PopupForm from "@/components/ui/popupform";
-
-export const getFraudReportColumns = () => [
+export const getFraudReportColumns = ({ onDelete } = {}) => [
   {
     key: "reportId",
     title: "Report ID",
@@ -17,7 +15,7 @@ export const getFraudReportColumns = () => [
   },
   {
     key: "reportBy",
-    title: "Report By",
+    title: "Reported By",
     isObject: true,
     structure: {
       name: "name",
@@ -34,6 +32,7 @@ export const getFraudReportColumns = () => [
   {
     key: "reason",
     title: "Reason",
+    mobileStack: true,
     component: {
       type: "phone",
       style: {
@@ -43,8 +42,8 @@ export const getFraudReportColumns = () => [
     },
   },
   {
-    key: "report_on",
-    title: "Report On",
+    key: "reportOn",
+    title: "Reported On",
     component: {
       type: "date",
       options: {
@@ -58,37 +57,28 @@ export const getFraudReportColumns = () => [
   },
   {
     key: "actions",
-    title: "Actions",
+    title: "Action",
     component: {
       type: "action",
       style: {},
       options: {
-        actions: () => {
+        actions: (row) => {
           return [
             {
               label: "View Report",
-              iconUrl: "/assets/icon/ViewCustomer.svg",
+              iconUrl: "/assets/icon/View.svg",
               type: "sidebar",
               component: (
-                <DynamicForm
-                  config={""}
-                  width="500px"
-                  onApply={(data) => console.log("Suspended Buyer:", data)}
-                  onCancel={() => console.log("Closed")}
+                <ViewFraudReport
+                  userType="buyer"
+                  reportId={row.id || row.reportId}
                 />
               ),
             },
             {
               label: "Delete Report",
               iconUrl: "/assets/icon/deleteBarbershop.svg",
-              // component: (
-              //   <PopupForm
-              //     config={""}
-              //     width="500px"
-              //     onApply={(data) => console.log("Suspended Buyer:", data)}
-              //     onCancel={() => console.log("Closed")}
-              //   />
-              // ),
+              onClick: () => onDelete && onDelete(row.id || row.reportId),
             },
           ];
         },

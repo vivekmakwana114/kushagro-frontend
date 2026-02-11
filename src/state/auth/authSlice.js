@@ -2,9 +2,10 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   login,
   forgotPassword,
-  verifyResetToken as verifyTokenApi,
+  verifyOtp as verifyOtpApi,
   resetPassword as resetPasswordApi,
 } from "./authService";
+import { updateUserProfile } from "../profile/profileSlice";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -36,29 +37,29 @@ export const sendForgotPassword = createAsyncThunk(
   }
 );
 
-// Verify reset token sent via email
-export const verifyResetToken = createAsyncThunk(
-  "auth/verifyResetToken",
-  async (token, { rejectWithValue }) => {
+// Verify OTP
+export const verifyOtp = createAsyncThunk(
+  "auth/verifyOtp",
+  async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await verifyTokenApi(token);
+      const res = await verifyOtpApi(email, otp);
       return res.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data || {
-          message: err.message || "Invalid or expired token",
+          message: err.message || "Invalid OTP",
         }
       );
     }
   }
 );
 
-// Perform password reset using token
+// Perform password reset using otp
 export const performResetPassword = createAsyncThunk(
   "auth/performResetPassword",
-  async ({ token, password }, { rejectWithValue }) => {
+  async ({ email, password, otp }, { rejectWithValue }) => {
     try {
-      const res = await resetPasswordApi({ token, password });
+      const res = await resetPasswordApi({ email, password, otp });
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -125,6 +126,18 @@ const authSlice = createSlice({
         } catch (_) {}
       }
     },
+    logout: (state) => {
+      state.user = null;
+      state.tokens = null;
+      state.role = null;
+      state.status = "idle";
+      state.error = null;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("auth");
+        } catch (_) {}
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -135,9 +148,10 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
-        state.tokens = action.payload.tokens;
-        state.redirect = action.payload.redirect;
+        const data = action.payload.data || action.payload;
+        state.user = data.user;
+        state.tokens = data.tokens;
+        state.redirect = data.redirect;
         if (typeof window !== "undefined") {
           try {
             localStorage.setItem(
@@ -173,19 +187,19 @@ const authSlice = createSlice({
         state.forgotPasswordMessage = null;
       })
 
-      // verify reset token reducers
-      .addCase(verifyResetToken.pending, (state) => {
+      // verify otp reducers
+      .addCase(verifyOtp.pending, (state) => {
         state.verifyStatus = "loading";
         state.verifyMessage = null;
         state.error = null;
       })
-      .addCase(verifyResetToken.fulfilled, (state, action) => {
+      .addCase(verifyOtp.fulfilled, (state, action) => {
         state.verifyStatus = "succeeded";
-        state.verifyMessage = action.payload.message || "Token verified";
+        state.verifyMessage = action.payload.message || "OTP verified";
       })
-      .addCase(verifyResetToken.rejected, (state, action) => {
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.verifyStatus = "failed";
-        state.error = action.payload?.message || "Invalid or expired token";
+        state.error = action.payload?.message || "Invalid OTP";
       })
 
       // perform reset password reducers
@@ -202,9 +216,31 @@ const authSlice = createSlice({
       .addCase(performResetPassword.rejected, (state, action) => {
         state.resetStatus = "failed";
         state.error = action.payload?.message || "Failed to reset password";
+      })
+
+      // Sync with profile update
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        // action.payload contains { success: true, message: "...", data: {...} }
+        // We need to merge action.payload.data into state.user
+        const updatedUserData = action.payload.data || action.payload;
+        state.user = { ...state.user, ...updatedUserData };
+        if (typeof window !== "undefined") {
+          try {
+            const currentAuth = JSON.parse(
+              localStorage.getItem("auth") || "{}"
+            );
+            localStorage.setItem(
+              "auth",
+              JSON.stringify({
+                ...currentAuth,
+                user: state.user,
+              })
+            );
+          } catch (_) {}
+        }
       });
   },
 });
 
-export const { setUserRole } = authSlice.actions;
+export const { setUserRole, logout } = authSlice.actions;
 export default authSlice.reducer;

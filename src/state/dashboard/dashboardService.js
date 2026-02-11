@@ -23,83 +23,120 @@ export const getDashboardSummary = async () => {
   }
 };
 
-export const getTodayAppointments = async () => {
+export const getDashboardStats = async () => {
   try {
     const token = localStorage.getItem("accessToken");
-    const response = await api.get("/dashboard/today-appointments", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data; 
-  } catch (error) {
-    console.error("Error fetching today appointments:", error);
-    throw error;
-  }
-};
-
-export const getTopPerformingStylist = async () => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    const response = await api.get("/dashboard/top-stylists?limit=5", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data; 
-  } catch (error) {
-    console.error("Error fetching top performing stylist:", error);
-    throw error;
-  }
-};
-
-export const getTopSellingProducts = async () => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    const response = await api.get("/dashboard/top-selling-products?limit=5", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data; 
-  } catch (error) {
-    console.error("Error fetching top selling products:", error);
-    throw error;
-  }
-};
-
-export const getRecentActivities = async () => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    const response = await api.get("/dashboard/recent-activities", {
+    const response = await api.get("/v1/dashboard/stats", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching recent activities:", error);
+    console.error("Error fetching dashboard stats:", error);
     throw error;
   }
 };
 
-export const getBookingOverview = async ({ filter = "year", year, month }) => {
+export const getRecentOrders = async () => {
   try {
     const token = localStorage.getItem("accessToken");
-    const params = new URLSearchParams();
-    if (filter) params.append("filter", filter);
-    if (year) params.append("year", year);
-    if (filter === "month" && month) params.append("month", month);
-    const response = await api.get(`/dashboard/booking-overview/?${params.toString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.get("/v1/dashboard/recent/orders", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error("Error fetching booking overview:", error);
     throw error;
   }
-}
+};
+
+export const getRecentPayments = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const response = await api.get("/v1/dashboard/recent/payments", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching recent payments:", error);
+    throw error;
+  }
+};
+
+export const getTopCategories = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const response = await api.get("/v1/dashboard/top/categories", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching top categories:", error);
+    throw error;
+  }
+};
+
+export const getRevenueReport = async (year) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const response = await api.get(`/v1/dashboard/revenue/report?year=${year}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching revenue report:", error);
+    throw error;
+  }
+};
+
+export const getOrderStatusStats = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const response = await api.get("/v1/dashboard/order/status", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPendingSellers = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const response = await api.get("/v1/dashboard/seller/pending", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching pending sellers:", error);
+    throw error;
+  }
+};
+
+export const verifySeller = async (id, data) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const response = await api.patch(`/v1/dashboard/seller/verify/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying seller:", error);
+    throw error;
+  }
+};

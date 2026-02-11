@@ -50,13 +50,13 @@ const PoliciesPage = () => {
   };
 
   return (
-    <div className="space-y-6 pt-4">
+    <div className="space-y-6 pt-4 h-full md:h-[calc(100vh-9rem)] overflow-y-auto custom-scroll">
       {policies.map((policy) => (
         <Card
           key={policy.id}
-          className="w-full bg-white shadow-sm border border-[var(--border-admin)]"
+          className="w-full bg-white shadow-sm border border-(--border-admin)"
         >
-          <CardHeader className="flex flex-row items-center justify-between pb-1 border-b border-[var(--border-admin)]">
+          <CardHeader className="flex flex-row items-center justify-between pb-1 border-b border-(--border-admin)">
             <CardTitle className="text-lg font-bold text-black">
               {policy.title}
             </CardTitle>
@@ -65,7 +65,7 @@ const PoliciesPage = () => {
                 <Button
                   variant="outline"
                   onClick={() => handleAddData(policy.id)}
-                  className="text-primary1 border-primary1 gap-2 cursor-pointer"
+                  className="text-secondary1 border-secondary1 gap-2 cursor-pointer"
                 >
                   <Image
                     src="/assets/icon/addbutton.svg"
@@ -74,13 +74,13 @@ const PoliciesPage = () => {
                     height={18}
                     style={{ brightness: 1, invert: 0 }}
                   />
-                  <span className="text-primary1">Add Data</span>
+                  <span className="text-secondary1">Add Data</span>
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   onClick={() => handleEditData(policy.id)}
-                  className="text-primary1 border-primary1  gap-2 cursor-pointer"
+                  className="text-secondary1 border-secondary1  gap-2 cursor-pointer"
                 >
                   <Image
                     src="/assets/icon/editbutton.svg"
@@ -89,7 +89,7 @@ const PoliciesPage = () => {
                     height={18}
                     style={{ brightness: 1, invert: 0 }}
                   />
-                  <span className="text-primary1">Edit Data</span>
+                  <span className="text-secondary1">Edit Data</span>
                 </Button>
               )}
             </div>

@@ -15,7 +15,7 @@ const poppins = Poppins({
 
 export const metadata = {
   title: "KushAgro",
-  description: "Kushagro Admin Panel",
+  description: "Kushagro Admin",
 };
 
 export default function RootLayout({ children }) {
